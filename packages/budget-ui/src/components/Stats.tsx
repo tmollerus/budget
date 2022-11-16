@@ -1,12 +1,13 @@
 import React from 'react';
 import BalanceChart from './BalanceChart';
-import { ledgerData } from '../tempData';
 import { useStyles } from './Stats.styles';
 import { StatTable } from './StatTable';
 import { getStatistics } from '../utils/statistics';
+import { useBudgetContext } from '../context';
 
 export const Stats = (props: any) => {
   const classes = useStyles();
+  const { ledgerData } = useBudgetContext();
   const statistics = getStatistics(ledgerData.items, ledgerData.starting_balance);
 
   return (

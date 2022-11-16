@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { HotkeysProvider } from '@blueprintjs/core';
 import { Cell, Column, RenderMode, Table2 } from '@blueprintjs/table';
-import { ledgerData } from '../tempData';
 import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
 import { dollarFormat, getMonthAsName } from '../utils/format';
 import { netValue } from '../utils/number';
 import * as BudgetAPI from '../utils/api';
+import { useBudgetContext } from '../context';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
   const balances: Array<number> = [];
+  const { budgetYear, dailyBalances, ledgerData } = useBudgetContext();
 
   useEffect(() => {
     const getBudgetGuid = async () => {
@@ -20,6 +21,10 @@ export const Ledger = (props: any) => {
   });
 
   useEffect(() => {
+    window.document.title = `${budgetYear} Budget`;
+  }, [budgetYear]);
+
+  useEffect(() => {
     ledgerData.items.forEach((item, index) => {
       balances[index] =
         index === 0
@@ -27,7 +32,6 @@ export const Ledger = (props: any) => {
           : balances[index - 1] +
             netValue(ledgerData.items[index].amount, ledgerData.items[index].type_id);
     });
-    window.document.title = `${ledgerData.items[0].settledDate.split('-')[0]} Budget`;
   }, [ledgerData]);
 
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
@@ -47,19 +51,6 @@ export const Ledger = (props: any) => {
 
     if (index === 0 || currentDate !== previousDate) {
       return classes.firstOfDate;
-    } else {
-      return classes.date;
-    }
-  };
-  const getLastOfDateClass = (index: number) => {
-    const currentDate = ledgerData.items[index].settledDate.split('T')[0];
-    const nextDate =
-      index < ledgerData.items.length - 1
-        ? ledgerData.items[index + 1].settledDate.split('T')[0]
-        : '';
-
-    if (index < ledgerData.items.length - 1 || currentDate !== nextDate) {
-      return classes.lastOfDate;
     } else {
       return classes.date;
     }

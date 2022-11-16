@@ -1,3 +1,5 @@
+import { Dispatch, ReactNode, SetStateAction } from "react";
+
 export interface LedgerDataItem {
   dateModified: string;
   dateCreated: string;
@@ -25,4 +27,19 @@ export interface Statistics {
   expenseTotal: number;
   transferTotal: number;
   deficitDate: Date | null;
+}
+
+export type BudgetContextType = {
+  budgetYear: number;
+  setBudgetYear: Dispatch<SetStateAction<number>>;
+  budgetGuid: string;
+  setBudgetGuid: Dispatch<SetStateAction<string>>;
+  ledgerData: LedgerData;
+  setLedgerData: Dispatch<SetStateAction<LedgerData>>;
+  dailyBalances: Array<number>;
+  setDailyBalances: Dispatch<SetStateAction<Array<number>>>;
+}
+
+export type BudgetProviderProps = {
+  children?: ReactNode;
 }
