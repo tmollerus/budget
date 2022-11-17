@@ -43,3 +43,22 @@ export type BudgetContextType = {
 export type BudgetProviderProps = {
   children?: ReactNode;
 }
+
+export interface ChartData {
+  value: number;
+  now: {
+    x: number;
+    y: number;
+  }
+}
+
+export interface ChartTooltip {
+  chart: {
+    hoverPoint: ChartPoint | null
+  }
+}
+
+export interface ChartPoint {
+  x: number;
+  y: number;
+}

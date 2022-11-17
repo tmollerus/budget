@@ -22,7 +22,7 @@ export const useStyles = createUseStyles({
   sidebar: {
     width: '400px',
     minHeight: '100vh',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: COLORS.sidebar,
     backgroundImage: 'linear-gradient(to bottom, #F6F6F6, #EEE)',
     borderLeft: '1px solid #cccccc',
     boxShadow: '0px 5px 5px rgb(0 0 0 / 10%)',

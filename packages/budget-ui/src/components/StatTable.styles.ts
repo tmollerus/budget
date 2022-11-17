@@ -35,7 +35,9 @@ export const useStyles = createUseStyles({
     },
   },
   statTableTitle: {
-    fontSize: '1rem',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    paddingTop: '20px',
   },
   statTableTh: {
     fontSize: '1rem',

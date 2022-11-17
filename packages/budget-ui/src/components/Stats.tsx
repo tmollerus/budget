@@ -1,5 +1,5 @@
 import React from 'react';
-import BalanceChart from './BalanceChart';
+import { BalanceChart } from './BalanceChart';
 import { useStyles } from './Stats.styles';
 import { StatTable } from './StatTable';
 import { getStatistics } from '../utils/statistics';
@@ -24,9 +24,7 @@ export const Stats = (props: any) => {
         transferTotal={statistics.transferTotal}
         entries={ledgerData.items}
       />
-      {ledgerData.items && (
-        <BalanceChart startingBalance={ledgerData.starting_balance} entries={ledgerData.items} />
-      )}
+      {ledgerData.items && <BalanceChart />}
     </div>
   );
 };

@@ -5,6 +5,7 @@ export enum COLORS {
   logo = '#589539',
   ledgerEven = '#ecf3fe',
   ledgerHover = '#ddeedd',
+  sidebar = '#f2f2f2',
 };
 
 export const PAID_SYMBOL = '&#10003;';
