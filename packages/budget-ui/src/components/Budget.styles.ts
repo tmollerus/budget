@@ -14,19 +14,20 @@ export const useStyles = createUseStyles({
   body: {
     height: '100vh',
     flexGrow: 1,
-    padding: '20px',
+    padding: '24px 40px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
   sidebar: {
+    width: '400px',
     minHeight: '100vh',
     backgroundColor: COLORS.sidebar,
     backgroundImage: 'linear-gradient(to bottom, #F6F6F6, #EEE)',
     borderLeft: '1px solid #cccccc',
     boxShadow: '0px 5px 5px rgb(0 0 0 / 10%)',
     padding: '1.6em',
-    flexBasis: '400px',
+    flexBasis: 'auto',
     alignSelf: 'flex-end',
   }
 });
