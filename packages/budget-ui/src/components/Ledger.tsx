@@ -4,6 +4,7 @@ import {
   Cell,
   Column,
   ColumnHeaderCell2,
+  Region,
   RenderMode,
   SelectionModes,
   Table2,
@@ -13,10 +14,17 @@ import { parseDate } from '../utils/date';
 import { dollarFormat, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
 import { LedgerData } from '../types';
+import { LedgerNav } from './LedgerNav';
+import { getRegions } from '../utils/table';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
   const [searchFilter, setSearchFilter] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  let tableInstance: Table2;
+  const regionBoundaries: Array<number> = [];
+  let regions: Array<Region> = [];
+
   const { budgetYear, ledgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);
 
@@ -30,6 +38,7 @@ export const Ledger = (props: any) => {
         searchFilter.trim() === '' || item.label.toLowerCase().includes(searchFilter.toLowerCase())
       );
     });
+    regions = getRegions(filteredLedgerData.items);
   }, [searchFilter]);
 
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
@@ -61,6 +70,14 @@ export const Ledger = (props: any) => {
       <Cell className={getCellClassName(index, [classes.date])}>{`${getMonthAsName(
         settledDate.getMonth(),
       )}. ${settledDate.getDate()}`}</Cell>
+    );
+  };
+  const dateHeaderRenderer = () => {
+    return (
+      <ColumnHeaderCell2 className={classes.dateHeader}>
+        <div>Date</div>
+        {!!isAdding && <input className={classes.dateInput} type="date" name="settledDate" />}
+      </ColumnHeaderCell2>
     );
   };
   const incomeRenderer = (index: number) => {
@@ -104,41 +121,73 @@ export const Ledger = (props: any) => {
       <ColumnHeaderCell2>
         <div className={classes.memoHeader}>
           <div>Memo</div>
-          <input
-            className={classes.searchBox}
-            name="searchFilter"
-            value={searchFilter}
-            onChange={(e) => setSearchFilter(e.target.value)}
-          />
+          <div>
+            <input
+              className={classes.searchInput}
+              name="searchFilter"
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+            />
+            <button onClick={() => setIsAdding(!isAdding)}>Add</button>
+          </div>
         </div>
+        {!!isAdding && (
+          <span>
+            <input
+              className={classes.searchInput}
+              name="label"
+              value=""
+              placeholder="Description"
+            />
+            <button>Save</button>
+          </span>
+        )}
       </ColumnHeaderCell2>
     );
   };
 
+  const refHandlers = {
+    table: (ref: Table2) => (tableInstance = ref),
+  };
+
+  const scrollToMonth = (month: number) => {
+    tableInstance.scrollToRegion(regions[month]);
+  };
+
   return (
     <div className={classes.ledger}>
-      <HotkeysProvider>
-        <Table2
-          numRows={filteredLedgerData.items.length}
-          enableRowHeader={false}
-          renderMode={RenderMode.NONE}
-          columnWidths={[64, null, null, null, null, 40, 300]}
-          enableColumnResizing={false}
-          selectionModes={SelectionModes.ROWS_ONLY}
-        >
-          <Column name="Date" cellRenderer={dateRenderer} />
-          <Column name="Income" cellRenderer={incomeRenderer} />
-          <Column name="Transfer" cellRenderer={transferRenderer} />
-          <Column name="Balance" cellRenderer={balanceRenderer} />
-          <Column name="Expense" cellRenderer={expenseRenderer} />
-          <Column name="Paid" cellRenderer={paidRenderer} />
-          <Column
-            name="Memo"
-            cellRenderer={memoRenderer}
-            columnHeaderCellRenderer={memoHeaderRenderer}
-          />
-        </Table2>
-      </HotkeysProvider>
+      <div className={classes.ledgerLeft}>
+        <LedgerNav scrollToMonth={scrollToMonth} />
+      </div>
+      <div className={classes.ledgerRight}>
+        <HotkeysProvider>
+          <Table2
+            numRows={filteredLedgerData.items.length}
+            enableRowHeader={false}
+            renderMode={RenderMode.NONE}
+            columnWidths={[64, null, null, null, null, 40, 300]}
+            enableColumnResizing={false}
+            selectionModes={SelectionModes.ROWS_AND_CELLS}
+            ref={refHandlers.table}
+          >
+            <Column
+              name="Date"
+              cellRenderer={dateRenderer}
+              columnHeaderCellRenderer={dateHeaderRenderer}
+            />
+            <Column name="Income" cellRenderer={incomeRenderer} />
+            <Column name="Transfer" cellRenderer={transferRenderer} />
+            <Column name="Balance" cellRenderer={balanceRenderer} />
+            <Column name="Expense" cellRenderer={expenseRenderer} />
+            <Column name="Paid" cellRenderer={paidRenderer} />
+            <Column
+              name="Memo"
+              cellRenderer={memoRenderer}
+              columnHeaderCellRenderer={memoHeaderRenderer}
+            />
+          </Table2>
+        </HotkeysProvider>
+      </div>
     </div>
   );
 };

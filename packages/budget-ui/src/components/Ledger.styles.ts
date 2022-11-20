@@ -3,11 +3,25 @@ import { COLORS } from '../constants/theme';
 
 export const useStyles = createUseStyles({
   ledger: {
+    display: 'flex',
+    alignItems: 'stretch',
     overflowY: 'scroll',
+  },
+  ledgerLeft: {
+    width: '80px',
+    backgroundColor: '#f6f7f9',
+  },
+  ledgerRight: {
     '& .bp4-table-column-headers .bp4-table-header': {
       fontWeight: '700',
       padding: '0 4px',
       cursor: 'auto',
+      '&:hover': {
+        '&::before': {
+          backgroundColor: 'transparent',
+          pointerEvents: 'none',
+        }
+      }
     },
     '& .bp4-table-column-name-text': {
       padding: '0',
@@ -49,15 +63,30 @@ export const useStyles = createUseStyles({
     textAlign: 'right',
     color: COLORS.income,
   },
+  dateHeader: {
+    overflowX: 'visible',
+  },
   memoHeader: {
     display: 'flex',
     justifyContent: 'space-between',
   },
-  searchBox: {
-    width: '210px',
-    height: '24px',
-    margin: '4px 0px',
+  dateInput: {
+    fontFamily: 'Asap, Arial, sans-serif',
+    padding: '2px 0px',
     border: `1px solid #cccccc`,
-    borderRadius: '2px',
+    borderRadius: '3px',
+    '&:focus': {
+      outline: 'none',
+    },
+  },
+  searchInput: {
+    width: '190px',
+    height: '24px',
+    margin: '4px 4px 4px 0px',
+    border: `1px solid #cccccc`,
+    borderRadius: '3px',
+    '&:focus': {
+      outline: 'none',
+    },
   },
 });
