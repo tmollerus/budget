@@ -119,15 +119,6 @@ export const BalanceChart = () => {
     });
   };
 
-  interface Point {
-    x: number;
-    y: number;
-  }
-
-  const pointFormatter = (point: Point) => {
-    return `${point.x}<br/>${dollarFormat(point.y.toString().replace(' ', ''))}`;
-  };
-
   const getLowestBalance = (entries: Array<LedgerDataItem>) => {
     let currentTotal = ledgerData.starting_balance,
       lowestBalance = 0;
