@@ -16,7 +16,7 @@ export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => 
       }
 
       if (lowerBoundary && upperBoundary) {
-        regions.push(Regions.row(lowerBoundary, upperBoundary));
+        regions.push(Regions.row(lowerBoundary === 1 ? 0 : lowerBoundary, upperBoundary));
         lowerBoundary = undefined;
         upperBoundary = undefined;
       }
@@ -29,6 +29,6 @@ export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => 
   });
 
   regions.push(Regions.row(regions[regions.length - 1].rows?.[1]! + 1, ledgerData.length - 1));
-
+  console.log(regions);
   return regions;
 }

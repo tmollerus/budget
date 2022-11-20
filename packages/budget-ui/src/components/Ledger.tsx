@@ -165,7 +165,7 @@ export const Ledger = (props: any) => {
             numRows={filteredLedgerData.items.length}
             enableRowHeader={false}
             renderMode={RenderMode.NONE}
-            columnWidths={[64, null, null, null, null, 40, 300]}
+            columnWidths={[64, 80, 80, 100, 80, 40, 340]}
             enableColumnResizing={false}
             selectionModes={SelectionModes.ROWS_AND_CELLS}
             ref={refHandlers.table}

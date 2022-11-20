@@ -9,6 +9,7 @@ export const useStyles = createUseStyles({
   },
   ledgerLeft: {
     width: '80px',
+    minWidth: '80px',
     backgroundColor: '#f6f7f9',
   },
   ledgerRight: {
