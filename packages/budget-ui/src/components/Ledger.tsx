@@ -16,14 +16,15 @@ import { useBudgetContext } from '../context';
 import { LedgerData } from '../types';
 import { LedgerNav } from './LedgerNav';
 import { getRegions } from '../utils/table';
+// import { useParams } from 'react-router-dom';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
   const [searchFilter, setSearchFilter] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   let tableInstance: Table2;
-  const regionBoundaries: Array<number> = [];
   let regions: Array<Region> = [];
+  // let { year } = useParams();
 
   const { budgetYear, ledgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);

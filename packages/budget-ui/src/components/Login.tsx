@@ -1,20 +1,29 @@
-import React from 'react';
+import { Footer } from './Footer';
+import { Logo } from './Logo';
 import { useStyles } from './Login.styles';
+import { useHistory } from 'react-router-dom';
 
 export const Login = (props: any) => {
   const classes = useStyles();
-  const login = async () => {
-    await props.oktaAuth.signInWithRedirect();
+  const history = useHistory();
+
+  const login = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    history.push('/');
   };
 
   return (
-    <header className={classes.header}>
-      <div className={classes.appName}>
-        <img src="/img/icon.16f0c995.png" className={classes.logo} alt="" />
-        <h1 className={classes.name}>Budget</h1>
-      </div>
+    <div className={classes.wrapper}>
+      <div className={classes.dialog}>
+        <Logo />
 
-      <button onClick={login}>Log In</button>
-    </header>
+        <p>You must be authenticated in order to access this site.</p>
+
+        <button className={classes.button} onClick={(e) => login(e)}>
+          Authenticate
+        </button>
+      </div>
+      <Footer />
+    </div>
   );
 };

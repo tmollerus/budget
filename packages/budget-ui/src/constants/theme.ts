@@ -1,4 +1,5 @@
 export enum COLORS {
+  dialog = '#ffffff',
   text = '#444444',
   expense = '#990000',
   income = '#009900',

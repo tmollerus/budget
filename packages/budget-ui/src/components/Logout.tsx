@@ -1,15 +1,23 @@
-import React from 'react';
+import { Footer } from './Footer';
+import { Logo } from './Logo';
 import { useStyles } from './Logout.styles';
+import { Link } from 'react-router-dom';
 
-export const Logout = (props: any) => {
+export const Logout = () => {
   const classes = useStyles();
 
+  const login = () => {};
+
   return (
-    <header className={classes.header}>
-      <div className={classes.appName}>
-        <img src="/img/icon.16f0c995.png" className={classes.logo} alt="" />
-        <h1 className={classes.name}>Budget</h1>
+    <div className={classes.wrapper}>
+      <div className={classes.dialog}>
+        <Logo />
+
+        <p>
+          You have been logged out from the site. You may <Link to="/login">log in</Link> again.
+        </p>
       </div>
-    </header>
+      <Footer />
+    </div>
   );
 };
