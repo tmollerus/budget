@@ -2,6 +2,7 @@ import { useStyles } from './LedgerNav.styles';
 import { useBudgetContext } from '../context';
 import { getMonthAsName } from '../utils/format';
 import { useState } from 'react';
+import { Icon } from '@blueprintjs/core';
 
 export const LedgerNav = (props: any) => {
   const classes = useStyles();
@@ -30,10 +31,10 @@ export const LedgerNav = (props: any) => {
 
   return (
     <div className={classes.ledgerNav}>
-      <div className={classes.year}>
-        <a href={`/year/${prevBudgetYear}`} onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}>&lt;</a>
-        {budgetYear}
-        <a href={`/year/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}>&gt;</a>
+      <div className={classes.yearNav}>
+        <a href={`/year/${prevBudgetYear}`} onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}><Icon icon="caret-left" /></a>
+        <span className={classes.year}>{budgetYear}</span>
+        <a href={`/year/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
       </div>
       {getMonthNavFor(0)}
       {getMonthNavFor(1)}

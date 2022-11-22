@@ -8,11 +8,20 @@ export const useStyles = createUseStyles({
     height: '-webkit-fill-available',
     textAlign: 'center',
   },
-  year: {
+  yearNav: {
     flexBasis: 'auto',
     lineHeight: '30px',
     fontSize: '14px',
     fontWeight: '700',
+    '& a': {
+      color: COLORS.text,
+      '&:focus': {
+        outline: 'none',
+      },
+    },
+  },
+  year: {
+    padding: '0px 1px',
   },
   month: {
     display: 'flex',
