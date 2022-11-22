@@ -8,6 +8,7 @@ import {
   RenderMode,
   SelectionModes,
   Table2,
+  TableLoadingOption,
 } from '@blueprintjs/table';
 import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
@@ -24,6 +25,7 @@ export const Ledger = (props: any) => {
   const classes = useStyles();
   const [searchFilter, setSearchFilter] = useState('');
   const [itemToDelete, setItemToDelete] = useState<number>();
+  const [isBudgetLoading, setIsBudgetLoading] = useState<boolean>(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   let tableInstance: Table2;
@@ -48,7 +50,9 @@ export const Ledger = (props: any) => {
       newLedgerData.items = updateItemBalances(newLedgerData);
       setLedgerData(newLedgerData);
     }
+    setIsBudgetLoading(true);
     loadData();
+    setIsBudgetLoading(false);
     window.document.title = `${budgetYear} Budget`;
   }, [budgetYear]);
 
@@ -174,6 +178,16 @@ export const Ledger = (props: any) => {
     );
   };
 
+  const getLoadingOptions = (): TableLoadingOption[] => {
+    const loadingOptions: TableLoadingOption[] = [];
+
+    if (isBudgetLoading) {
+        loadingOptions.push(TableLoadingOption.CELLS);
+    }
+
+    return loadingOptions;
+  };
+
   const refHandlers = {
     table: (ref: Table2) => (tableInstance = ref),
   };
@@ -221,6 +235,7 @@ export const Ledger = (props: any) => {
             columnWidths={[64, 80, 80, 100, 80, 40, 340]}
             enableColumnResizing={false}
             selectionModes={SelectionModes.ROWS_AND_CELLS}
+            loadingOptions={getLoadingOptions()}
             ref={refHandlers.table}
           >
             <Column

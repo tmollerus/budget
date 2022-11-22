@@ -3,9 +3,11 @@ import { useBudgetContext } from '../context';
 import { getMonthAsName } from '../utils/format';
 import { useState } from 'react';
 import { Icon } from '@blueprintjs/core';
+import { useHistory } from 'react-router-dom';
 
 export const LedgerNav = (props: any) => {
   const classes = useStyles();
+  const history = useHistory();
   const { budgetYear, setBudgetYear } = useBudgetContext();
   const [ prevBudgetYear, setPrevBudgetYear ] = useState<number>(budgetYear - 1);
   const [ nextBudgetYear, setNextBudgetYear ] = useState<number>(budgetYear + 1);
@@ -25,6 +27,7 @@ export const LedgerNav = (props: any) => {
   const changeBudgetYear = (e: React.MouseEvent, year: number) => {
     e.preventDefault();
     setBudgetYear(year);
+    history.push(`/year/${year}`);
     setPrevBudgetYear(year - 1);
     setNextBudgetYear(year + 1);
   };

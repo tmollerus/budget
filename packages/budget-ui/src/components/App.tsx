@@ -9,8 +9,8 @@ export const App = () => {
     <BudgetContextProvider>
       <Router>
         <Switch>
-          <Route path="/login" exact={true} component={Login} />
-          <Route path="/logout" exact={true} component={Logout} />
+          <Route path="/auth/login" exact={true} component={Login} />
+          <Route path="/auth/logout" exact={true} component={Logout} />
           <Route path="/year/:year" exact={true} component={Budget} />
           <Route
             path="/"
