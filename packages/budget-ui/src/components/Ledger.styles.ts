@@ -35,6 +35,7 @@ export const useStyles = createUseStyles({
       '&$firstOfDate': {
         borderTop: '1px solid #bababa',
       },
+      cursor: 'pointer',
     },
   },
   even: {
@@ -70,6 +71,19 @@ export const useStyles = createUseStyles({
   memoHeader: {
     display: 'flex',
     justifyContent: 'space-between',
+  },
+  memo: {
+    '& .bp4-table-truncated-text': {
+      display: 'flex',
+      justifyContent: 'space-between',
+      '&:hover $delete': {
+        visibility: 'visible',
+      }
+    },
+  },
+  delete: {
+    visibility: 'hidden',
+      color: COLORS.expense,
   },
   dateInput: {
     fontFamily: 'Asap, Arial, sans-serif',

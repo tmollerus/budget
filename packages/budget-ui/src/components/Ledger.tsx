@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { HotkeysProvider } from '@blueprintjs/core';
+import { Button, Dialog, HotkeysProvider, Icon, Intent } from '@blueprintjs/core';
 import {
   Cell,
   Column,
@@ -13,20 +13,23 @@ import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
 import { dollarFormat, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
-import { LedgerData } from '../types';
+import { LedgerData, LedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
 import { getRegions } from '../utils/table';
+import { Toaster } from './Toaster';
 // import { useParams } from 'react-router-dom';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
   const [searchFilter, setSearchFilter] = useState('');
+  const [itemToDelete, setItemToDelete] = useState<number>();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   let tableInstance: Table2;
   let regions: Array<Region> = [];
   // let { year } = useParams();
 
-  const { budgetYear, ledgerData } = useBudgetContext();
+  const { budgetYear, ledgerData, setLedgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);
 
   useEffect(() => {
@@ -114,7 +117,15 @@ export const Ledger = (props: any) => {
   };
   const memoRenderer = (index: number) => {
     return (
-      <Cell className={getCellClassName(index)}>{filteredLedgerData.items[index]?.label}</Cell>
+      <Cell className={getCellClassName(index, [classes.memo])}>
+        <span>{filteredLedgerData.items[index]?.label}</span>
+        <Icon
+          className={classes.delete}
+          icon="ban-circle"
+          size={12}
+          onClick={() => confirmDeletion(index)}
+        />
+      </Cell>
     );
   };
   const memoHeaderRenderer = () => {
@@ -155,6 +166,31 @@ export const Ledger = (props: any) => {
     tableInstance.scrollToRegion(regions[month]);
   };
 
+  const confirmDeletion = (index: number) => {
+    setItemToDelete(index);
+    openDeleteDialog();
+  };
+
+  const deleteItem = () => {
+    setIsDeleteDialogOpen(false);
+    if (itemToDelete) {
+      const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
+      setLedgerData(ledgerData);
+      Toaster.show({
+        message: `Item '${deletedItem.label}' has been deleted`,
+        intent: Intent.SUCCESS,
+        icon: 'tick-circle',
+      });
+    }
+    setItemToDelete(undefined);
+  };
+
+  const openDeleteDialog = () => setIsDeleteDialogOpen(true);
+  const closeDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setItemToDelete(undefined);
+  };
+
   return (
     <div className={classes.ledger}>
       <div className={classes.ledgerLeft}>
@@ -189,6 +225,21 @@ export const Ledger = (props: any) => {
           </Table2>
         </HotkeysProvider>
       </div>
+      <Dialog
+        isOpen={isDeleteDialogOpen && !!itemToDelete}
+        title="Confirm deletion"
+        onClose={closeDeleteDialog}
+      >
+        <div>
+          <p>Are you sure you would like to delete this item?</p>
+        </div>
+        <div>
+          <div>
+            <Button text="Cancel" intent={Intent.NONE} onClick={closeDeleteDialog} />
+            <Button text="Delete" intent={Intent.DANGER} icon="trash" onClick={deleteItem} />
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };
