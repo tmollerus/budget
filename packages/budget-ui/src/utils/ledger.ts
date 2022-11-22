@@ -39,12 +39,10 @@ export const netValue = (amount: number, typeId: number): number => {
 };
 
 export const updateItemBalances = (ledgerData: LedgerData): Array<LedgerDataItem> => {
+  let balance = ledgerData.starting_balance;
+
   return ledgerData.items.map((item: LedgerDataItem, index: number) => {
-    const balance =
-      index === 0
-        ? ledgerData.starting_balance
-        : (ledgerData.items[index - 1].balance || 0) +
-          netValue(ledgerData.items[index].amount, ledgerData.items[index].type_id);
-    return Object.assign(item, balance);
+    balance += netValue(ledgerData.items[index].amount, ledgerData.items[index].type_id);
+    return Object.assign(item, { balance });
   });
 };

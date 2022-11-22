@@ -37,7 +37,7 @@ export const BalanceChart = () => {
         formatter: function (tooltip: ChartTooltip) {
           return `${dateFormat(
             getDateFromDayOfYear(new Date().getFullYear(), tooltip.chart.hoverPoint?.x || 1),
-          )}<br/>${dollarFormat(tooltip.chart.hoverPoint?.y.toString().replace(' ', '') || 100)}`;
+          )}<br/>${dollarFormat(tooltip.chart.hoverPoint?.y || 100)}`;
         },
         borderColor: '#999999',
       },

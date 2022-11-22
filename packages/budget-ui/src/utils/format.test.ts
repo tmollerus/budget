@@ -12,7 +12,6 @@ import { delimitNumbers, dollarFormat, getDayOfYear, getEntryBalance, getEntryEx
 // });
 
 test('dollarFormat', () => {
-  expect(dollarFormat(null)).toBe('$0.00');
   expect(dollarFormat(10.35)).toBe('$10.35');
   expect(dollarFormat(1800.35, false)).toBe('$1800.35');
   expect(dollarFormat(1800.35, true)).toBe('$1,800.35');

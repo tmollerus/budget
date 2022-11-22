@@ -85,7 +85,7 @@ export const Ledger = (props: any) => {
   const dateRenderer = (index: number) => {
     const settledDate = parseDate(
       filteredLedgerData.items[index]?.settledDate.split('T')[0],
-    ); console.log(filteredLedgerData.items[index]?.settledDate, settledDate);
+    );
     return (
       <Cell className={getCellClassName(index, [classes.date])}>{`${getMonthAsName(
         settledDate.getMonth(),
@@ -122,7 +122,7 @@ export const Ledger = (props: any) => {
     return <Cell className={getCellClassName(index, [classes.expense])}>{amount}</Cell>;
   };
   const balanceRenderer = (index: number) => {
-    const balance = filteredLedgerData.items[index]?.balance || 0;
+    const balance = filteredLedgerData.items[index]?.balance || 5;
     return (
       <Cell className={getCellClassName(index, [classes.income])}>{dollarFormat(balance)}</Cell>
     );

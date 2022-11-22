@@ -24,9 +24,9 @@ export const dateFormat = (date: Date | string | null, format?: string): string 
   return npmDateFormat.default(date, format);
 }
 
-export const dollarFormat = (amount: number | string | null, separators?: boolean, decimals?: boolean, allowNegative?: boolean): string => {
-  let originalAmount = Number(amount) || 0;
-  amount = Math.abs(Number(amount)) || 0;
+export const dollarFormat = (amount: number, separators?: boolean, decimals?: boolean, allowNegative?: boolean): string => {
+  let originalAmount = amount;
+  amount = Math.abs(amount);
   if (separators === undefined) {
     separators = true;
   }
@@ -37,13 +37,7 @@ export const dollarFormat = (amount: number | string | null, separators?: boolea
     allowNegative = false;
   }
 
-  if (decimals) {
-    amount = amount.toFixed(2);
-  } else {
-    amount = amount.toFixed(0);
-  }
-
-  let result = "$" + amount;
+  let result = "$" + amount.toFixed(decimals ? 2 : 0);
   if (separators) {
     result = delimitNumbers(result);
   }
@@ -118,7 +112,7 @@ export const getEntryTransfer = (entry: LedgerDataItem): string | void => {
 };
 
 export const getEntryBalance = (entryBalance: number | string): string => {
-  return dollarFormat(entryBalance, true, true, true);
+  return dollarFormat(Number(entryBalance), true, true, true);
 };
 
 export const getEntryExpense = (entry: LedgerDataItem): string | void => {
