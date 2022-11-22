@@ -1,10 +1,13 @@
 import { useStyles } from './LedgerNav.styles';
 import { useBudgetContext } from '../context';
 import { getMonthAsName } from '../utils/format';
+import { useState } from 'react';
 
 export const LedgerNav = (props: any) => {
   const classes = useStyles();
-  const { budgetYear } = useBudgetContext();
+  const { budgetYear, setBudgetYear } = useBudgetContext();
+  const [ prevBudgetYear, setPrevBudgetYear ] = useState<number>(budgetYear - 1);
+  const [ nextBudgetYear, setNextBudgetYear ] = useState<number>(budgetYear + 1);
 
   const scrollToMonth = (month: number) => {
     props.scrollToMonth(month);
@@ -18,9 +21,20 @@ export const LedgerNav = (props: any) => {
     );
   };
 
+  const changeBudgetYear = (e: React.MouseEvent, year: number) => {
+    e.preventDefault();
+    setBudgetYear(year);
+    setPrevBudgetYear(year - 1);
+    setNextBudgetYear(year + 1);
+  };
+
   return (
     <div className={classes.ledgerNav}>
-      <div className={classes.year}>&lt; {budgetYear} &gt;</div>
+      <div className={classes.year}>
+        <a href={`/year/${prevBudgetYear}`} onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}>&lt;</a>
+        {budgetYear}
+        <a href={`/year/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}>&gt;</a>
+      </div>
       {getMonthNavFor(0)}
       {getMonthNavFor(1)}
       {getMonthNavFor(2)}

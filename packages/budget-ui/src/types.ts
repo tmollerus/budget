@@ -1,5 +1,9 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
+export interface BudgetAuthResponse {
+  budgetGUID: string;
+}
+
 export interface LedgerDataItem {
   dateModified: string;
   dateCreated: string;
@@ -36,8 +40,6 @@ export type BudgetContextType = {
   setBudgetGuid: Dispatch<SetStateAction<string>>;
   ledgerData: LedgerData;
   setLedgerData: Dispatch<SetStateAction<LedgerData>>;
-  dailyBalances: Array<number>;
-  setDailyBalances: Dispatch<SetStateAction<Array<number>>>;
 }
 
 export type BudgetProviderProps = {

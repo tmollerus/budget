@@ -18,7 +18,9 @@ export const BalanceChart = () => {
   const classes = useStyles();
 
   useEffect(() => {
-    updateChart(ledgerData.items);
+    if (ledgerData) {
+      updateChart(ledgerData.items);
+    }
   }, [ledgerData]);
 
   const updateChart = (entries: Array<LedgerDataItem>) => {
@@ -120,8 +122,8 @@ export const BalanceChart = () => {
   };
 
   const getLowestBalance = (entries: Array<LedgerDataItem>) => {
-    let currentTotal = ledgerData.starting_balance,
-      lowestBalance = 0;
+    let currentTotal = ledgerData?.starting_balance || 0;
+    let lowestBalance = 0;
 
     if (entries) {
       entries.forEach(function (entry: LedgerDataItem) {
@@ -137,7 +139,8 @@ export const BalanceChart = () => {
 
   const getPlotLine = (entries: Array<LedgerDataItem>) => {
     let today = new Date();
-    return entries[0].settledDate.split('-')[0] !== String(today.getFullYear())
+    
+    return (entries[0]?.settledDate?.split('-')[0] || '0') !== String(today.getFullYear())
       ? null
       : [
           {
@@ -155,7 +158,7 @@ export const BalanceChart = () => {
 
   const getGraphData = (entries: Array<LedgerDataItem>) => {
     const data = [];
-    let currentTotal = ledgerData.starting_balance;
+    let currentTotal = ledgerData?.starting_balance || 0;
     let currentDay: number = 0;
 
     if (entries) {

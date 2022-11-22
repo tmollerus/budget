@@ -10,18 +10,16 @@ function Budget() {
   const classes = useStyles();
 
   return (
-    <BudgetContextProvider>
-      <div className={classes.wrapper}>
-        <div className={classes.body}>
-          <Header />
-          <Ledger />
-          <Footer />
-        </div>
-        <div className={classes.sidebar}>
-          <Stats />
-        </div>
+    <div className={classes.wrapper}>
+      <div className={classes.body}>
+        <Header />
+        <Ledger />
+        <Footer />
       </div>
-    </BudgetContextProvider>
+      <div className={classes.sidebar}>
+        <Stats />
+      </div>
+    </div>
   );
 }
 

@@ -1,65 +1,51 @@
 import { BUDGET_API } from '../constants/budgetApi';
 import { OKTA } from '../constants/okta';
-import { LedgerDataItem } from '../types';
+import { BudgetAuthResponse, LedgerData } from '../types';
 
-export const getBudgetGuid = async () => {
-  const response = await fetch(`https://${BUDGET_API.HOST}/auth/login/`, {
+export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
+  return fetch(`${BUDGET_API.HOST}/v1/auth/login/`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },
+  }).then(response => {
+    if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+    }
+    return response.json();
   });
+};
 
-  const {data, errors} = await response.json();
-
-  if (response.ok) {
+export const getBudget = async (budgetGUID: string, year: string): Promise<LedgerData> => {
+  return fetch(`${BUDGET_API.HOST}/v1/budgets/${budgetGUID}/?year=${year}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
     return data;
-  } else {
-    const error = new Error(errors?.map((e: any) => e.message).join('\n') ?? 'unknown');
-    return Promise.reject(error);
-  }
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
 };
 
-export const getBudget = async (budgetGUID: string, year: string) => {
-  const response = await fetch(`https://${BUDGET_API.HOST}/budgets/${budgetGUID}/?year=${year}`, {
+export const getBudgetItems = async (budgetGUID: string, year: string) => {
+  return fetch(`${BUDGET_API.HOST}/v1/budgets/${budgetGUID}/items/?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
   });
-
-  const {data, errors} = await response.json();
-
-  if (response.ok) {
-    return JSON.parse(data).map((item: LedgerDataItem) => {
-      item.settledDate = item.settledDate.split("T")[0];
-      return item;
-    });
-  } else {
-    const error = new Error(errors?.map((e: any) => e.message).join('\n') ?? 'unknown');
-    return Promise.reject(error);
-  }
-};
-
-export const getEntries = async (budgetGUID: string, year: string) => {
-  const response = await fetch(`https://${BUDGET_API.HOST}/budgets/${budgetGUID}/items/?year=${year}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${getAuthorization()}`,
-    },
-  });
-
-  const {data, errors} = await response.json();
-
-  if (response.ok) {
-    return JSON.parse(data).map((item: LedgerDataItem) => {
-      item.settledDate = item.settledDate.split("T")[0];
-      return item;
-    });
-  } else {
-    const error = new Error(errors?.map((e: any) => e.message).join('\n') ?? 'unknown');
-    return Promise.reject(error);
-  }
 };
 
 // createEntry(budgetGUID, entry, callback) {

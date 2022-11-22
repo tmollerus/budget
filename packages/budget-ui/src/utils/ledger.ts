@@ -1,5 +1,5 @@
 import { Region, Regions } from "@blueprintjs/table";
-import { LedgerDataItem } from "../types";
+import { LedgerData, LedgerDataItem } from "../types";
 
 export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => {
   const regions: Array<Region> = [];
@@ -28,7 +28,23 @@ export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => 
     return 
   });
 
-  regions.push(Regions.row(regions[regions.length - 1].rows?.[1]! + 1, ledgerData.length - 1));
-  console.log(regions);
+  if (regions.length) {
+    regions.push(Regions.row(regions[regions.length - 1].rows?.[1]! + 1, ledgerData.length - 1));
+  }
   return regions;
 }
+
+export const netValue = (amount: number, typeId: number): number => {
+  return typeId === 1 ? amount : -amount;
+};
+
+export const updateItemBalances = (ledgerData: LedgerData): Array<LedgerDataItem> => {
+  return ledgerData.items.map((item: LedgerDataItem, index: number) => {
+    const balance =
+      index === 0
+        ? ledgerData.starting_balance
+        : (ledgerData.items[index - 1].balance || 0) +
+          netValue(ledgerData.items[index].amount, ledgerData.items[index].type_id);
+    return Object.assign(item, balance);
+  });
+};

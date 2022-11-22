@@ -6,6 +6,7 @@ export const useStyles = createUseStyles({
     display: 'flex',
     alignItems: 'stretch',
     overflowY: 'scroll',
+    height: '100%',
   },
   ledgerLeft: {
     width: '80px',

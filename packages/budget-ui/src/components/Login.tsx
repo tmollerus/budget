@@ -2,14 +2,24 @@ import { Footer } from './Footer';
 import { Logo } from './Logo';
 import { useStyles } from './Login.styles';
 import { useHistory } from 'react-router-dom';
+import { getBudgetGuid } from '../utils/api';
+import { useBudgetContext } from '../context';
+import { BudgetAuthResponse } from '../types';
 
 export const Login = (props: any) => {
   const classes = useStyles();
   const history = useHistory();
+  const { setBudgetGuid, setBudgetYear } = useBudgetContext();
 
-  const login = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const login = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    history.push('/');
+    const budgetGuid: BudgetAuthResponse = await getBudgetGuid();
+    await setBudgetGuid(budgetGuid.budgetGUID);
+    const budgetYear = new Date().getFullYear();
+    await setBudgetYear(budgetYear);
+    // const ledgerData = await getBudgetItems(budgetGuid.budgetGUID, String(budgetYear));
+    // await setLedgerData(ledgerData);
+    history.push(`/year/${budgetYear}`);
   };
 
   return (

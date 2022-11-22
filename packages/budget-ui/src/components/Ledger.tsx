@@ -15,7 +15,8 @@ import { dollarFormat, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
 import { LedgerData, LedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
-import { getRegions } from '../utils/table';
+import { getRegions, updateItemBalances } from '../utils/ledger';
+import { getBudgetItems } from '../utils/api';
 import { Toaster } from './Toaster';
 // import { useParams } from 'react-router-dom';
 
@@ -29,10 +30,25 @@ export const Ledger = (props: any) => {
   let regions: Array<Region> = [];
   // let { year } = useParams();
 
-  const { budgetYear, ledgerData, setLedgerData } = useBudgetContext();
+  const { budgetGuid, budgetYear, ledgerData, setLedgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);
 
+  // useEffect(() => {
+  //   async function loadData() {
+  //     console.log('loading ledger data');
+  //     const ledgerData = await getBudgetItems(budgetGuid, String(budgetYear));
+  //     await setLedgerData(ledgerData);
+  //   }
+  //   loadData();
+  // }, []);
+
   useEffect(() => {
+    async function loadData() {
+      const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
+      newLedgerData.items = updateItemBalances(newLedgerData);
+      setLedgerData(newLedgerData);
+    }
+    loadData();
     window.document.title = `${budgetYear} Budget`;
   }, [budgetYear]);
 
@@ -43,7 +59,7 @@ export const Ledger = (props: any) => {
       );
     });
     regions = getRegions(filteredLedgerData.items);
-  }, [searchFilter]);
+  }, [ledgerData, searchFilter]);
 
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
     const className = index % 2 ? classes.even : undefined;
@@ -68,8 +84,8 @@ export const Ledger = (props: any) => {
   };
   const dateRenderer = (index: number) => {
     const settledDate = parseDate(
-      filteredLedgerData.items[index]?.settledDate || filteredLedgerData.items[index]?.dateCreated,
-    );
+      filteredLedgerData.items[index]?.settledDate.split('T')[0],
+    ); console.log(filteredLedgerData.items[index]?.settledDate, settledDate);
     return (
       <Cell className={getCellClassName(index, [classes.date])}>{`${getMonthAsName(
         settledDate.getMonth(),
