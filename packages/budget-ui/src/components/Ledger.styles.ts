@@ -78,6 +78,7 @@ export const useStyles = createUseStyles({
     '& .bp4-table-truncated-text': {
       display: 'flex',
       justifyContent: 'space-between',
+      alignItems: 'center',
       '&:hover $delete': {
         visibility: 'visible',
       }

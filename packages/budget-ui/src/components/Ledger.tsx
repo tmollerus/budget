@@ -133,7 +133,7 @@ export const Ledger = (props: any) => {
         <span>{filteredLedgerData.items[index]?.label}</span>
         <Icon
           className={classes.delete}
-          icon="ban-circle"
+          icon="delete"
           size={12}
           onClick={() => confirmDeletion(index)}
         />
