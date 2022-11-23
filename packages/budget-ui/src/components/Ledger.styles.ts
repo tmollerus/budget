@@ -14,6 +14,7 @@ export const useStyles = createUseStyles({
     backgroundColor: '#f6f7f9',
   },
   ledgerRight: {
+    width: '100%',
     '& .bp4-table-column-headers .bp4-table-header': {
       fontWeight: '700',
       padding: '0 4px',

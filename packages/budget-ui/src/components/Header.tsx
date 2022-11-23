@@ -20,7 +20,7 @@ const Header = (props: any) => {
           Logged in as:
           <br />
           <span className={classes.userName}>Tom Mollerus</span>
-          <Link className={classes.logout} to="/logout">
+          <Link className={classes.logout} to="/auth/logout">
             <Icon icon="log-out" size={12} />
           </Link>
         </div>

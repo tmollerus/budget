@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { createRef, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Button, Dialog, HotkeysProvider, Icon, Intent } from '@blueprintjs/core';
 import {
   Cell,
@@ -28,21 +28,13 @@ export const Ledger = (props: any) => {
   const [isBudgetLoading, setIsBudgetLoading] = useState<boolean>(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [ledgerRightWidth, setLedgerRightWidth] = useState(0);
+  let ledgerRightInstance = createRef<HTMLDivElement>();
   let tableInstance: Table2;
   let regions: Array<Region> = [];
-  // let { year } = useParams();
 
   const { budgetGuid, budgetYear, ledgerData, setLedgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);
-
-  // useEffect(() => {
-  //   async function loadData() {
-  //     console.log('loading ledger data');
-  //     const ledgerData = await getBudgetItems(budgetGuid, String(budgetYear));
-  //     await setLedgerData(ledgerData);
-  //   }
-  //   loadData();
-  // }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -188,6 +180,19 @@ export const Ledger = (props: any) => {
     return loadingOptions;
   };
 
+  useEffect(() => {
+    window.addEventListener("resize", getColumnWidths);
+  }, []);
+
+  useLayoutEffect(() => {
+    setLedgerRightWidth(ledgerRightInstance?.current?.offsetWidth || 0);
+  });
+
+  const getColumnWidths = (): Array<number> => {
+    const labelWidth = ledgerRightWidth - 444;
+    return [64, 80, 80, 100, 80, 40, labelWidth];
+  }
+
   const refHandlers = {
     table: (ref: Table2) => (tableInstance = ref),
   };
@@ -226,13 +231,13 @@ export const Ledger = (props: any) => {
       <div className={classes.ledgerLeft}>
         <LedgerNav scrollToMonth={scrollToMonth} />
       </div>
-      <div className={classes.ledgerRight}>
+      <div className={classes.ledgerRight} ref={ledgerRightInstance}>
         <HotkeysProvider>
           <Table2
             numRows={filteredLedgerData.items.length}
             enableRowHeader={false}
             renderMode={RenderMode.NONE}
-            columnWidths={[64, 80, 80, 100, 80, 40, 340]}
+            columnWidths={getColumnWidths()}
             enableColumnResizing={false}
             selectionModes={SelectionModes.ROWS_AND_CELLS}
             loadingOptions={getLoadingOptions()}

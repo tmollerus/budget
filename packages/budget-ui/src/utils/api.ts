@@ -129,6 +129,8 @@ export const getAuthorization = () => {
 
   if (oktaTokenStorage.accessToken) {
     return oktaTokenStorage.accessToken.accessToken;
+  } else {
+    throw new Error('No auth token exists in sessionStorage');
   }
 };
 
@@ -137,5 +139,7 @@ export const getIdentification = () => {
 
   if (oktaTokenStorage.idToken) {
     return oktaTokenStorage.idToken.claims;
+  } else {
+    throw new Error('No ID token exists in sessionStorage');
   }
 };
