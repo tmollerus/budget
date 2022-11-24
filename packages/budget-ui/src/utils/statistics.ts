@@ -14,7 +14,7 @@ export const getStatistics = (entries: Array<LedgerDataItem>, startingBalance: n
   };
 
   entries.forEach(function(entry) {
-    date = new Date(Date.parse(entry.settledDate));
+    date = new Date(Date.parse(entry.settledDate.split('T')[0]));
     // If the entry is in the current month and is an expense
     if (
       date.getMonth() === today.getMonth() &&

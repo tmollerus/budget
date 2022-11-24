@@ -20,7 +20,7 @@ import Logout from './Logout';
   });
 
   const customAuthHandler = (oktaAuth: OktaAuth) => {
-    history.push('/login');
+    history.push(APP.ROUTES.LOGIN);
   };
   
   const restoreOriginalUri = async (_oktaAuth: OktaAuth, originalUri: string) => {

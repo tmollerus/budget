@@ -263,7 +263,7 @@ export const Ledger = (props: any) => {
             renderMode={RenderMode.NONE}
             columnWidths={getColumnWidths()}
             enableColumnResizing={false}
-            selectionModes={SelectionModes.ROWS_AND_CELLS}
+            selectionModes={SelectionModes.NONE}
             cellRendererDependencies={[filteredLedgerData]}
             loadingOptions={getLoadingOptions()}
             ref={refHandlers.table}

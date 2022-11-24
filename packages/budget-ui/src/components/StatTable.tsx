@@ -1,23 +1,19 @@
 import { dateFormat, dollarFormat, getIncomeClass } from '../utils/format';
 import { STAT_PLACEHOLDER } from '../constants/theme';
-import { LedgerDataItem } from '../types';
+import { Statistics } from '../types';
 import { useStyles } from './StatTable.styles';
+import { useBudgetContext } from '../context';
+import { useEffect, useState } from 'react';
+import { getStatistics } from '../utils/statistics';
 
-interface Props {
-  yearEnd: number;
-  year: number;
-  deficitDate: any;
-  today: number;
-  startingBalance: number;
-  expensesLeft: number;
-  incomeTotal: number;
-  expenseTotal: number;
-  transferTotal: number;
-  entries: Array<LedgerDataItem>;
-}
-
-export const StatTable = (props: Props) => {
+export const StatTable = () => {
   const classes = useStyles();
+  const [statistics, setStatistics] = useState<Statistics>();
+  const { budgetYear, ledgerData } = useBudgetContext();
+
+  useEffect(() => {
+    setStatistics(getStatistics(ledgerData.items, ledgerData.starting_balance));
+  }, [ledgerData]);
 
   const getFormattedAmount = (amount: number, suffix?: string, allowZero?: boolean) => {
     suffix = suffix || '';
@@ -31,15 +27,15 @@ export const StatTable = (props: Props) => {
   };
 
   const getOutlook = () => {
-    if (props.deficitDate) {
-      return `Deficit by ${dateFormat(props.deficitDate)}`;
+    if (statistics?.deficitDate) {
+      return `Deficit by ${dateFormat(statistics.deficitDate)}`;
     } else {
-      return `Surplus through ${props.year}`;
+      return `Surplus through ${budgetYear}`;
     }
   };
 
   const showDataOrPlaceholder = (data: any) => {
-    if (props.yearEnd) {
+    if (statistics?.yearEnd) {
       return data;
     } else {
       return <div className="placeholder" dangerouslySetInnerHTML={{ __html: STAT_PLACEHOLDER }} />;
@@ -47,7 +43,7 @@ export const StatTable = (props: Props) => {
   };
 
   const outlook = getOutlook();
-  const spendingDiff = props.incomeTotal - props.transferTotal - props.expenseTotal;
+  const spendingDiff = (statistics?.incomeTotal || 0) - (statistics?.transferTotal || 0) - (statistics?.expenseTotal || 0);
 
   return (
     <div className={classes.statTable}>
@@ -62,14 +58,14 @@ export const StatTable = (props: Props) => {
             </tr>
             <tr>
               <td>Today</td>
-              <td className={getIncomeClass(props.today)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.today))}
+              <td className={getIncomeClass(statistics?.today || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount(statistics?.today || 0))}
               </td>
             </tr>
             <tr>
               <td>Expenses left this month</td>
-              <td className={getIncomeClass(props.expensesLeft)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.expensesLeft))}
+              <td className={getIncomeClass(statistics?.expensesLeft || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount(statistics?.expensesLeft || 0))}
               </td>
             </tr>
             <tr>
@@ -80,8 +76,8 @@ export const StatTable = (props: Props) => {
             </tr>
             <tr>
               <td>Projected year-end</td>
-              <td className={getIncomeClass(props.yearEnd)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.yearEnd))}
+              <td className={getIncomeClass(statistics?.yearEnd || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount(statistics?.yearEnd || 0))}
               </td>
             </tr>
           </tbody>
@@ -97,29 +93,29 @@ export const StatTable = (props: Props) => {
             </tr>
             <tr>
               <td>Income</td>
-              <td className={getIncomeClass(props.incomeTotal)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.incomeTotal / 12, '/mo.'))}
+              <td className={getIncomeClass(statistics?.incomeTotal || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount((statistics?.incomeTotal || 0) / 12, '/mo.'))}
               </td>
-              <td className={getIncomeClass(props.incomeTotal)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.incomeTotal))}
+              <td className={getIncomeClass(statistics?.incomeTotal || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount(statistics?.incomeTotal || 0))}
               </td>
             </tr>
             <tr>
               <td>Operating Expenses</td>
-              <td className={getIncomeClass(props.expenseTotal)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.expenseTotal / 12, '/mo.'))}.
+              <td className={getIncomeClass(statistics?.expenseTotal || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0) / 12, '/mo.'))}.
               </td>
-              <td className={getIncomeClass(props.expenseTotal)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.expenseTotal))}
+              <td className={getIncomeClass(statistics?.expenseTotal || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0)))}
               </td>
             </tr>
             <tr>
               <td>Discretionary Spending</td>
-              <td className={getIncomeClass(props.transferTotal)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.transferTotal / 12, '/mo.'))}
+              <td className={getIncomeClass(statistics?.transferTotal || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount((statistics?.transferTotal || 0) / 12, '/mo.'))}
               </td>
-              <td className={getIncomeClass(props.transferTotal)}>
-                {showDataOrPlaceholder(getFormattedAmount(props.transferTotal))}
+              <td className={getIncomeClass(statistics?.transferTotal || 0)}>
+                {showDataOrPlaceholder(getFormattedAmount(statistics?.transferTotal || 0))}
               </td>
             </tr>
             <tr>
