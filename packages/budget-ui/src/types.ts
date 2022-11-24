@@ -64,3 +64,8 @@ export interface ChartPoint {
   x: number;
   y: number;
 }
+
+export interface UserInfo {
+  name: string;
+  email: string;
+}
