@@ -4,6 +4,7 @@ import { getMonthAsName } from '../utils/format';
 import { useState } from 'react';
 import { Icon } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
+import { APP } from '../constants/app';
 
 export const LedgerNav = (props: any) => {
   const classes = useStyles();
@@ -27,7 +28,7 @@ export const LedgerNav = (props: any) => {
   const changeBudgetYear = (e: React.MouseEvent, year: number) => {
     e.preventDefault();
     setBudgetYear(year);
-    history.push(`/year/${year}`);
+    history.push(`${APP.ROUTES.LEDGER}/${year}`);
     setPrevBudgetYear(year - 1);
     setNextBudgetYear(year + 1);
   };
@@ -35,9 +36,9 @@ export const LedgerNav = (props: any) => {
   return (
     <div className={classes.ledgerNav}>
       <div className={classes.yearNav}>
-        <a href={`/year/${prevBudgetYear}`} onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}><Icon icon="caret-left" /></a>
+        <a href={`${APP.ROUTES.LEDGER}/${prevBudgetYear}`} onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}><Icon icon="caret-left" /></a>
         <span className={classes.year}>{budgetYear}</span>
-        <a href={`/year/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
+        <a href={`${APP.ROUTES.LEDGER}/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
       </div>
       {getMonthNavFor(0)}
       {getMonthNavFor(1)}

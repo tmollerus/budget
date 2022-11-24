@@ -1,4 +1,4 @@
-import { createRef, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Button, Dialog, HotkeysProvider, Icon, Intent } from '@blueprintjs/core';
 import {
   Cell,
@@ -14,10 +14,10 @@ import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
 import { dollarFormat, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
-import { LedgerData, LedgerDataItem } from '../types';
+import { BudgetAuthResponse, LedgerData, LedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
 import { getRegions, updateItemBalances } from '../utils/ledger';
-import { getBudgetItems } from '../utils/api';
+import { getBudgetGuid, getBudgetItems } from '../utils/api';
 import { Toaster } from './Toaster';
 // import { useParams } from 'react-router-dom';
 
@@ -33,8 +33,18 @@ export const Ledger = (props: any) => {
   let tableInstance: Table2;
   let regions: Array<Region> = [];
 
-  const { budgetGuid, budgetYear, ledgerData, setLedgerData } = useBudgetContext();
+  const { budgetGuid, setBudgetGuid, budgetYear, ledgerData, setLedgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);
+
+  useEffect(() => {
+    async function checkBudgetGuid() {
+      if (!budgetGuid) {
+        const budgetAuthResponse: BudgetAuthResponse = await getBudgetGuid();
+        setBudgetGuid(budgetAuthResponse.budgetGUID);
+      }
+    }
+    checkBudgetGuid();
+  });
 
   useEffect(() => {
     async function loadData() {
@@ -46,7 +56,7 @@ export const Ledger = (props: any) => {
     loadData();
     setIsBudgetLoading(false);
     window.document.title = `${budgetYear} Budget`;
-  }, [budgetYear]);
+  }, [budgetGuid, budgetYear, setLedgerData]);
 
   useEffect(() => {
     filteredLedgerData.items = ledgerData.items.filter((item) => {
@@ -180,18 +190,18 @@ export const Ledger = (props: any) => {
     return loadingOptions;
   };
 
+  const getColumnWidths = useCallback((): Array<number> => {
+    const labelWidth = ledgerRightWidth - 444;
+    return [64, 80, 80, 100, 80, 40, labelWidth];
+  }, [ledgerRightWidth]);
+
   useEffect(() => {
     window.addEventListener("resize", getColumnWidths);
-  }, []);
+  }, [getColumnWidths]);
 
   useLayoutEffect(() => {
     setLedgerRightWidth(ledgerRightInstance?.current?.offsetWidth || 0);
-  });
-
-  const getColumnWidths = (): Array<number> => {
-    const labelWidth = ledgerRightWidth - 444;
-    return [64, 80, 80, 100, 80, 40, labelWidth];
-  }
+  }, [ledgerRightInstance]);
 
   const refHandlers = {
     table: (ref: Table2) => (tableInstance = ref),

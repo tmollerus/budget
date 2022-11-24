@@ -1,8 +1,8 @@
-import React from 'react';
 import { Icon } from '@blueprintjs/core';
 import { useStyles } from './Header.styles';
 import { Logo } from './Logo';
 import { Link } from 'react-router-dom';
+import { APP } from '../constants/app';
 
 const Header = (props: any) => {
   const classes = useStyles();
@@ -20,7 +20,7 @@ const Header = (props: any) => {
           Logged in as:
           <br />
           <span className={classes.userName}>Tom Mollerus</span>
-          <Link className={classes.logout} to="/auth/logout">
+          <Link className={classes.logout} to={APP.ROUTES.LOGOUT}>
             <Icon icon="log-out" size={12} />
           </Link>
         </div>
