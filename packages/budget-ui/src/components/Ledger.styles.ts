@@ -70,11 +70,11 @@ export const useStyles = createUseStyles({
   dateHeader: {
     overflowX: 'visible',
   },
-  memoHeader: {
+  labelHeader: {
     display: 'flex',
     justifyContent: 'space-between',
   },
-  memo: {
+  label: {
     '& .bp4-table-truncated-text': {
       display: 'flex',
       justifyContent: 'space-between',

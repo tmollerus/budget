@@ -23,7 +23,7 @@ import { Toaster } from './Toaster';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
-  const [searchFilter, setSearchFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [itemToDelete, setItemToDelete] = useState<number>();
   const [isBudgetLoading, setIsBudgetLoading] = useState<boolean>(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -61,11 +61,11 @@ export const Ledger = (props: any) => {
   useEffect(() => {
     filteredLedgerData.items = ledgerData.items.filter((item) => {
       return (
-        searchFilter.trim() === '' || item.label.toLowerCase().includes(searchFilter.toLowerCase())
+        searchTerm.trim() === '' || item.label.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
     regions = getRegions(filteredLedgerData.items);
-  }, [ledgerData, searchFilter]);
+  }, [searchTerm]);
 
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
     const className = index % 2 ? classes.even : undefined;
@@ -89,14 +89,16 @@ export const Ledger = (props: any) => {
     }
   };
   const dateRenderer = (index: number) => {
-    const settledDate = parseDate(
-      filteredLedgerData.items[index]?.settledDate.split('T')[0],
-    );
-    return (
-      <Cell className={getCellClassName(index, [classes.date])}>{`${getMonthAsName(
-        settledDate.getMonth(),
-      )}. ${settledDate.getDate()}`}</Cell>
-    );
+    if (filteredLedgerData.items[index]) {
+      const settledDate = parseDate(
+        filteredLedgerData.items[index]?.settledDate.split('T')[0],
+      );
+      return (
+        <Cell className={getCellClassName(index, [classes.date])}>{`${getMonthAsName(
+          settledDate.getMonth(),
+        )}. ${settledDate.getDate()}`}</Cell>
+      );
+    }
   };
   const dateHeaderRenderer = () => {
     return (
@@ -107,60 +109,72 @@ export const Ledger = (props: any) => {
     );
   };
   const incomeRenderer = (index: number) => {
-    const amount =
-      filteredLedgerData.items[index].type_id === 1
-        ? dollarFormat(filteredLedgerData.items[index]?.amount)
-        : '';
-    return <Cell className={getCellClassName(index, [classes.income])}>{amount}</Cell>;
+    if (filteredLedgerData.items[index]) {
+      const amount =
+        filteredLedgerData.items[index].type_id === 1
+          ? dollarFormat(filteredLedgerData.items[index].amount)
+          : '';
+      return <Cell className={getCellClassName(index, [classes.income])}>{amount}</Cell>;
+    }
   };
   const transferRenderer = (index: number) => {
-    const amount =
-      filteredLedgerData.items[index].type_id === 3
-        ? dollarFormat(filteredLedgerData.items[index]?.amount)
-        : '';
-    return <Cell className={getCellClassName(index, [classes.income])}>{amount}</Cell>;
+    if (filteredLedgerData.items[index]) {
+      const amount =
+        filteredLedgerData.items[index].type_id === 3
+          ? dollarFormat(filteredLedgerData.items[index].amount)
+          : '';
+      return <Cell className={getCellClassName(index, [classes.income])}>{amount}</Cell>;
+    }
   };
   const expenseRenderer = (index: number) => {
-    const amount =
-      filteredLedgerData.items[index].type_id === 2
-        ? dollarFormat(filteredLedgerData.items[index]?.amount)
-        : '';
-    return <Cell className={getCellClassName(index, [classes.expense])}>{amount}</Cell>;
+    if (filteredLedgerData.items[index]) {
+      const amount =
+        filteredLedgerData.items[index].type_id === 2
+          ? dollarFormat(filteredLedgerData.items[index].amount)
+          : '';
+      return <Cell className={getCellClassName(index, [classes.expense])}>{amount}</Cell>;
+    }
   };
   const balanceRenderer = (index: number) => {
-    const balance = filteredLedgerData.items[index]?.balance || 5;
-    return (
-      <Cell className={getCellClassName(index, [classes.income])}>{dollarFormat(balance)}</Cell>
-    );
+    if (filteredLedgerData.items[index]) {
+      const balance = filteredLedgerData.items[index].balance || 5;
+      return (
+        <Cell className={getCellClassName(index, [classes.income])}>{dollarFormat(balance)}</Cell>
+      );
+    }
   };
   const paidRenderer = (index: number) => {
-    const paid = (filteredLedgerData.items[index]?.paid && <span>✓</span>) || '';
-    return <Cell className={getCellClassName(index, [classes.paid])}>{paid}</Cell>;
+    if (filteredLedgerData.items[index]) {
+      const paid = (filteredLedgerData.items[index].paid && <span>✓</span>) || '';
+      return <Cell className={getCellClassName(index, [classes.paid])}>{paid}</Cell>;
+    }
   };
-  const memoRenderer = (index: number) => {
-    return (
-      <Cell className={getCellClassName(index, [classes.memo])}>
-        <span>{filteredLedgerData.items[index]?.label}</span>
-        <Icon
-          className={classes.delete}
-          icon="delete"
-          size={12}
-          onClick={() => confirmDeletion(index)}
-        />
-      </Cell>
-    );
+  const labelRenderer = (index: number) => {
+    if (filteredLedgerData.items[index]) {
+      return (
+        <Cell className={getCellClassName(index, [classes.label])}>
+          <span>{filteredLedgerData.items[index].label}</span>
+          <Icon
+            className={classes.delete}
+            icon="delete"
+            size={12}
+            onClick={() => confirmDeletion(index)}
+          />
+        </Cell>
+      );
+    }
   };
-  const memoHeaderRenderer = () => {
+  const labelHeaderRenderer = () => {
     return (
       <ColumnHeaderCell2>
-        <div className={classes.memoHeader}>
-          <div>Memo</div>
+        <div className={classes.labelHeader}>
+          <div>Label</div>
           <div>
             <input
               className={classes.searchInput}
-              name="searchFilter"
-              value={searchFilter}
-              onChange={(e) => setSearchFilter(e.target.value)}
+              name="searchTerm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button onClick={() => setIsAdding(!isAdding)}>Add</button>
           </div>
@@ -250,6 +264,7 @@ export const Ledger = (props: any) => {
             columnWidths={getColumnWidths()}
             enableColumnResizing={false}
             selectionModes={SelectionModes.ROWS_AND_CELLS}
+            cellRendererDependencies={[filteredLedgerData]}
             loadingOptions={getLoadingOptions()}
             ref={refHandlers.table}
           >
@@ -264,9 +279,9 @@ export const Ledger = (props: any) => {
             <Column name="Expense" cellRenderer={expenseRenderer} />
             <Column name="Paid" cellRenderer={paidRenderer} />
             <Column
-              name="Memo"
-              cellRenderer={memoRenderer}
-              columnHeaderCellRenderer={memoHeaderRenderer}
+              name="label"
+              cellRenderer={labelRenderer}
+              columnHeaderCellRenderer={labelHeaderRenderer}
             />
           </Table2>
         </HotkeysProvider>

@@ -7,7 +7,6 @@ const Login = (props: any) => {
   const classes = useStyles();
 
   const login = () => {
-    console.log(props);
     props.oktaAuth.signInWithRedirect();
   };
 

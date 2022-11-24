@@ -21,8 +21,6 @@ const Profile = (props: any) => {
     }
   }, [authState, oktaAuth]);
 
-  console.log(userInfo);
-
   return (
       <div className={classes.profile}>
         <img
