@@ -4,6 +4,42 @@ export interface BudgetAuthResponse {
   budgetGUID: string;
 }
 
+export type BudgetContextType = {
+  budgetYear: number;
+  setBudgetYear: Dispatch<SetStateAction<number>>;
+  budgetGuid: string;
+  setBudgetGuid: Dispatch<SetStateAction<string>>;
+  ledgerData: LedgerData;
+  setLedgerData: Dispatch<SetStateAction<LedgerData>>;
+}
+
+export type BudgetProviderProps = {
+  children?: ReactNode;
+}
+
+export interface BudgetUrlParams {
+  year: string;
+}
+
+export interface ChartData {
+  value: number;
+  now: {
+    x: number;
+    y: number;
+  }
+}
+
+export interface ChartTooltip {
+  chart: {
+    hoverPoint: ChartPoint | null
+  }
+}
+
+export interface ChartPoint {
+  x: number;
+  y: number;
+}
+
 export interface LedgerDataItem {
   dateModified: string;
   dateCreated: string;
@@ -31,38 +67,6 @@ export interface Statistics {
   expenseTotal: number;
   transferTotal: number;
   deficitDate: Date | null;
-}
-
-export type BudgetContextType = {
-  budgetYear: number;
-  setBudgetYear: Dispatch<SetStateAction<number>>;
-  budgetGuid: string;
-  setBudgetGuid: Dispatch<SetStateAction<string>>;
-  ledgerData: LedgerData;
-  setLedgerData: Dispatch<SetStateAction<LedgerData>>;
-}
-
-export type BudgetProviderProps = {
-  children?: ReactNode;
-}
-
-export interface ChartData {
-  value: number;
-  now: {
-    x: number;
-    y: number;
-  }
-}
-
-export interface ChartTooltip {
-  chart: {
-    hoverPoint: ChartPoint | null
-  }
-}
-
-export interface ChartPoint {
-  x: number;
-  y: number;
 }
 
 export interface UserInfo {

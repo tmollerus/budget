@@ -19,7 +19,6 @@ import { LedgerNav } from './LedgerNav';
 import { getRegions, updateItemBalances } from '../utils/ledger';
 import { getBudgetGuid, getBudgetItems } from '../utils/api';
 import { Toaster } from './Toaster';
-// import { useParams } from 'react-router-dom';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();

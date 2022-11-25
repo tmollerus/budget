@@ -1,7 +1,7 @@
 import { useStyles } from './LedgerNav.styles';
 import { useBudgetContext } from '../context';
 import { getMonthAsName } from '../utils/format';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
 import { APP } from '../constants/app';
@@ -12,6 +12,11 @@ export const LedgerNav = (props: any) => {
   const { budgetYear, setBudgetYear } = useBudgetContext();
   const [ prevBudgetYear, setPrevBudgetYear ] = useState<number>(budgetYear - 1);
   const [ nextBudgetYear, setNextBudgetYear ] = useState<number>(budgetYear + 1);
+
+  useEffect(() => {
+    setPrevBudgetYear(budgetYear - 1);
+    setNextBudgetYear(budgetYear + 1);
+  }, [budgetYear]);
 
   const scrollToMonth = (month: number) => {
     props.scrollToMonth(month);
@@ -29,8 +34,6 @@ export const LedgerNav = (props: any) => {
     e.preventDefault();
     setBudgetYear(year);
     history.push(`${APP.ROUTES.LEDGER}/${year}`);
-    setPrevBudgetYear(year - 1);
-    setNextBudgetYear(year + 1);
   };
 
   return (
