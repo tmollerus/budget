@@ -12,7 +12,7 @@ import {
 } from '@blueprintjs/table';
 import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
-import { dollarFormat, getMonthAsName } from '../utils/format';
+import { dateFormat, dollarFormat, getEntryTypeName, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerData, LedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
@@ -232,10 +232,18 @@ export const Ledger = (props: any) => {
   const deleteItem = () => {
     setIsDeleteDialogOpen(false);
     if (itemToDelete) {
+      console.log('About to delete data', itemToDelete, ledgerData.items.length);
       const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
+      ledgerData.items = [...updateItemBalances(ledgerData)];
+      ledgerData.updateDate = new Date();
       setLedgerData(ledgerData);
+      console.log('Deleted data', itemToDelete, ledgerData.items.length);
+      const message = `Successfully deleted 
+      ${getEntryTypeName(deletedItem.type_id).toLowerCase()} 
+      '${deletedItem.label}' from 
+      ${dateFormat(deletedItem.settledDate, "mmm. d, yyyy")}`;
       Toaster.show({
-        message: `Item '${deletedItem.label}' has been deleted`,
+        message,
         intent: Intent.SUCCESS,
         icon: 'tick-circle',
       });

@@ -17,14 +17,65 @@ export const BalanceChart = () => {
   const { ledgerData } = useBudgetContext();
   const classes = useStyles();
 
-  useEffect(() => {
-    if (ledgerData) {
-      updateChart(ledgerData.items);
-    }
-  }, [ledgerData]);
+  const getLowestBalance = (entries: Array<LedgerDataItem>) => {
+    let currentTotal = ledgerData?.starting_balance || 0;
+    let lowestBalance = 0;
 
-  const updateChart = (entries: Array<LedgerDataItem>) => {
-    Highcharts.chart('chartContainer', {
+    if (entries) {
+      entries.forEach(function (entry: LedgerDataItem) {
+        currentTotal += getIncomeOrExpense(entry);
+        if (currentTotal < lowestBalance) {
+          lowestBalance = currentTotal;
+        }
+      });
+    }
+
+    return lowestBalance;
+  };
+
+  const getPlotLine = (entries: Array<LedgerDataItem>) => {
+    let today = new Date();
+    
+    return (entries[0]?.settledDate?.split('-')[0] || '0') !== String(today.getFullYear())
+      ? null
+      : [
+          {
+            color: '#BBB',
+            width: 1,
+            dashStyle: 'dash',
+            value: getDayOfYear(dateFormat(new Date(), 'yyyy-mm-dd') || ''),
+          },
+        ];
+  };
+
+  const getYAxisMinimum = (minimumValue: number, interval: number) => {
+    return 0 - Math.max(interval, Math.ceil(Math.abs(minimumValue) / interval) * interval);
+  };
+
+  const getGraphData = (entries: Array<LedgerDataItem>) => {
+    const data = [];
+    let currentTotal = ledgerData?.starting_balance || 0;
+    let currentDay: number = 0;
+
+    if (entries) {
+      entries.forEach(function (entry) {
+        let day = getDayOfYear(entry.settledDate);
+
+        if (currentDay && day > currentDay) {
+          data.push([currentDay, currentTotal]);
+        }
+        currentDay = day;
+        currentTotal += getIncomeOrExpense(entry);
+      });
+
+      data.push([currentDay, currentTotal]);
+    }
+
+    return data;
+  };
+
+  const getChartOptions = (entries: Array<LedgerDataItem>) => {
+    return {
       chart: {
         type: 'area',
         backgroundColor: COLORS.sidebar,
@@ -43,7 +94,7 @@ export const BalanceChart = () => {
       },
       xAxis: {
         title: {
-          text: entries.length ? entries[0].settledDate.split('-')[0] : new Date().getFullYear(),
+          text: entries.length ? entries[0].settledDate.split('-')[0] : '',
         },
         gridLineWidth: 1,
         categories: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D', 'J'],
@@ -51,7 +102,7 @@ export const BalanceChart = () => {
         endOnTick: true,
         tickAmount: 13,
         tickPositions: [0, 32, 60, 91, 121, 152, 181, 213, 244, 274, 305, 335, 365],
-        plotLines: getPlotLine(entries),
+        plotLines: getPlotLine(ledgerData.items),
         labels: {
           formatter: function (chartData: ChartData) {
             if (chartData.value <= 31) {
@@ -118,68 +169,19 @@ export const BalanceChart = () => {
           fillOpacity: 0.1,
         },
       ],
-    });
-  };
-
-  const getLowestBalance = (entries: Array<LedgerDataItem>) => {
-    let currentTotal = ledgerData?.starting_balance || 0;
-    let lowestBalance = 0;
-
-    if (entries) {
-      entries.forEach(function (entry: LedgerDataItem) {
-        currentTotal += getIncomeOrExpense(entry);
-        if (currentTotal < lowestBalance) {
-          lowestBalance = currentTotal;
-        }
-      });
     }
-
-    return lowestBalance;
   };
 
-  const getPlotLine = (entries: Array<LedgerDataItem>) => {
-    let today = new Date();
-    
-    return (entries[0]?.settledDate?.split('-')[0] || '0') !== String(today.getFullYear())
-      ? null
-      : [
-          {
-            color: '#BBB',
-            width: 1,
-            dashStyle: 'dash',
-            value: getDayOfYear(dateFormat(new Date(), 'yyyy-mm-dd') || ''),
-          },
-        ];
-  };
-
-  const getYAxisMinimum = (minimumValue: number, interval: number) => {
-    return 0 - Math.max(interval, Math.ceil(Math.abs(minimumValue) / interval) * interval);
-  };
-
-  const getGraphData = (entries: Array<LedgerDataItem>) => {
-    const data = [];
-    let currentTotal = ledgerData?.starting_balance || 0;
-    let currentDay: number = 0;
-
-    if (entries) {
-      entries.forEach(function (entry) {
-        let day = getDayOfYear(entry.settledDate);
-
-        if (currentDay && day > currentDay) {
-          data.push([currentDay, currentTotal]);
-        }
-        currentDay = day;
-        currentTotal += getIncomeOrExpense(entry);
-      });
-
-      data.push([currentDay, currentTotal]);
+  useEffect(() => {
+    console.log('Ledger data has changed for chart');
+    if (ledgerData) {
+      console.log('Updating chart');
+      Highcharts.chart('chartContainer', getChartOptions(ledgerData.items));
     }
-
-    return data;
-  };
+  }, [ledgerData]);
 
   return (
-    <div id="BalanceChart">
+    <div id="BalanceChart" className={classes.balanceChart}>
       <span className={classes.statTableTitle}>Balances by month</span>
       <div id="chartContainer" style={{ width: '100%', height: '240px' }} />
     </div>

@@ -47,5 +47,11 @@ export const useStyles = createUseStyles({
     fontSize: '.8rem',
     borderTop: '1px dotted #999999',
     padding: '4px 0px',
+  },
+  averages: {
+    marginTop: '14px',
+  },
+  balanceChart: {
+    marginTop: '14px',
   }
 });

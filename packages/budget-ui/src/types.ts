@@ -57,6 +57,7 @@ export interface LedgerDataItem {
 export interface LedgerData {
   items: Array<LedgerDataItem>;
   starting_balance: number;
+  updateDate?: Date;
 }
 
 export interface Statistics {

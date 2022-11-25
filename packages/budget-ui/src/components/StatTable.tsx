@@ -83,7 +83,7 @@ export const StatTable = () => {
           </tbody>
         </table>
       </div>
-      <div id="averages">
+      <div id="averages" className={classes.averages}>
         <table className={classes.statTable}>
           <tbody>
             <tr>
