@@ -73,7 +73,7 @@ export const Ledger = (props: any) => {
       );
     });
     regions.current = getRegions(filteredLedgerData.items);
-  }, [searchTerm]);
+  }, [ledgerData.items, searchTerm]);
 
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
     const className = index % 2 ? classes.even : undefined;
@@ -124,6 +124,13 @@ export const Ledger = (props: any) => {
           : '';
       return <Cell className={getCellClassName(index, [classes.income])}>{amount}</Cell>;
     }
+  };
+  const incomeHeaderRenderer = () => {
+    return (
+      <ColumnHeaderCell2 className={classes.incomeHeader}>
+        <div>Income</div>
+      </ColumnHeaderCell2>
+    );
   };
   const transferRenderer = (index: number) => {
     if (filteredLedgerData.items[index]) {
@@ -401,7 +408,11 @@ export const Ledger = (props: any) => {
               cellRenderer={dateRenderer}
               columnHeaderCellRenderer={dateHeaderRenderer}
             />
-            <Column name="Income" cellRenderer={incomeRenderer} />
+            <Column
+              name="Income"
+              cellRenderer={incomeRenderer}
+              columnHeaderCellRenderer={incomeHeaderRenderer}
+            />
             <Column name="Transfer" cellRenderer={transferRenderer} />
             <Column name="Balance"
               cellRenderer={balanceRenderer}

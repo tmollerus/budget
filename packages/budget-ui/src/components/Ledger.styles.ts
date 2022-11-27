@@ -56,6 +56,9 @@ export const useStyles = createUseStyles({
   lastOfDate: {
     borderBottom: 'none',
   },
+  incomeHeader: {
+    pointerEvents: 'none',
+  },
   paid: {
     display: 'inline-flex',
     width: '100%',
