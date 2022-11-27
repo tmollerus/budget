@@ -1,4 +1,3 @@
-import { INLINE } from '@blueprintjs/core/lib/esm/common/classes';
 import {createUseStyles} from 'react-jss';
 import { COLORS } from '../constants/theme';
 
@@ -58,6 +57,9 @@ export const useStyles = createUseStyles({
     borderBottom: 'none',
   },
   paid: {
+    display: 'inline-flex',
+    width: '100%',
+    justifyContent: 'center',
   },
   paidHeader: {
     display: 'flex',
@@ -84,6 +86,12 @@ export const useStyles = createUseStyles({
   dateHeader: {
     overflowX: 'visible',
   },
+  dateInput: {
+    fontFamily: 'Asap, Arial, sans-serif',
+    padding: '2px 0px',
+    border: `1px solid #cccccc`,
+    borderRadius: '3px',
+  },
   labelHeader: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -96,6 +104,7 @@ export const useStyles = createUseStyles({
   },
   addIcon: {
     marginLeft: '4px',
+    fontSize: '15px',
     '& .material-icons:hover': {
       color: COLORS.income,
     }
@@ -116,6 +125,14 @@ export const useStyles = createUseStyles({
         visibility: 'visible',
       }
     },
+  },
+  labelInput: {
+    width: '190px',
+    height: '24px',
+    margin: '0px',
+    padding: '0px 4px',
+    border: `1px solid #cccccc`,
+    borderRadius: '3px',
   },
   searchInputGroup: {
     display: 'inline-flex',
@@ -158,11 +175,5 @@ export const useStyles = createUseStyles({
     '&:hover': {
       color: COLORS.expense,
     }
-  },
-  dateInput: {
-    fontFamily: 'Asap, Arial, sans-serif',
-    padding: '2px 0px',
-    border: `1px solid #cccccc`,
-    borderRadius: '3px',
   },
 });

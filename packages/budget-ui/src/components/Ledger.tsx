@@ -12,7 +12,7 @@ import {
 } from '@blueprintjs/table';
 import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
-import { dateFormat, dollarFormat, getMonthAsName } from '../utils/format';
+import { dollarFormat, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerData, LedgerDataItem, MessageType } from '../types';
 import { LedgerNav } from './LedgerNav';
@@ -185,7 +185,7 @@ export const Ledger = (props: any) => {
               className={classes.typeSelect}
               name="type_id"
               defaultValue={newTypeId}
-              onChange={(e) => setNewTypeId(e.target.selectedIndex)}
+              onChange={(e) => setNewTypeId(Number(e.target.options[e.target.selectedIndex].value))}
             >
               <option value="1">Income</option>
               <option value="2">Expense</option>
@@ -267,7 +267,7 @@ export const Ledger = (props: any) => {
         {!!isAdding && (
           <span>
             <input
-              className={classes.searchInput}
+              className={classes.labelInput}
               name="label"
               value={newLabel}
               onChange={(e) => setNewLabel(e.target.value)}
@@ -292,8 +292,10 @@ export const Ledger = (props: any) => {
   };
 
   const getColumnWidths = useCallback((): Array<number> => {
-    const labelWidth = ledgerRightWidth - 444;
-    return [64, 80, 80, 100, 80, 40, labelWidth];
+    const setWidths = [80, 80, 80, 100, 80, 40];
+    const labelWidth = ledgerRightWidth - setWidths.reduce((prev, curr) => { return prev + curr});
+    setWidths.push(labelWidth);
+    return setWidths;
   }, [ledgerRightWidth]);
 
   useEffect(() => {
@@ -344,7 +346,6 @@ export const Ledger = (props: any) => {
   };
 
   const addItem = async () => {
-    console.log(newSettledDate, newTypeId, newAmount, newPaid, newLabel);
     try {
       const newEntry = await createEntry(budgetGuid, {
         settledDate: newSettledDate,
@@ -353,6 +354,10 @@ export const Ledger = (props: any) => {
         paid: !!newPaid,
         label: newLabel,
       });
+      clearAddItem();
+      const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
+      newLedgerData.items = updateItemBalances(newLedgerData);
+      setLedgerData(newLedgerData);
       Toaster.show({
         message: getMessage(MessageType.ITEM_ADDED, newEntry),
         intent: Intent.SUCCESS,
@@ -368,12 +373,12 @@ export const Ledger = (props: any) => {
   };
 
   const clearAddItem = () => {
+    setIsAdding(!isAdding);
     setNewSettledDate(defaultDate.toISOString().split('T')[0]);
     setNewTypeId(2);
     setNewAmount(undefined);
     setNewPaid(false);
     setNewLabel('');
-    setIsAdding(!isAdding);
   };
 
   return (
