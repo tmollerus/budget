@@ -1,4 +1,4 @@
-import { createRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { createRef, MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HotkeysProvider, Intent } from '@blueprintjs/core';
 import {
   Cell,
@@ -41,7 +41,7 @@ export const Ledger = (props: any) => {
   const [ledgerRightWidth, setLedgerRightWidth] = useState(0);
   let ledgerRightInstance = createRef<HTMLDivElement>();
   let tableInstance: Table2;
-  let regions: Array<Region> = [];
+  let regions: React.MutableRefObject<Array<Region>> = useRef<Array<Region>>([]);
 
   useEffect(() => {
     async function checkBudgetGuid() {
@@ -72,7 +72,7 @@ export const Ledger = (props: any) => {
         searchTerm.trim() === '' || item.label.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
-    regions = getRegions(filteredLedgerData.items);
+    regions.current = getRegions(filteredLedgerData.items);
   }, [searchTerm]);
 
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
@@ -312,7 +312,7 @@ export const Ledger = (props: any) => {
   };
 
   const scrollToMonth = (month: number) => {
-    tableInstance.scrollToRegion(regions[month]);
+    tableInstance.scrollToRegion(regions.current[month]);
   };
 
   const confirmDeletion = (index: number) => {
