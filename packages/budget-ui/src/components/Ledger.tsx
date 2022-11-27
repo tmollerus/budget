@@ -1,5 +1,5 @@
 import { createRef, useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { Button, HotkeysProvider, Intent } from '@blueprintjs/core';
+import { HotkeysProvider, Intent } from '@blueprintjs/core';
 import {
   Cell,
   Column,
@@ -53,17 +53,18 @@ export const Ledger = (props: any) => {
     checkBudgetGuid();
   });
 
+  const reloadLedgerData = useCallback(async () => {
+    const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
+    newLedgerData.items = updateItemBalances(newLedgerData);
+    setLedgerData(newLedgerData);
+  }, [budgetGuid, budgetYear, setLedgerData]);
+
   useEffect(() => {
-    async function loadData() {
-      const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
-      newLedgerData.items = updateItemBalances(newLedgerData);
-      setLedgerData(newLedgerData);
-    }
     setIsBudgetLoading(true);
-    loadData();
+    reloadLedgerData();
     setIsBudgetLoading(false);
     window.document.title = `${budgetYear} Budget`;
-  }, [budgetGuid, budgetYear, setLedgerData]);
+  }, [budgetGuid, budgetYear, reloadLedgerData, setLedgerData]);
 
   useEffect(() => {
     filteredLedgerData.items = ledgerData.items.filter((item) => {
@@ -325,9 +326,7 @@ export const Ledger = (props: any) => {
     if (itemToDelete) {
       await deleteEntry(budgetGuid, ledgerData.items[itemToDelete].guid);
       const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
-      ledgerData.items = updateItemBalances(ledgerData);
-      ledgerData.updateDate = new Date();
-      setLedgerData(ledgerData);
+      await reloadLedgerData();
       const message = getMessage(MessageType.ITEM_DELETED, deletedItem);
       Toaster.show({
         message,
@@ -355,9 +354,7 @@ export const Ledger = (props: any) => {
         label: newLabel,
       });
       clearAddItem();
-      const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
-      newLedgerData.items = updateItemBalances(newLedgerData);
-      setLedgerData(newLedgerData);
+      await reloadLedgerData();
       Toaster.show({
         message: getMessage(MessageType.ITEM_ADDED, newEntry),
         intent: Intent.SUCCESS,
