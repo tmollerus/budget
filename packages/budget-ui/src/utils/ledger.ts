@@ -42,7 +42,7 @@ export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => 
       currentMonth++;
     }
 
-    return 
+    return regions;
   });
 
   if (regions.length) {
