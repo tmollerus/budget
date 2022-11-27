@@ -337,7 +337,7 @@ export const Ledger = (props: any) => {
               </span>
             </div>
             <span className={classes.addIcon}>
-              <span className="material-icons md-18" onClick={() => setIsAdding(!isAdding)}>
+              <span className="material-icons md-18" onClick={() => { clearItemToEdit(); setIsAdding(!isAdding)}}>
                 add_circle
               </span>
             </span>
