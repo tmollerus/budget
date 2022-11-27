@@ -1,3 +1,4 @@
+import { INLINE } from '@blueprintjs/core/lib/esm/common/classes';
 import {createUseStyles} from 'react-jss';
 import { COLORS } from '../constants/theme';
 
@@ -57,11 +58,24 @@ export const useStyles = createUseStyles({
     borderBottom: 'none',
   },
   paid: {
+  },
+  paidHeader: {
+    display: 'flex',
+    justifyContent: 'space-around',
     textAlign: 'center',
+  },
+  paidInput: {
+    margin: '9px auto',
   },
   expense: {
     textAlign: 'right',
     color: COLORS.expense,
+  },
+  expenseHeader: {
+  },
+  expenseInput: {
+    width: '100%',
+    textAlign: 'right',
   },
   income: {
     textAlign: 'right',
@@ -73,38 +87,82 @@ export const useStyles = createUseStyles({
   labelHeader: {
     display: 'flex',
     justifyContent: 'space-between',
+    '& .material-icons': {
+      verticalAlign: 'middle',
+      fontSize: '16px',
+      cursor: 'pointer',
+      color: COLORS.icon_default,
+    }
+  },
+  addIcon: {
+    marginLeft: '4px',
+    '& .material-icons:hover': {
+      color: COLORS.income,
+    }
+  },
+  balanceHeader: {
+
+  },
+  typeSelect: {
+    padding: '1px 4px',
+    width: '100%',
   },
   label: {
     '& .bp4-table-truncated-text': {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      '&:hover $delete': {
+      '&:hover $deleteIcon': {
         visibility: 'visible',
       }
     },
   },
-  delete: {
+  searchInputGroup: {
+    display: 'inline-flex',
+    maxHeight: '24px',
+    backgroundColor: '#ffffff',
+    border: `1px solid #cccccc`,
+    borderRadius: '3px',
+    margin: '0px',
+    padding: '0px 4px',
+    alignItems: 'center',
+  },
+  clearIconHidden: {
+    '& .material-icons': {
+      visibility: 'hidden',
+    },
+  },
+  clearIconVisible: {
+    '& .material-icons.show': {
+      visibility: 'visible',
+    },
+  },
+  searchInput: {
+    width: '190px',
+    // height: '24px',
+    margin: '0px',
+    paddingRight: '20px',
+    border: 'none',
+    color: COLORS.icon_default,
+  },
+  button: {
+    marginLeft: '6px',
+  },
+  deleteIcon: {
     visibility: 'hidden',
+    color: COLORS.icon_default,
+    marginTop: '7px',
+    '& .material-icons': {
+      fontSize: '16px',
+    },
+    '&:hover': {
       color: COLORS.expense,
+    }
   },
   dateInput: {
     fontFamily: 'Asap, Arial, sans-serif',
     padding: '2px 0px',
     border: `1px solid #cccccc`,
     borderRadius: '3px',
-    '&:focus': {
-      outline: 'none',
-    },
-  },
-  searchInput: {
-    width: '190px',
-    height: '24px',
-    margin: '4px 4px 4px 0px',
-    border: `1px solid #cccccc`,
-    borderRadius: '3px',
-    '&:focus': {
-      outline: 'none',
-    },
   },
 });

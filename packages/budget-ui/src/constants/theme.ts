@@ -7,6 +7,7 @@ export enum COLORS {
   ledgerEven = '#ecf3fe',
   ledgerHover = '#ddeedd',
   sidebar = '#f2f2f2',
+  icon_default = '#666666',
 };
 
 export const PAID_SYMBOL = '&#10003;';

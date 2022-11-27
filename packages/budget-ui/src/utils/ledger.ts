@@ -1,5 +1,22 @@
 import { Region, Regions } from "@blueprintjs/table";
-import { LedgerData, LedgerDataItem } from "../types";
+import { LedgerData, LedgerDataItem, MessageType } from "../types";
+import { dateFormat, dollarFormat, getEntryTypeName } from "./format";
+
+export const getMessage = (messageType: MessageType, item: LedgerDataItem) => {
+  const itemDate = dateFormat(item.settledDate, 'mmm. dd, yyyy');
+  const itemType = getEntryTypeName(item.type_id).toLowerCase();
+
+  switch(messageType) {
+    case MessageType.CONFIRM_DELETE:
+      return `Are you sure you would like to delete the ${itemDate}, transaction '${item.label}' for ${dollarFormat(item.amount)}? This action cannot be undone.`;
+    case MessageType.ITEM_DELETED:
+      return `Successfully deleted ${itemType} '${item.label}' from ${itemDate}`;
+    case MessageType.ITEM_ADDED:
+      return `Successfully added ${itemType} '${item.label}' from ${itemDate}`;
+    default:
+      return ``;
+  }
+};
 
 export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => {
   const regions: Array<Region> = [];

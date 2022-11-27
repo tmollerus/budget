@@ -48,78 +48,85 @@ export const getBudgetItems = async (budgetGUID: string, year: string) => {
   });
 };
 
-// createEntry(budgetGUID, entry, callback) {
-//   axios.defaults.headers.common['Authorization'] = this.getAuthorization();
-//   axios.post(
-//     constants.API_URL + '/budgets/' + budgetGUID + '/items/',
-//     entry
-//   )
-//   .then(function (response) {
-//     callback(response.data);
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-// },
+export const createEntry = async (budgetGUID: string, entry: any) => {
+  return fetch(`${process.env.API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items/`, {
+    method: 'POST',
+    body: JSON.stringify(Object.assign(entry, {budget_guid: budgetGUID})),
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
 
-// updateEntry(budgetGUID, entry) {
-//   axios.defaults.headers.common['Authorization'] = this.getAuthorization();
-//   axios.put(
-//     constants.API_URL + '/budgets/' + budgetGUID + '/items/' + entry.guid,
-//     entry
-//   )
-//   .then(function (response) {
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-// },
+export const updateEntry = async (budgetGUID: string, entry: any) => {
+  return fetch(`${process.env.API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items/${entry.guid}`, {
+    method: 'PUT',
+    body: entry,
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
 
-// deleteEntry(budgetGUID, entryGUID) {
-//   axios.defaults.headers.common['Authorization'] = this.getAuthorization();
-//   axios.put(
-//     constants.API_URL + '/budgets/' + budgetGUID + '/items/' + entryGUID,
-//     {
-//       active: false
-//     }
-//   )
-//   .then(function (response) {
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-// },
+export const deleteEntry = async (budgetGUID: string, entryGuid: string) => {
+  return fetch(`${process.env.API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items/${entryGuid}`, {
+    method: 'PUT',
+    body: JSON.stringify({ active: false }),
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
 
-// getNextYearsCount(budgetGUID, year, callback) {
-//   axios.defaults.headers.common['Authorization'] = this.getAuthorization();
-//   axios.get(
-//     constants.API_URL + `/budgets/${budgetGUID}/${year}/count`,
-//     {
-//       withCredentials: true
-//     }
-//   )
-//   .then(function (response) {
-//     callback(response.data);
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//   });
-// },
+export const getNextYearsCount = async (budgetGUID: string, year: string) => {
+  return fetch(`${process.env.API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/${year}/count`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
 
-// copyBudget(budgetGUID, sourceYear, destinationYear, successCallback, failureCallback) {
-//   axios.defaults.headers.common['Authorization'] = this.getAuthorization();
-//   axios.post(
-//     constants.API_URL + `/budgets/${budgetGUID}/${sourceYear}/items/copy?to=${destinationYear}`,
-//     {},
-//     {
-//       withCredentials: true
-//     }
-//   )
-//   .then(function (response) {
-//     successCallback(destinationYear);
-//   })
-//   .catch(function (error) {
-//     console.log(error);
-//     failureCallback(destinationYear);
-//   });
-// },
+export const copyBudget = async (budgetGUID: string, sourceYear: number, destinationYear: number) => {
+  return fetch(`${process.env.API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/${sourceYear}/copy?to=${destinationYear}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};

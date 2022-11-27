@@ -15,9 +15,6 @@ export const useStyles = createUseStyles({
     fontWeight: '700',
     '& a': {
       color: COLORS.text,
-      '&:focus': {
-        outline: 'none',
-      },
     },
   },
   year: {

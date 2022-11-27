@@ -60,6 +60,12 @@ export interface LedgerData {
   updateDate?: Date;
 }
 
+export enum MessageType {
+  CONFIRM_DELETE,
+  ITEM_DELETED,
+  ITEM_ADDED
+}
+
 export interface Statistics {
   today: number;
   expensesLeft: number;
