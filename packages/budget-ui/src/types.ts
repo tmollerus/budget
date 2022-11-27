@@ -63,7 +63,8 @@ export interface LedgerData {
 export enum MessageType {
   CONFIRM_DELETE,
   ITEM_DELETED,
-  ITEM_ADDED
+  ITEM_ADDED,
+  ITEM_EDITED,
 }
 
 export interface Statistics {

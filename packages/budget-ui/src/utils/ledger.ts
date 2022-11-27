@@ -13,6 +13,8 @@ export const getMessage = (messageType: MessageType, item: LedgerDataItem) => {
       return `Successfully deleted ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.ITEM_ADDED:
       return `Successfully added ${itemType} '${item.label}' from ${itemDate}`;
+    case MessageType.ITEM_EDITED:
+      return `Successfully update ${itemType} '${item.label}' from ${itemDate}`;
     default:
       return ``;
   }

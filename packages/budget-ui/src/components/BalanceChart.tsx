@@ -173,9 +173,7 @@ export const BalanceChart = () => {
   };
 
   useEffect(() => {
-    console.log('Ledger data has changed for chart');
     if (ledgerData) {
-      console.log('Updating chart');
       Highcharts.chart('chartContainer', getChartOptions(ledgerData.items));
     }
   }, [ledgerData]);

@@ -32,10 +32,10 @@ export const useStyles = createUseStyles({
     '& .bp4-table-cell': {
       padding: '0 4px',
       boxShadow: 'none',
-      border: 'none',
-      borderTop: '1px dotted #cccccc',
+      border: 'none !important',
+      borderTop: '1px dotted #cccccc !important',
       '&$firstOfDate': {
-        borderTop: '1px solid #bababa',
+        borderTop: '1px solid #bababa !important',
       },
       cursor: 'pointer',
     },
@@ -48,6 +48,11 @@ export const useStyles = createUseStyles({
     '&$firstOfDate': {
       color: 'inherit',
     },
+    '&.bp4-table-cell-interactive': {
+      width: '110px !important',
+      zIndex: '100',
+      height: '18px',
+    }
   },
   firstOfDate: {
   },
@@ -70,7 +75,7 @@ export const useStyles = createUseStyles({
     textAlign: 'center',
   },
   paidInput: {
-    margin: '9px auto',
+    margin: '4px auto',
   },
   expense: {
     textAlign: 'right',
@@ -81,6 +86,8 @@ export const useStyles = createUseStyles({
   expenseInput: {
     width: '100%',
     textAlign: 'right',
+    fontSize: '12px',
+    height: '18px',
   },
   income: {
     textAlign: 'right',
@@ -94,6 +101,9 @@ export const useStyles = createUseStyles({
     padding: '2px 0px',
     border: `1px solid #cccccc`,
     borderRadius: '3px',
+    fontSize: '12px',
+    width: '90px',
+    height: '18px',
   },
   labelHeader: {
     display: 'flex',
@@ -118,24 +128,39 @@ export const useStyles = createUseStyles({
   typeSelect: {
     padding: '1px 4px',
     width: '100%',
+    fontSize: '12px',
+    height: '18px',
   },
   label: {
-    '& .bp4-table-truncated-text': {
+    '& .bp4-table-truncated-text span': {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+      '& button': {
+        fontSize: '12px',
+        height: '18px',
+      },
       '&:hover $deleteIcon': {
         visibility: 'visible',
       }
     },
+    '& .bp4-table-truncated-text span.labelInputItems': {
+      display: 'inline',
+    },
+  },
+  labelItems: {
+    maxHeight: '20px',
+  },
+  labelInputItems: {
   },
   labelInput: {
     width: '190px',
-    height: '24px',
     margin: '0px',
     padding: '0px 4px',
     border: `1px solid #cccccc`,
     borderRadius: '3px',
+    fontSize: '12px',
+    height: '18px',
   },
   searchInputGroup: {
     display: 'inline-flex',
@@ -171,7 +196,6 @@ export const useStyles = createUseStyles({
   deleteIcon: {
     visibility: 'hidden',
     color: COLORS.icon_default,
-    marginTop: '7px',
     '& .material-icons': {
       fontSize: '16px',
     },

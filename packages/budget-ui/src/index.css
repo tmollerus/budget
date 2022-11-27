@@ -4,7 +4,7 @@
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 @import "~@blueprintjs/table/lib/css/table.css";
 
-*, input, select, form, button {
+*, input, select, form, button, .bp4-table-cell {
   outline: none !important;
 }
 

@@ -1,4 +1,4 @@
-import { createRef, MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HotkeysProvider, Intent } from '@blueprintjs/core';
 import {
   Cell,
@@ -17,9 +17,10 @@ import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerData, LedgerDataItem, MessageType } from '../types';
 import { LedgerNav } from './LedgerNav';
 import { getMessage, getRegions, updateItemBalances } from '../utils/ledger';
-import { createEntry, deleteEntry, getBudgetGuid, getBudgetItems } from '../utils/api';
+import { createEntry, deleteEntry, getBudgetGuid, getBudgetItems, updateEntry } from '../utils/api';
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
+import { IFocusedCellCoordinates } from '@blueprintjs/table/lib/esm/common/cellTypes';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
@@ -32,12 +33,20 @@ export const Ledger = (props: any) => {
   const [newAmount, setNewAmount] = useState<number>();
   const [newPaid, setNewPaid] = useState<boolean>(false);
   const [newLabel, setNewLabel] = useState<string>('');
+
+  const [editedSettledDate, setEditedSettledDate] = useState<string>();
+  const [editedTypeId, setEditedTypeId] = useState<number>();
+  const [editedAmount, setEditedAmount] = useState<number>();
+  const [editedPaid, setEditedPaid] = useState<boolean>();
+  const [editedLabel, setEditedLabel] = useState<string>();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [itemToDelete, setItemToDelete] = useState<number>();
   const [dialogMessage, setDialogMessage] = useState<string>('');
   const [isBudgetLoading, setIsBudgetLoading] = useState<boolean>(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<number>();
   const [ledgerRightWidth, setLedgerRightWidth] = useState(0);
   let ledgerRightInstance = createRef<HTMLDivElement>();
   let tableInstance: Table2;
@@ -102,9 +111,11 @@ export const Ledger = (props: any) => {
         filteredLedgerData.items[index]?.settledDate.split('T')[0],
       );
       return (
-        <Cell className={getCellClassName(index, [classes.date])}>{`${getMonthAsName(
-          settledDate.getMonth(),
-        )}. ${settledDate.getDate()}`}</Cell>
+        <Cell className={getCellClassName(index, [classes.date])} interactive={itemToEdit === index}>
+          {itemToEdit === index
+            ? <input className={classes.dateInput} type="date" name="settledDate" defaultValue={editedSettledDate!.split('T')[0]} onChange={(e) => setEditedSettledDate(e.target.value)} />
+            : `${getMonthAsName(settledDate.getMonth(),)}. ${settledDate.getDate()}`}
+        </Cell>
       );
     }
   };
@@ -122,7 +133,11 @@ export const Ledger = (props: any) => {
         filteredLedgerData.items[index].type_id === 1
           ? dollarFormat(filteredLedgerData.items[index].amount)
           : '';
-      return <Cell className={getCellClassName(index, [classes.income])}>{amount}</Cell>;
+      return (
+        <Cell className={getCellClassName(index, [classes.income])} interactive={itemToEdit === index}>
+          {amount}
+        </Cell>
+      );
     }
   };
   const incomeHeaderRenderer = () => {
@@ -147,7 +162,21 @@ export const Ledger = (props: any) => {
         filteredLedgerData.items[index].type_id === 2
           ? dollarFormat(filteredLedgerData.items[index].amount)
           : '';
-      return <Cell className={getCellClassName(index, [classes.expense])}>{amount}</Cell>;
+      return <Cell className={getCellClassName(index, [classes.expense])} interactive={itemToEdit === index}>
+        {itemToEdit === index
+        ? 
+        <input
+          type="number"
+          step=".01"
+          min="0"
+          className={classes.expenseInput}
+          name="amount"
+          value={editedAmount}
+          placeholder="0.00"
+          onChange={(e) => setEditedAmount(Number(e.target.value))}
+        />
+        : amount}
+      </Cell>;
     }
   };
   const expenseHeaderRenderer = () => {
@@ -175,9 +204,24 @@ export const Ledger = (props: any) => {
   };
   const balanceRenderer = (index: number) => {
     if (filteredLedgerData.items[index]) {
-      const balance = filteredLedgerData.items[index].balance || 5;
+      const balance = filteredLedgerData.items[index].balance || 0;
       return (
-        <Cell className={getCellClassName(index, [classes.income])}>{dollarFormat(balance)}</Cell>
+        <Cell className={getCellClassName(index, [classes.income])} interactive={itemToEdit === index}>
+          {itemToEdit === index
+          ? 
+          <select
+            className={classes.typeSelect}
+            name="type_id"
+            defaultValue={editedTypeId}
+            onChange={(e) => setEditedTypeId(Number(e.target.options[e.target.selectedIndex].value))}
+          >
+            <option value="1">Income</option>
+            <option value="2">Expense</option>
+            <option value="3">Transfer</option>
+          </select>
+          : dollarFormat(balance)
+          }
+          </Cell>
       );
     }
   };
@@ -207,7 +251,18 @@ export const Ledger = (props: any) => {
   const paidRenderer = (index: number) => {
     if (filteredLedgerData.items[index]) {
       const paid = (filteredLedgerData.items[index].paid && <span>✓</span>) || '';
-      return <Cell className={getCellClassName(index, [classes.paid])}>{paid}</Cell>;
+      return <Cell className={getCellClassName(index, [classes.paid])} interactive={itemToEdit === index}>
+        {itemToEdit === index
+          ? 
+          <input
+            type="checkbox"
+            className={classes.paidInput}
+            name="paid"
+            checked={!!editedPaid}
+            onChange={(e) => setEditedPaid(!!e.target.checked)}
+          />
+          : paid}
+        </Cell>;
     }
   };
   const paidHeaderRenderer = () => {
@@ -234,13 +289,29 @@ export const Ledger = (props: any) => {
   const labelRenderer = (index: number) => {
     if (filteredLedgerData.items[index]) {
       return (
-        <Cell className={getCellClassName(index, [classes.label])}>
-          <span>{filteredLedgerData.items[index].label}</span>
-          <span className={classes.deleteIcon}>
-            <span className="material-icons md-18" onClick={() => confirmDeletion(index)}>
-              cancel
-            </span>
+        <Cell className={getCellClassName(index, [classes.label])} interactive={itemToEdit === index}>
+          {itemToEdit === index
+          ? 
+          <span className="labelInputItems">
+            <input
+              className={classes.labelInput}
+              name="label"
+              value={editedLabel}
+              onChange={(e) => setEditedLabel(e.target.value)}
+              placeholder="Description"
+            />
+            <button className={classes.button} onClick={() => saveEditedItem(filteredLedgerData.items[index].guid)}>Save</button>
+            <button className={classes.button} onClick={clearItemToEdit}>Cancel</button>
           </span>
+          : <span className={classes.labelItems}>
+              <span>{filteredLedgerData.items[index].label}</span>
+              <span className={classes.deleteIcon}>
+                <span className="material-icons md-18" onClick={() => confirmDeletion(index)}>
+                  cancel
+                </span>
+              </span>
+            </span>
+          }
         </Cell>
       );
     }
@@ -385,6 +456,44 @@ export const Ledger = (props: any) => {
     setNewLabel('');
   };
 
+  const saveEditedItem = async (guid: string) => {
+    try {
+      const editedEntry = await updateEntry(budgetGuid, {
+        guid,
+        settledDate: editedSettledDate,
+        type_id: editedTypeId,
+        amount: editedAmount, 
+        paid: !!editedPaid,
+        label: editedLabel,
+      });
+      await reloadLedgerData();
+      Toaster.show({
+        message: getMessage(MessageType.ITEM_EDITED, editedEntry),
+        intent: Intent.SUCCESS,
+        icon: 'tick-circle',
+      });
+    } catch (err) {
+      Toaster.show({
+        message: `An error occurred while trying to save the new item`,
+        intent: Intent.DANGER,
+        icon: 'error',
+      });
+    }
+  };
+
+  const clearItemToEdit = () => {
+    setItemToEdit(undefined);
+  };
+
+  const handleCellFocus = (cell: IFocusedCellCoordinates) => {
+    setEditedSettledDate(filteredLedgerData.items[cell.row].settledDate);
+    setEditedTypeId(filteredLedgerData.items[cell.row].type_id);
+    setEditedPaid(!!filteredLedgerData.items[cell.row].paid);
+    setEditedAmount(filteredLedgerData.items[cell.row].amount);
+    setEditedLabel(filteredLedgerData.items[cell.row].label);
+    setItemToEdit(cell.row);
+  };
+
   return (
     <div className={classes.ledger}>
       <div className={classes.ledgerLeft}>
@@ -398,9 +507,11 @@ export const Ledger = (props: any) => {
             renderMode={RenderMode.NONE}
             columnWidths={getColumnWidths()}
             enableColumnResizing={false}
-            selectionModes={SelectionModes.NONE}
+            enableFocusedCell={true}
+            selectionModes={SelectionModes.ROWS_ONLY}
             cellRendererDependencies={[filteredLedgerData]}
             loadingOptions={getLoadingOptions()}
+            onFocusedCell={handleCellFocus}
             ref={refHandlers.table}
           >
             <Column
