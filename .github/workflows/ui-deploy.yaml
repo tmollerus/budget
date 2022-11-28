@@ -31,6 +31,7 @@ jobs:
         run: npm i
 
       - name: Test
+        working-directory: packages/budget-ui
         run: npm run test
 
   deploy:
