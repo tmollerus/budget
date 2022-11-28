@@ -27,8 +27,8 @@ jobs:
 
       - name: Install
         shell: bash
-        run: |
-          npm i
+        working-directory: packages/budget-ui
+        run: npm i
 
       - name: Test
         run: npm run test
@@ -56,6 +56,7 @@ jobs:
 
       - name: Setup package and build
         id: build
+        working-directory: packages/budget-ui
         env:
           API_HOST: ${{ secrets.API_HOST }}
         run: |
@@ -63,11 +64,13 @@ jobs:
 
       - name: Deploy
         id: deploy
+        working-directory: packages/budget-ui
         run: cdk deploy --require-approval=never
 
       - name: Create changeset if deploy failed
         if: ${{ failure() }}
         id: changeset
+        working-directory: packages/budget-ui
         run: cdk deploy --require-approval=never --no-execute
 
       - name: If change-set created, comment on PR
@@ -75,7 +78,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           body: |
             I failed to deploy your stack.`.
             Here is a [change-set](${{ steps.change_set.outputs.change_set_url }}) that you must execute manually to deploy your application. Please contact a manager to execute the change-set.
