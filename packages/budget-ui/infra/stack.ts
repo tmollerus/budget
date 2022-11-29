@@ -72,7 +72,7 @@ export class BudgetUiStack extends Stack {
     // );
 
     new BucketDeployment(this, 'DeployWebsite', {
-      sources: [Source.asset('./out')],
+      sources: [Source.asset('./build')],
       destinationBucket: sourceBucket,
       destinationKeyPrefix: '/',
       // distribution: distribution,
