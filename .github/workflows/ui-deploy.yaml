@@ -57,11 +57,11 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+        run: echo "{date}={$(date +'%Y-%m-%d')}" >> $GITHUB_OUTPUT
 
       - name: Get current time
         id: time
-        run: echo "::set-output name=time::$(date +'%l:%M%P')"
+        run: echo "{time}={$(date +'%l:%M%P')}" >> $GITHUB_OUTPUT
 
       - name: Setup package and build
         id: build
@@ -80,7 +80,7 @@ jobs:
         run: cdk deploy --require-approval=never
 
       - name: Create changeset if deploy failed
-        if: steps.deploy.outcome == 'failure'
+        if: steps.deploy.outcome != 'success'
         id: changeset
         working-directory: packages/budget-ui
         run: cdk deploy --require-approval=never --no-execute
