@@ -1,15 +1,16 @@
 import { PAID_SYMBOL } from "../constants/theme";
 import { LedgerDataItem } from "../types";
-import { delimitNumbers, dollarFormat, getDayOfYear, getEntryBalance, getEntryExpense, getEntryIncome, getEntryPaid, getEntryTransfer, getEntryTypeName, getFirstOfMonth, getIncomeClass, getRowIdForMonth } from "./format";
+import { delimitNumbers, dollarFormat, getDayOfYear, getEntryBalance, getEntryExpense, getEntryIncome, getEntryPaid, getEntryTransfer, getEntryTypeName, getFirstOfMonth, getIncomeClass, getRowIdForMonth, formatDate } from "./format";
 
-// test('dateFormat', () => {
-//   expect(dateFormat(null)).toBe(undefined);
-//   expect(dateFormat(new Date())).not.toBe(undefined);
-//   expect(dateFormat('2012-11-23T00:00:00-0000')).toBe('Nov. 23');
-//   expect(dateFormat('2012-12-23T00:00:00-0600')).toBe('Dec. 23');
-//   expect(dateFormat('2012-09-02T00:00:00-0600')).toBe('Sep. 2');
-//   expect(dateFormat('2012-09-02T00:00:00-0600', 'mmmm dd, yyyy')).toBe('September 02, 2012');
-// });
+test('formatDate', () => {
+  expect(formatDate(null)).toBe(undefined);
+  expect(formatDate(new Date())).not.toBe(undefined);
+  expect(formatDate('2012-11-23T00:00:00-0000')).toBe('Nov. 23');
+  expect(formatDate('2012-12-23T00:00:00-0600')).toBe('Dec. 23');
+  expect(formatDate('2012-09-02T00:00:00-0600')).toBe('Sep. 2');
+  expect(formatDate('2012-09-02T00:00:00-0600', 'MMMM DD, YYYY')).toBe('September 02, 2012');
+  expect(formatDate('2012-09-02T00:00:00-0600', 'MMM. DD, YYYY')).toBe('Sep. 02, 2012');
+});
 
 test('dollarFormat', () => {
   expect(dollarFormat(10.35)).toBe('$10.35');

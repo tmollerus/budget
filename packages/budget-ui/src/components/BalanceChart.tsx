@@ -43,7 +43,7 @@ export const BalanceChart = () => {
             color: '#BBB',
             width: 1,
             dashStyle: 'dash',
-            value: getDayOfYear(formatDate(new Date(), 'yyyy-mm-dd') || ''),
+            value: getDayOfYear(formatDate(new Date(), 'YYYY-MM-DD') || ''),
           },
         ];
   };

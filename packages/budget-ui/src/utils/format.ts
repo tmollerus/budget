@@ -14,11 +14,13 @@ export const getMonthAsName = (index: number): string => {
 export const formatDate = (date: Date | string | null, format?: string): string | undefined => {
   if (typeof date === "string") {
     date = new Date(date.split("T")[0] + "T00:00:00-0600");
-  } else {
+  } else if (typeof date != 'object') {
+    return undefined;
+  } else if (!date) {
     return undefined;
   }
 
-  format = format || "mmm. d";
+  format = format || "MMM. D";
   return dateFormat(date, format);
 }
 

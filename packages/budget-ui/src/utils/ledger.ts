@@ -3,7 +3,8 @@ import { LedgerData, LedgerDataItem, MessageType } from "../types";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 
 export const getMessage = (messageType: MessageType, item: LedgerDataItem) => {
-  const itemDate = formatDate(item.settledDate, 'mmm. dd, yyyy');
+  const itemDate = formatDate(item.settledDate, 'MMM. DD, YYYY');
+  console.log(item.settledDate);
   const itemType = getEntryTypeName(item.type_id).toLowerCase();
 
   switch(messageType) {
