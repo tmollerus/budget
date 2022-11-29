@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+[![Deploy UI](https://github.com/tmollerus/budget/actions/workflows/ui-deploy.yaml/badge.svg)](https://github.com/tmollerus/budget/actions/workflows/ui-deploy.yaml)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

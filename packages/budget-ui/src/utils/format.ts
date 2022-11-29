@@ -1,5 +1,5 @@
-import * as npmDateFormat from "dateformat";
-import * as md5 from "md5";
+import { format as dateFormat } from 'fecha';
+import md5 from 'crypto-js/md5';
 import { PAID_SYMBOL } from "../constants/theme";
 import { LedgerDataItem } from "../types";
 
@@ -11,17 +11,15 @@ export const getMonthAsName = (index: number): string => {
   return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][index];
 }
 
-export const dateFormat = (date: Date | string | null, format?: string): string | undefined => {
-  if (date && typeof date !== "string") {
-    date = String(date);
-  } else if (typeof date === "string") {
+export const formatDate = (date: Date | string | null, format?: string): string | undefined => {
+  if (typeof date === "string") {
     date = new Date(date.split("T")[0] + "T00:00:00-0600");
   } else {
     return undefined;
   }
 
   format = format || "mmm. d";
-  return npmDateFormat.default(date, format);
+  return dateFormat(date, format);
 }
 
 export const dollarFormat = (amount: number, separators?: boolean, decimals?: boolean, allowNegative?: boolean): string => {
@@ -139,7 +137,7 @@ export const getFirstOfMonth = (month: number | string, year?: number | string):
 };
 
 export const getGravatarHash = (email: string): string | null => {
-  return email ? md5.default(email) : null;
+  return email ? md5(email).toString() : null;
 };
 
 export const getRowIdForMonth = (month: number | string, year?: number | string): string => {

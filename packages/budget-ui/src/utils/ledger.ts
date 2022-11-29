@@ -1,9 +1,9 @@
 import { Region, Regions } from "@blueprintjs/table";
 import { LedgerData, LedgerDataItem, MessageType } from "../types";
-import { dateFormat, dollarFormat, getEntryTypeName } from "./format";
+import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 
 export const getMessage = (messageType: MessageType, item: LedgerDataItem) => {
-  const itemDate = dateFormat(item.settledDate, 'mmm. dd, yyyy');
+  const itemDate = formatDate(item.settledDate, 'mmm. dd, yyyy');
   const itemType = getEntryTypeName(item.type_id).toLowerCase();
 
   switch(messageType) {

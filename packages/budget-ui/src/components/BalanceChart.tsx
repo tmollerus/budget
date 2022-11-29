@@ -4,7 +4,7 @@ import { COLORS } from '../constants/theme';
 import { useBudgetContext } from '../context';
 import { ChartData, ChartTooltip, LedgerDataItem } from '../types';
 import {
-  dateFormat,
+  formatDate,
   dollarFormat,
   getDateFromDayOfYear,
   getDayOfYear,
@@ -43,7 +43,7 @@ export const BalanceChart = () => {
             color: '#BBB',
             width: 1,
             dashStyle: 'dash',
-            value: getDayOfYear(dateFormat(new Date(), 'yyyy-mm-dd') || ''),
+            value: getDayOfYear(formatDate(new Date(), 'yyyy-mm-dd') || ''),
           },
         ];
   };
@@ -86,7 +86,7 @@ export const BalanceChart = () => {
       colors: [COLORS.income],
       tooltip: {
         formatter: function (tooltip: ChartTooltip) {
-          return `${dateFormat(
+          return `${formatDate(
             getDateFromDayOfYear(new Date().getFullYear(), tooltip.chart.hoverPoint?.x || 1),
           )}<br/>${dollarFormat(tooltip.chart.hoverPoint?.y || 100)}`;
         },
