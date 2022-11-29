@@ -1,4 +1,4 @@
-import { dateFormat, dollarFormat, getIncomeClass } from '../utils/format';
+import { formatDate, dollarFormat, getIncomeClass } from '../utils/format';
 import { STAT_PLACEHOLDER } from '../constants/theme';
 import { Statistics } from '../types';
 import { useStyles } from './StatTable.styles';
@@ -28,7 +28,7 @@ export const StatTable = () => {
 
   const getOutlook = () => {
     if (statistics?.deficitDate) {
-      return `Deficit by ${dateFormat(statistics.deficitDate)}`;
+      return `Deficit by ${formatDate(statistics.deficitDate)}`;
     } else {
       return `Surplus through ${budgetYear}`;
     }
