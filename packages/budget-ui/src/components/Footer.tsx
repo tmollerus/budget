@@ -1,11 +1,11 @@
 import { formatDate } from '../utils/format';
 import { useStyles } from './Footer.styles';
 
-export const Footer = (props: any) => {
+export const Footer = () => {
   const classes = useStyles();
   const currentYear = new Date().getFullYear();
-  const deployDate = formatDate(process.env.DEPLOY_DATE || new Date(), 'yyyy-mm-dd');
-  const deployTime = formatDate(process.env.DEPLOY_DATE || new Date(), 'h:MMtt');
+  const deployDate = process.env.DEPLOY_DATE || formatDate(new Date(), 'yyyy-mm-dd');
+  const deployTime = process.env.DEPLOY_TIME || formatDate(new Date(), 'h:MMtt');
 
   return (
     <div className={classes.footer}>

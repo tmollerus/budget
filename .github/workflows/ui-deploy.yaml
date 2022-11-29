@@ -55,11 +55,22 @@ jobs:
       - name: Install CDK
         run: sudo npm install -g aws-cdk
 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
+      - name: Get current time
+        id: time
+        run: echo "::set-output name=time::$(date +'%l:%M%P')"
+
       - name: Setup package and build
         id: build
         working-directory: packages/budget-ui
         env:
+          CI: false
           API_HOST: ${{ secrets.API_HOST }}
+          DEPLOY_DATE: steps.date.outputs.date
+          DEPLOY_TIME: steps.date.outputs.time
         run: |
           npm i && npm run build
 
@@ -69,13 +80,13 @@ jobs:
         run: cdk deploy --require-approval=never
 
       - name: Create changeset if deploy failed
-        if: ${{ failure() }}
+        if: steps.deploy.outcome == 'failure'
         id: changeset
         working-directory: packages/budget-ui
         run: cdk deploy --require-approval=never --no-execute
 
       - name: If change-set created, comment on PR
-        if: steps.change_set.outcome == 'success'
+        if: steps.changeset.outcome == 'success'
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
