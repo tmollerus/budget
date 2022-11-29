@@ -71,9 +71,9 @@ jobs:
         working-directory: packages/budget-ui
         env:
           CI: false
-          API_HOST: ${{ secrets.API_HOST }}
-          DEPLOY_DATE: steps.date.outputs.date
-          DEPLOY_TIME: steps.date.outputs.time
+          REACT_APP_API_HOST: ${{ secrets.API_HOST }}
+          REACT_APP_DEPLOY_DATE: steps.date.outputs.date
+          REACT_APP_DEPLOY_TIME: steps.date.outputs.time
         run: |
           npm i && npm run build
 
