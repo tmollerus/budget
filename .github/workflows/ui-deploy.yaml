@@ -1,0 +1,85 @@
+name: Deploy UI
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    types:
+      - labeled
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 16.15.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.15.0
+
+      - name: Install
+        shell: bash
+        working-directory: packages/budget-ui
+        run: npm i
+
+      - name: Test
+        working-directory: packages/budget-ui
+        run: npm run test
+
+  deploy:
+    if: ((github.event_name == 'pull_request') && (github.event.label.name == 'deploy ui')) || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update NPM
+        run: sudo npm install -g npm@8.1.0
+
+      - name: Install CDK
+        run: sudo npm install -g aws-cdk
+
+      - name: Setup package and build
+        id: build
+        working-directory: packages/budget-ui
+        env:
+          API_HOST: ${{ secrets.API_HOST }}
+        run: |
+          npm i && npm run build
+
+      - name: Deploy
+        id: deploy
+        working-directory: packages/budget-ui
+        run: cdk deploy --require-approval=never
+
+      - name: Create changeset if deploy failed
+        if: ${{ failure() }}
+        id: changeset
+        working-directory: packages/budget-ui
+        run: cdk deploy --require-approval=never --no-execute
+
+      - name: If change-set created, comment on PR
+        if: steps.change_set.outcome == 'success'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GH_TOKEN }}
+          body: |
+            I failed to deploy your stack.`.
+            Here is a [change-set](${{ steps.change_set.outputs.change_set_url }}) that you must execute manually to deploy your application. Please contact a manager to execute the change-set.
