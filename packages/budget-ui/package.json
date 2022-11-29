@@ -1,6 +1,6 @@
 {
   "name": "budget-ui",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "private": true,
   "scripts": {
     "start": "REACT_APP_VERSION=$npm_package_version react-scripts start",
@@ -34,7 +34,6 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/crypto-js": "^4.1.1",
-    "@types/highcharts": "^7.0.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.3",
     "@types/react": "^18.0.25",

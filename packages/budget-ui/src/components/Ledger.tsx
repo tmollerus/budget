@@ -63,6 +63,7 @@ export const Ledger = (props: any) => {
   });
 
   const reloadLedgerData = useCallback(async () => {
+    setItemToEdit(undefined);
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     newLedgerData.items = updateItemBalances(newLedgerData);
     setLedgerData(newLedgerData);
