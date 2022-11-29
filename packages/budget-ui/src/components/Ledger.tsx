@@ -460,7 +460,7 @@ export const Ledger = (props: any) => {
     try {
       const editedEntry = await updateEntry(budgetGuid, {
         guid,
-        settledDate: editedSettledDate,
+        settledDate: editedSettledDate?.split('T')[0],
         type_id: editedTypeId,
         amount: editedAmount, 
         paid: !!editedPaid,
@@ -486,12 +486,14 @@ export const Ledger = (props: any) => {
   };
 
   const handleCellFocus = (cell: IFocusedCellCoordinates) => {
-    setEditedSettledDate(filteredLedgerData.items[cell.row].settledDate);
-    setEditedTypeId(filteredLedgerData.items[cell.row].type_id);
-    setEditedPaid(!!filteredLedgerData.items[cell.row].paid);
-    setEditedAmount(filteredLedgerData.items[cell.row].amount);
-    setEditedLabel(filteredLedgerData.items[cell.row].label);
-    setItemToEdit(cell.row);
+    if (!itemToEdit || itemToEdit !== cell.row) {
+      setEditedSettledDate(filteredLedgerData.items[cell.row].settledDate);
+      setEditedTypeId(filteredLedgerData.items[cell.row].type_id);
+      setEditedPaid(filteredLedgerData.items[cell.row].paid);
+      setEditedAmount(filteredLedgerData.items[cell.row].amount);
+      setEditedLabel(filteredLedgerData.items[cell.row].label);
+      setItemToEdit(cell.row);
+    }
   };
 
   return (
