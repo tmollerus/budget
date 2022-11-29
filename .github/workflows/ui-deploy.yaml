@@ -83,13 +83,13 @@ jobs:
         run: cdk bootstrap && cdk deploy --require-approval=never
 
       - name: Create changeset if deploy failed
-        if: steps.deploy.outcome != 'success'
+        if: steps.deploy.conclusion == 'failure'
         id: changeset
         working-directory: packages/budget-ui
         run: cdk deploy --require-approval=never --no-execute
 
       - name: If change-set created, comment on PR
-        if: steps.changeset.outcome == 'success'
+        if: steps.changeset.conclusion == 'success'
         uses: peter-evans/create-or-update-comment@v1
         with:
           issue-number: ${{ github.event.pull_request.number }}
