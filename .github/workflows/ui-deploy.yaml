@@ -64,7 +64,7 @@ jobs:
 
       - name: Get current time
         id: time
-        run: echo "time=$(date +'%I:%M%P')" >> $GITHUB_OUTPUT
+        run: echo "time=$(date +'%I:%M%#p')" >> $GITHUB_OUTPUT
 
       - name: Setup package and build
         id: build
@@ -73,7 +73,7 @@ jobs:
           CI: false
           REACT_APP_API_HOST: ${{ secrets.API_HOST }}
           REACT_APP_DEPLOY_DATE: ${{ steps.date.outputs.date }}
-          REACT_APP_DEPLOY_TIME: ${{ steps.date.outputs.time }}
+          REACT_APP_DEPLOY_TIME: ${{ steps.time.outputs.time }}
         run: |
           npm i && npm run build
 

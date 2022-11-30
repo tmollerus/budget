@@ -292,26 +292,18 @@ export const Ledger = (props: any) => {
       return (
         <Cell className={getCellClassName(index, [classes.label])} interactive={itemToEdit === index}>
           {itemToEdit === index
-          ? 
-          <span className="labelInputItems">
-            <input
-              className={classes.labelInput}
-              name="label"
-              value={editedLabel}
-              onChange={(e) => setEditedLabel(e.target.value)}
-              placeholder="Description"
-            />
-            <button className={classes.button} onClick={() => saveEditedItem(filteredLedgerData.items[index].guid)}>Save</button>
-            <button className={classes.button} onClick={clearItemToEdit}>Cancel</button>
-          </span>
-          : <span className={classes.labelItems}>
-              <span>{filteredLedgerData.items[index].label}</span>
-              <span className={classes.deleteIcon}>
-                <span className="material-icons md-18" onClick={() => confirmDeletion(index)}>
-                  cancel
-                </span>
+            ? <span className="labelInputItems">
+                <input
+                  className={classes.labelInput}
+                  name="label"
+                  value={editedLabel}
+                  onChange={(e) => setEditedLabel(e.target.value)}
+                  placeholder="Description"
+                />
+                <button className={classes.button} onClick={() => saveEditedItem(filteredLedgerData.items[index].guid)}>Save</button>
+                <button className={classes.button} onClick={clearItemToEdit}>Cancel</button>
               </span>
-            </span>
+            : <span>{filteredLedgerData.items[index].label}</span>
           }
         </Cell>
       );
@@ -337,11 +329,6 @@ export const Ledger = (props: any) => {
                 </span>
               </span>
             </div>
-            <span className={classes.addIcon}>
-              <span className="material-icons md-18" onClick={() => { clearItemToEdit(); setIsAdding(!isAdding)}}>
-                add_circle
-              </span>
-            </span>
           </div>
         </div>
         {!!isAdding && (
@@ -360,6 +347,33 @@ export const Ledger = (props: any) => {
       </ColumnHeaderCell2>
     );
   };
+  const deleteRenderer = (index: number) => {
+    if (filteredLedgerData.items[index]) {
+      return (
+        <Cell className={getCellClassName(index, [classes.delete])}>
+          <span className={classes.deleteIcon}>
+            <span className="material-icons md-18" onClick={() => confirmDeletion(index)}>
+              cancel
+            </span>
+          </span>
+        </Cell>
+      );
+    }
+  };
+  const deleteHeaderRenderer = () => {
+    return (
+      <ColumnHeaderCell2>
+        <div className={classes.deleteHeader}>
+          <div></div>
+          <span className={classes.addIcon}>
+            <span className="material-icons md-18" onClick={() => { clearItemToEdit(); setIsAdding(!isAdding)}}>
+              add_circle
+            </span>
+          </span>
+        </div>
+      </ColumnHeaderCell2>
+    );
+  };
 
   const getLoadingOptions = (): TableLoadingOption[] => {
     const loadingOptions: TableLoadingOption[] = [];
@@ -372,9 +386,11 @@ export const Ledger = (props: any) => {
   };
 
   const getColumnWidths = useCallback((): Array<number> => {
+    const deleteColWidth = 30;
     const setWidths = [80, 80, 80, 100, 80, 40];
-    const labelWidth = ledgerRightWidth - setWidths.reduce((prev, curr) => { return prev + curr});
-    setWidths.push(labelWidth);
+    const labelColWidth = ledgerRightWidth - deleteColWidth - setWidths.reduce((prev, curr) => { return prev + curr});
+    setWidths.push(labelColWidth);
+    setWidths.push(deleteColWidth);
     return setWidths;
   }, [ledgerRightWidth]);
 
@@ -395,6 +411,7 @@ export const Ledger = (props: any) => {
   };
 
   const confirmDeletion = (index: number) => {
+    clearItemToEdit();
     setItemToDelete(index);
     setDialogMessage(getMessage(MessageType.CONFIRM_DELETE, ledgerData.items[index]));
     openDeleteDialog();
@@ -449,6 +466,7 @@ export const Ledger = (props: any) => {
   };
 
   const clearAddItem = () => {
+    clearItemToEdit();
     setIsAdding(!isAdding);
     setNewSettledDate(defaultDate.toISOString().split('T')[0]);
     setNewTypeId(2);
@@ -487,13 +505,15 @@ export const Ledger = (props: any) => {
   };
 
   const handleCellFocus = (cell: IFocusedCellCoordinates) => {
-    if (!itemToEdit || itemToEdit !== cell.row) {
-      setEditedSettledDate(filteredLedgerData.items[cell.row].settledDate);
-      setEditedTypeId(filteredLedgerData.items[cell.row].type_id);
-      setEditedPaid(filteredLedgerData.items[cell.row].paid);
-      setEditedAmount(filteredLedgerData.items[cell.row].amount);
-      setEditedLabel(filteredLedgerData.items[cell.row].label);
-      setItemToEdit(cell.row);
+    if (cell.col !== 7) { // Don't start the edit action if the delete icon was clicked
+      if (!itemToEdit || itemToEdit !== cell.row ) {
+        setEditedSettledDate(filteredLedgerData.items[cell.row].settledDate);
+        setEditedTypeId(filteredLedgerData.items[cell.row].type_id);
+        setEditedPaid(filteredLedgerData.items[cell.row].paid);
+        setEditedAmount(filteredLedgerData.items[cell.row].amount);
+        setEditedLabel(filteredLedgerData.items[cell.row].label);
+        setItemToEdit(cell.row);
+      }
     }
   };
 
@@ -512,7 +532,7 @@ export const Ledger = (props: any) => {
             enableColumnResizing={false}
             enableFocusedCell={true}
             selectionModes={SelectionModes.ROWS_ONLY}
-            cellRendererDependencies={[filteredLedgerData]}
+            cellRendererDependencies={[filteredLedgerData,isBudgetLoading,ledgerRightWidth]}
             loadingOptions={getLoadingOptions()}
             onFocusedCell={handleCellFocus}
             ref={refHandlers.table}
@@ -544,6 +564,10 @@ export const Ledger = (props: any) => {
               name="label"
               cellRenderer={labelRenderer}
               columnHeaderCellRenderer={labelHeaderRenderer}
+            />
+            <Column name=""
+              cellRenderer={deleteRenderer}
+              columnHeaderCellRenderer={deleteHeaderRenderer}
             />
           </Table2>
         </HotkeysProvider>

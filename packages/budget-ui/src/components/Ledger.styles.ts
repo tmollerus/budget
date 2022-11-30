@@ -108,6 +108,10 @@ export const useStyles = createUseStyles({
   labelHeader: {
     display: 'flex',
     justifyContent: 'space-between',
+  },
+  deleteHeader: {
+    display: 'flex',
+    justifyContent: 'center',
     '& .material-icons': {
       verticalAlign: 'middle',
       fontSize: '16px',
@@ -116,8 +120,7 @@ export const useStyles = createUseStyles({
     }
   },
   addIcon: {
-    marginLeft: '4px',
-    fontSize: '15px',
+    fontSize: '16px',
     '& .material-icons:hover': {
       color: COLORS.income,
     }
@@ -192,6 +195,18 @@ export const useStyles = createUseStyles({
   },
   button: {
     marginLeft: '6px',
+  },
+  delete: {
+    '& .bp4-table-truncated-text': {
+      display: 'flex',
+      justifyContent: 'center',
+      '& $deleteIcon': {
+        marginTop: '2px',
+      },
+      '&:hover $deleteIcon': {
+        visibility: 'visible',
+      }
+    },
   },
   deleteIcon: {
     visibility: 'hidden',
