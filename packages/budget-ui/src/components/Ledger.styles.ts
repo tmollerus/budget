@@ -181,8 +181,12 @@ export const useStyles = createUseStyles({
     },
   },
   clearIconVisible: {
+    fontSize: '15px',
+    marginTop: '2px',
+    color: COLORS.text,
     '& .material-icons.show': {
       visibility: 'visible',
+      cursor: 'pointer',
     },
   },
   searchInput: {

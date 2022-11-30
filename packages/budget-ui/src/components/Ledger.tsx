@@ -532,7 +532,7 @@ export const Ledger = (props: any) => {
             enableColumnResizing={false}
             enableFocusedCell={true}
             selectionModes={SelectionModes.ROWS_ONLY}
-            cellRendererDependencies={[filteredLedgerData,isBudgetLoading,ledgerRightWidth]}
+            cellRendererDependencies={[filteredLedgerData,ledgerRightWidth]}
             loadingOptions={getLoadingOptions()}
             onFocusedCell={handleCellFocus}
             ref={refHandlers.table}

@@ -22,61 +22,72 @@ export class BudgetUiStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // const logBucket = new Bucket(
-    //   this,
-    //   'BudgetUiLogBucket',
-    // );
+    const logBucket = new Bucket(
+      this,
+      'BudgetUiLogBucket',
+      {
+        bucketName: 'budget-ui-logs'
+      }
+    );
 
     const sourceBucket = new Bucket(
       this,
       'BudgetUiSourceBucket',
+      {
+        bucketName: 'budget-ui'
+      }
     );
 
-    // const s3Origin = new S3Origin(
-    //   sourceBucket,
-    //   { originPath: '/' },
-    // );
+    const s3Origin = new S3Origin(
+      sourceBucket,
+      { originPath: '/' },
+    );
 
-    // const distribution = new Distribution(
-    //   this,
-    //   'BudgetUiDistribution',
-    //   {
-    //     enableLogging: true,
-    //     logBucket,
-    //     logFilePrefix: 'BudgetUi',
-    //     domainNames: ['budget.mollerus.net'],
-    //     certificate: Certificate.fromCertificateArn(
-    //       this,
-    //       'BudgetUiCertificate',
-    //       'arn:aws:acm:us-east-1:360115878429:certificate/c0493e59-c808-443c-ab49-d96023a1e417'
-    //     ),
-    //     minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2018,
-    //     sslSupportMethod: SSLMethod.SNI,
-    //     defaultBehavior: {
-    //       origin: s3Origin,
-    //       compress: true,
-    //       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    //     },
-    //     priceClass: PriceClass.PRICE_CLASS_100,
-    //     comment: 'Budget UI',
-    //     defaultRootObject: `index.html`,
-    //     enabled: true,
-    //     errorResponses: [
-    //       {
-    //         httpStatus: 403,
-    //         responseHttpStatus: 404,
-    //         responsePagePath: `/404/index.html`,
-    //       },
-    //     ],
-    //   }
-    // );
+    const distribution = new Distribution(
+      this,
+      'BudgetUiDistribution',
+      {
+        enableLogging: true,
+        logBucket,
+        logFilePrefix: 'BudgetUi',
+        domainNames: ['budget.mollerus.net'],
+        certificate: Certificate.fromCertificateArn(
+          this,
+          'BudgetUiCertificate',
+          'arn:aws:acm:us-east-1:360115878429:certificate/c0493e59-c808-443c-ab49-d96023a1e417'
+        ),
+        minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
+        sslSupportMethod: SSLMethod.SNI,
+        defaultBehavior: {
+          origin: s3Origin,
+          compress: true,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        },
+        priceClass: PriceClass.PRICE_CLASS_100,
+        comment: 'Budget UI',
+        defaultRootObject: `index.html`,
+        enabled: true,
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+          },
+        ],
+      }
+    );
 
     new BucketDeployment(this, 'DeployWebsite', {
       sources: [Source.asset('./build')],
       destinationBucket: sourceBucket,
       destinationKeyPrefix: '/',
-      // distribution: distribution,
-      // distributionPaths: ['/*'],
+      distribution: distribution,
+      distributionPaths: ['/*'],
     });
   }
 }
