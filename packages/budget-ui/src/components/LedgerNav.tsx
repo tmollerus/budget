@@ -22,6 +22,9 @@ export const LedgerNav = (props: any) => {
     props.scrollToMonth(month);
   };
 
+  const isCurrentYear = budgetYear === new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+
   const getMonthNavFor = (month: number) => {
     return (
       <div key={month} className={classes.month} onClick={() => scrollToMonth(month)}>
@@ -43,18 +46,21 @@ export const LedgerNav = (props: any) => {
         <span className={classes.year}>{budgetYear}</span>
         <a href={`${APP.ROUTES.LEDGER}/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
       </div>
-      {getMonthNavFor(0)}
-      {getMonthNavFor(1)}
-      {getMonthNavFor(2)}
-      {getMonthNavFor(3)}
-      {getMonthNavFor(4)}
-      {getMonthNavFor(5)}
-      {getMonthNavFor(6)}
-      {getMonthNavFor(7)}
-      {getMonthNavFor(8)}
-      {getMonthNavFor(9)}
-      {getMonthNavFor(10)}
-      {getMonthNavFor(11)}
+      <div className={classes.monthNav}>
+        {isCurrentYear && <span className={classes.todayIndicator} onClick={() => scrollToMonth(currentMonth)} />}
+        {getMonthNavFor(0)}
+        {getMonthNavFor(1)}
+        {getMonthNavFor(2)}
+        {getMonthNavFor(3)}
+        {getMonthNavFor(4)}
+        {getMonthNavFor(5)}
+        {getMonthNavFor(6)}
+        {getMonthNavFor(7)}
+        {getMonthNavFor(8)}
+        {getMonthNavFor(9)}
+        {getMonthNavFor(10)}
+        {getMonthNavFor(11)}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import {createUseStyles} from 'react-jss';
 import { COLORS } from '../constants/theme';
+import { getDayOfYear } from '../utils/format';
 
 export const useStyles = createUseStyles({
   ledgerNav: {
@@ -20,6 +21,12 @@ export const useStyles = createUseStyles({
   year: {
     padding: '0px 1px',
   },
+  monthNav: {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '-webkit-fill-available',
+  },
   month: {
     display: 'flex',
     alignItems: 'center',
@@ -29,5 +36,16 @@ export const useStyles = createUseStyles({
       backgroundColor: COLORS.sidebar,
     },
     cursor: 'pointer',
+  },
+  todayIndicator: {
+    position: 'absolute',
+    width: '100%',
+    top: `${(getDayOfYear((new Date()).toISOString()) / 365) * 100}%`,
+    height: '1px',
+    borderBottom: `1px dashed ${COLORS.icon_default}`,
+    cursor: 'pointer',
+    '&:hover': {
+      borderColor: COLORS.expense,
+    },
   }
 });
