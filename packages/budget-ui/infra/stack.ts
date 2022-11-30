@@ -26,7 +26,7 @@ export class BudgetUiStack extends Stack {
       this,
       'BudgetUiLogBucket',
       {
-        bucketName: 'budget-ui-logs'
+        bucketName: 'budget.mollerus.net-logs'
       }
     );
 
@@ -34,7 +34,7 @@ export class BudgetUiStack extends Stack {
       this,
       'BudgetUiSourceBucket',
       {
-        bucketName: 'budget-ui'
+        bucketName: 'budget.mollerus.net-ui'
       }
     );
 
