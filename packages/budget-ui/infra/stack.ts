@@ -33,7 +33,6 @@ export class BudgetUiStack extends Stack {
       'BudgetUiLogBucket',
       {
         bucketName: 'budget.mollerus.net-logs',
-        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       }
     );
 
@@ -42,7 +41,6 @@ export class BudgetUiStack extends Stack {
       'BudgetUiSourceBucket',
       {
         bucketName: 'budget.mollerus.net-ui',
-        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       }
     );
     sourceBucket.grantRead(originAccessIdentity);
