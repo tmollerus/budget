@@ -3,7 +3,7 @@ import { COLORS } from '../constants/theme';
 
 export const useStyles = createUseStyles({
   wrapper: {
-    backgroundColor: '#ebefe3',
+    backgroundColor: COLORS.mainBackground,
     minHeight: '100vh',
     width: '100vw',
     display: 'flex',

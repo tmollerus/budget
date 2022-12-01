@@ -11,7 +11,7 @@ export const useStyles = createUseStyles({
   ledgerLeft: {
     width: '80px',
     minWidth: '80px',
-    backgroundColor: '#f6f7f9',
+    backgroundColor: COLORS.table,
   },
   ledgerRight: {
     width: '100%',
@@ -121,6 +121,8 @@ export const useStyles = createUseStyles({
   },
   addIcon: {
     fontSize: '16px',
+    paddingTop: '8px',
+    display: 'flex',
     '& .material-icons:hover': {
       color: COLORS.income,
     }
@@ -168,7 +170,7 @@ export const useStyles = createUseStyles({
   searchInputGroup: {
     display: 'inline-flex',
     maxHeight: '24px',
-    backgroundColor: '#ffffff',
+    backgroundColor: COLORS.white,
     border: `1px solid #cccccc`,
     borderRadius: '3px',
     margin: '0px',
@@ -181,12 +183,12 @@ export const useStyles = createUseStyles({
     },
   },
   clearIconVisible: {
-    fontSize: '15px',
-    marginTop: '2px',
-    color: COLORS.text,
-    '& .material-icons.show': {
+    marginTop: '5px',
+    '& .material-icons': {
       visibility: 'visible',
       cursor: 'pointer',
+      fontSize: '15px',
+      color: COLORS.mediumGrey,
     },
   },
   searchInput: {

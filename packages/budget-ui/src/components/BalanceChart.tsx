@@ -40,7 +40,7 @@ export const BalanceChart = () => {
       ? null
       : [
           {
-            color: '#BBB',
+            color: COLORS.plotline,
             width: 1,
             dashStyle: 'dash',
             value: getDayOfYear(formatDate(new Date(), 'YYYY-MM-DD') || ''),
@@ -90,7 +90,7 @@ export const BalanceChart = () => {
             getDateFromDayOfYear(new Date().getFullYear(), tooltip.chart.hoverPoint?.x || 1),
           )}<br/>${dollarFormat(tooltip.chart.hoverPoint?.y || 100)}`;
         },
-        borderColor: '#999999',
+        borderColor: COLORS.mediumGrey,
       },
       xAxis: {
         title: {
@@ -145,7 +145,7 @@ export const BalanceChart = () => {
         tickInterval: yAxisInterval,
         plotBands: [
           {
-            color: '#CCC',
+            color: COLORS.lightGrey,
             from: 0,
             to: 365,
           },

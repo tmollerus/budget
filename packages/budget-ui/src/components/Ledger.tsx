@@ -352,7 +352,7 @@ export const Ledger = (props: any) => {
       return (
         <Cell className={getCellClassName(index, [classes.delete])}>
           <span className={classes.deleteIcon}>
-            <span className="material-icons md-18" onClick={() => confirmDeletion(index)}>
+            <span className="material-icons md-18" title="Delete this item" onClick={() => confirmDeletion(index)}>
               cancel
             </span>
           </span>
@@ -366,7 +366,7 @@ export const Ledger = (props: any) => {
         <div className={classes.deleteHeader}>
           <div></div>
           <span className={classes.addIcon}>
-            <span className="material-icons md-18" onClick={() => { clearItemToEdit(); setIsAdding(!isAdding)}}>
+            <span className="material-icons md-18" title="Add a new item" onClick={() => { clearItemToEdit(); setIsAdding(!isAdding)}}>
               add_circle
             </span>
           </span>

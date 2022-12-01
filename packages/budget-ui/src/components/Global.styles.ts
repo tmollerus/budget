@@ -3,7 +3,7 @@ import { COLORS } from '../constants/theme';
 
 export const useGlobalStyles = createUseStyles({
   wrapper: {
-    backgroundColor: '#ebefe3',
+    backgroundColor: COLORS.mainBackground,
     minHeight: '100vh',
     width: '100vw',
     display: 'flex',
@@ -17,9 +17,9 @@ export const useGlobalStyles = createUseStyles({
     maxWidth: '300px',
   },
   dialog: {
-    backgroundColor: COLORS.dialog,
+    backgroundColor: COLORS.white,
     padding: '20px 40px 30px 40px',
-    border: '1px solid #aaaaaa',
+    border: `1px solid ${COLORS.silver}`,
     borderRadius: '6px',
     fontSize: '120%',
     textAlign: 'center',
