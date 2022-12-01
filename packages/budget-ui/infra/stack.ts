@@ -23,6 +23,11 @@ export class BudgetUiStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
+    const originAccessIdentity: OriginAccessIdentity = new OriginAccessIdentity(
+      this,
+      'BudgetUiOriginAccessIdentity',
+    );
+
     const logBucket = new Bucket(
       this,
       'BudgetUiLogBucket',
@@ -38,11 +43,7 @@ export class BudgetUiStack extends Stack {
         bucketName: 'budget.mollerus.net-ui'
       }
     );
-
-    const originAccessIdentity: OriginAccessIdentity = new OriginAccessIdentity(
-      this,
-      'BudgetUiOriginAccessIdentity',
-    );
+    sourceBucket.grantRead(originAccessIdentity);
 
     const s3Origin = new S3Origin(
       sourceBucket,
