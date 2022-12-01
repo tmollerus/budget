@@ -6,6 +6,7 @@ import {
   Distribution,
   SecurityPolicyProtocol,
   SSLMethod,
+  OriginAccessIdentity,
 } from '@aws-cdk/aws-cloudfront';
 import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
 import { Bucket } from '@aws-cdk/aws-s3';
@@ -38,9 +39,17 @@ export class BudgetUiStack extends Stack {
       }
     );
 
+    const originAccessIdentity: OriginAccessIdentity = new OriginAccessIdentity(
+      this,
+      'BudgetUiOriginAccessIdentity',
+    );
+
     const s3Origin = new S3Origin(
       sourceBucket,
-      { originPath: '/' },
+      { 
+        originPath: '/',
+        originAccessIdentity
+      },
     );
 
     const distribution = new Distribution(
