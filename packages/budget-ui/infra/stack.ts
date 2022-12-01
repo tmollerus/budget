@@ -9,7 +9,7 @@ import {
   OriginAccessIdentity,
 } from '@aws-cdk/aws-cloudfront';
 import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
-import { Bucket } from '@aws-cdk/aws-s3';
+import { BlockPublicAccess, Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
 
@@ -32,7 +32,8 @@ export class BudgetUiStack extends Stack {
       this,
       'BudgetUiLogBucket',
       {
-        bucketName: 'budget.mollerus.net-logs'
+        bucketName: 'budget.mollerus.net-logs',
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       }
     );
 
@@ -40,7 +41,8 @@ export class BudgetUiStack extends Stack {
       this,
       'BudgetUiSourceBucket',
       {
-        bucketName: 'budget.mollerus.net-ui'
+        bucketName: 'budget.mollerus.net-ui',
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       }
     );
     sourceBucket.grantRead(originAccessIdentity);
@@ -60,7 +62,6 @@ export class BudgetUiStack extends Stack {
         enableLogging: true,
         logBucket,
         logFilePrefix: 'BudgetUi',
-        domainNames: ['budget.mollerus.net'],
         certificate: Certificate.fromCertificateArn(
           this,
           'BudgetUiCertificate',
