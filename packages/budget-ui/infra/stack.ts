@@ -62,17 +62,18 @@ export class BudgetUiStack extends Stack {
         enableLogging: true,
         logBucket,
         logFilePrefix: 'BudgetUi',
-        certificate: Certificate.fromCertificateArn(
-          this,
-          'BudgetUiCertificate',
-          'arn:aws:acm:us-east-1:360115878429:certificate/c0493e59-c808-443c-ab49-d96023a1e417'
-        ),
-        minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
-        sslSupportMethod: SSLMethod.SNI,
+        // domainNames: ['budget.mollerus.net'],
+        // certificate: Certificate.fromCertificateArn(
+        //   this,
+        //   'BudgetUiCertificate',
+        //   'arn:aws:acm:us-east-1:360115878429:certificate/c0493e59-c808-443c-ab49-d96023a1e417'
+        // ),
+        // minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
+        // sslSupportMethod: SSLMethod.SNI,
         defaultBehavior: {
           origin: s3Origin,
           compress: true,
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          // viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
         priceClass: PriceClass.PRICE_CLASS_100,
         comment: 'Budget UI',
