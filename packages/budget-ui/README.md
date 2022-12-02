@@ -2,7 +2,7 @@
 
 [![Deploy UI](https://github.com/tmollerus/budget/actions/workflows/ui-deploy.yaml/badge.svg)](https://github.com/tmollerus/budget/actions/workflows/ui-deploy.yaml) [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app). Available at [budget.mollerus.net](https://budget.mollerus.net)
 
 ## Available Scripts
 
