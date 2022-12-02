@@ -40,7 +40,7 @@ jobs:
     needs: [test]
     permissions:
       id-token: write
-      contents: read
+      contents: write
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
