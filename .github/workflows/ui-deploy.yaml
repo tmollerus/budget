@@ -58,6 +58,12 @@ jobs:
       - name: Install CDK
         run: sudo npm install -g aws-cdk
 
+      - name: Install
+        id: install
+        working-directory: packages/budget-ui
+        run: |
+          npm i
+
       - name: Version and publish package
         if: github.event_name == 'push'
         env:
@@ -86,7 +92,7 @@ jobs:
           REACT_APP_DEPLOY_DATE: ${{ steps.date.outputs.date }}
           REACT_APP_DEPLOY_TIME: ${{ steps.time.outputs.time }}
         run: |
-          npm i && npm run build
+          npm run build
 
       - name: Deploy
         id: deploy
