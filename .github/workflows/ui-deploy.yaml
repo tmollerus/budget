@@ -58,6 +58,17 @@ jobs:
       - name: Install CDK
         run: sudo npm install -g aws-cdk
 
+      - name: Version and publish package
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GIT_AUTHOR_NAME: Tom Mollerus
+          GIT_AUTHOR_EMAIL: tom@mollerus.net
+          GIT_COMMITTER_NAME: Tom Mollerus
+          GIT_COMMITTER_EMAIL: tom@mollerus.net
+        working-directory: packages/budget-ui
+        run: npx semantic-release -e semantic-release-monorepo
+
       - name: Get current date
         id: date
         run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
@@ -76,17 +87,6 @@ jobs:
           REACT_APP_DEPLOY_TIME: ${{ steps.time.outputs.time }}
         run: |
           npm i && npm run build
-
-      - name: Version and publish package
-        if: github.event_name == 'push'
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GIT_AUTHOR_NAME: Tom Mollerus
-          GIT_AUTHOR_EMAIL: tom@mollerus.net
-          GIT_COMMITTER_NAME: Tom Mollerus
-          GIT_COMMITTER_EMAIL: tom@mollerus.net
-        working-directory: packages/budget-ui
-        run: npx semantic-release -e semantic-release-monorepo
 
       - name: Deploy
         id: deploy
