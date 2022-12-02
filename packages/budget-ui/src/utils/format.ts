@@ -14,8 +14,6 @@ export const getMonthAsName = (index: number): string => {
 export const formatDate = (date: Date | string | null, format?: string): string | undefined => {
   if (typeof date === "string") {
     date = new Date(date.split("T")[0] + "T00:00:00-0600");
-  } else if (typeof date != 'object') {
-    return undefined;
   } else if (!date) {
     return undefined;
   }
@@ -64,6 +62,10 @@ export const getDateFromDayOfYear = (year: number, day: number): Date => {
   return new Date(date.setDate(day - 1)); // add the number of days
 };
 
+export const isLeapYear = (year: number): boolean => {
+  return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
+};
+
 export const getDayOfYear = (datestring: string): number => {
   let dateArray = datestring.split('T')[0].split('-');
   let y = Number(dateArray[0]);
@@ -74,7 +76,7 @@ export const getDayOfYear = (datestring: string): number => {
   let mn = m - 1;
   let dn = d;
   let dayOfYear = +dayCount[mn] + +dn;
-  if (mn > 1 && (!((y & 3) !== 0) || (y % 100 !== 0 || y % 400 === 0))) {
+  if (mn > 1 && isLeapYear(y)) {
     dayOfYear++;
   }
 
@@ -140,15 +142,4 @@ export const getFirstOfMonth = (month: number | string, year?: number | string):
 
 export const getGravatarHash = (email: string): string | null => {
   return email ? md5(email).toString() : null;
-};
-
-export const getRowIdForMonth = (month: number | string, year?: number | string): string => {
-  if (!year && typeof month === 'string') {
-    year = month.split("-")[0];
-    month = month.split("-")[1];
-  }
-
-  month = Number(month) < 10 && String(month)[0] !== '0' ? "0" + month : month;
-
-  return year + "-" + month;
 };
