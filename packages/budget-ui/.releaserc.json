@@ -1,5 +1,5 @@
 {
-  "repositoryUrl": "https://github.com/tmollerus/budget",
+  "repositoryUrl": "https://github.com/tmollerus/budget.git",
   "tagFormat": "budget-ui-v${version}",
   "branches": ["master"],
   "extends": "semantic-release-monorepo",
