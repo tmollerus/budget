@@ -26,28 +26,32 @@ export const Ledger = (props: any) => {
   const classes = useStyles();
   const { budgetGuid, setBudgetGuid, budgetYear, ledgerData, setLedgerData } = useBudgetContext();
   let filteredLedgerData: LedgerData = Object.assign({}, ledgerData);
+  const currentDate = new Date();
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
+
+  const [isFirstRenderedYear, setIsFirstRenderedYear] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [itemToDelete, setItemToDelete] = useState<number>();
+  const [dialogMessage, setDialogMessage] = useState<string>('');
+  const [isBudgetLoading, setIsBudgetLoading] = useState<boolean>(true);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [ledgerRightWidth, setLedgerRightWidth] = useState(0);
+
+  const [isAdding, setIsAdding] = useState(false);
   const [newSettledDate, setNewSettledDate] = useState<string>(defaultDate.toISOString().split('T')[0]);
   const [newTypeId, setNewTypeId] = useState<number>(2);
   const [newAmount, setNewAmount] = useState<number>();
   const [newPaid, setNewPaid] = useState<boolean>(false);
   const [newLabel, setNewLabel] = useState<string>('');
 
+  const [itemToEdit, setItemToEdit] = useState<number>();
   const [editedSettledDate, setEditedSettledDate] = useState<string>();
   const [editedTypeId, setEditedTypeId] = useState<number>();
   const [editedAmount, setEditedAmount] = useState<number>();
   const [editedPaid, setEditedPaid] = useState<boolean>();
   const [editedLabel, setEditedLabel] = useState<string>();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [itemToDelete, setItemToDelete] = useState<number>();
-  const [dialogMessage, setDialogMessage] = useState<string>('');
-  const [isBudgetLoading, setIsBudgetLoading] = useState<boolean>(true);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<number>();
-  const [ledgerRightWidth, setLedgerRightWidth] = useState(0);
   let ledgerRightInstance = createRef<HTMLDivElement>();
   let tableInstance: Table2;
   let regions: React.MutableRefObject<Array<Region>> = useRef<Array<Region>>([]);
@@ -70,10 +74,12 @@ export const Ledger = (props: any) => {
   }, [budgetGuid, budgetYear, setLedgerData]);
 
   useEffect(() => {
-    setIsBudgetLoading(true);
-    reloadLedgerData();
-    setIsBudgetLoading(false);
-    window.document.title = `${budgetYear} Budget`;
+    if (budgetGuid) {
+      setIsBudgetLoading(true);
+      reloadLedgerData();
+      setIsBudgetLoading(false);
+      window.document.title = `${budgetYear} Budget`;
+    }
   }, [budgetGuid, budgetYear, reloadLedgerData, setLedgerData]);
 
   useEffect(() => {
@@ -85,6 +91,19 @@ export const Ledger = (props: any) => {
     regions.current = getRegions(filteredLedgerData.items);
   }, [ledgerData.items, searchTerm]);
 
+  useEffect(() => {
+    if (regions.current.length) {
+      try {
+        if (isFirstRenderedYear && budgetYear === currentDate.getFullYear()) {
+          scrollToMonth(currentDate.getMonth());
+          setIsFirstRenderedYear(false);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }, [ledgerData]);
+
   const getCellClassName = (index: number, existingClasses?: Array<string>) => {
     const className = index % 2 ? classes.even : undefined;
     const allClasses = existingClasses || [];
@@ -95,6 +114,7 @@ export const Ledger = (props: any) => {
 
     return allClasses.join(' ');
   };
+
   const getFirstOfDateClass = (index: number) => {
     const currentDate = filteredLedgerData.items[index]?.settledDate.split('T')[0];
     const previousDate =
@@ -106,6 +126,7 @@ export const Ledger = (props: any) => {
       return classes.notFirstOfDate;
     }
   };
+
   const dateRenderer = (index: number) => {
     if (filteredLedgerData.items[index]) {
       const settledDate = parseDate(
