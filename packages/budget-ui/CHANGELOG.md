@@ -1,3 +1,10 @@
+# [budget-ui-v3.2.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.2.0...budget-ui-v3.2.1) (2022-12-03)
+
+
+### Bug Fixes
+
+* added unit tests ([ad099f8](https://github.com/tmollerus/budget/commit/ad099f8950e8585ce1e309f2303359ae010ffcf4))
+
 # [budget-ui-v3.2.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.1.0...budget-ui-v3.2.0) (2022-12-02)
 
 
