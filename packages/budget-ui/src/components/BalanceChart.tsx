@@ -3,11 +3,10 @@ import { useEffect } from 'react';
 import { COLORS } from '../constants/theme';
 import { useBudgetContext } from '../context';
 import { ChartData, ChartTooltip, LedgerDataItem } from '../types';
+import { getDateFromDayOfYear, getDayOfYear } from '../utils/date';
 import {
   formatDate,
   dollarFormat,
-  getDateFromDayOfYear,
-  getDayOfYear,
   getIncomeOrExpense,
 } from '../utils/format';
 import { useStyles } from './StatTable.styles';

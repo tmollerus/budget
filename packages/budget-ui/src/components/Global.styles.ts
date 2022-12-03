@@ -24,7 +24,6 @@ export const useGlobalStyles = createUseStyles({
     fontSize: '120%',
     textAlign: 'center',
     width: '100%',
-    minHeight: '30vh',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

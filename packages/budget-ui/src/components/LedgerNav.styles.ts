@@ -1,6 +1,6 @@
 import {createUseStyles} from 'react-jss';
 import { COLORS } from '../constants/theme';
-import { getDayOfYear } from '../utils/format';
+import { getDayOfYear } from '../utils/date';
 
 export const useStyles = createUseStyles({
   ledgerNav: {

@@ -3,6 +3,19 @@ module.exports = {
   // `<rootDir>` is a token Jest substitutes
   roots: ['<rootDir>'],
 
+  collectCoverageFrom: [
+    '**/*.{ts,tsx}',
+  ],
+
+  coverageThreshold: {
+    global: {
+      branches: 15,
+      functions: 14,
+      lines: 18,
+      statements: 18,
+    }
+  },
+
   // Jest transformations -- this adds support for TypeScript
   // using ts-jest
   transform: {

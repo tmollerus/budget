@@ -65,6 +65,7 @@ export enum MessageType {
   ITEM_DELETED,
   ITEM_ADDED,
   ITEM_EDITED,
+  DEFAULT,
 }
 
 export interface Statistics {
