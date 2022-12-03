@@ -1,3 +1,15 @@
+# [budget-ui-v3.2.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.1.0...budget-ui-v3.2.0) (2022-12-02)
+
+
+### Features
+
+* ledger scrolls to current month on first load to current year ([bff70c5](https://github.com/tmollerus/budget/commit/bff70c527974788400f0044914d9bbcff866ace6))
+
+
+### Performance Improvements
+
+* added test coverage ([f2751fd](https://github.com/tmollerus/budget/commit/f2751fdc2c70e25e27405c5f103d651b836372e5))
+
 # [budget-ui-v3.1.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.0.4...budget-ui-v3.1.0) (2022-12-02)
 
 
