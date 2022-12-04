@@ -16,5 +16,5 @@ export enum COLORS {
   ledgerHover = '#ddeedd',
 };
 
-export const PAID_SYMBOL = '&#10003;';
+export const PAID_SYMBOL = 10003;
 export const STAT_PLACEHOLDER = '&mdash;';

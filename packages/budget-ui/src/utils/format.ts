@@ -79,10 +79,6 @@ export const getIncomeOrExpense = (entry: LedgerDataItem): number => {
   }
 };
 
-export const getEntryIncome = (entry: LedgerDataItem): string | void => {
-  if (entry.type_id === 1) return dollarFormat(entry.amount);
-};
-
 export const getEntryTransfer = (entry: LedgerDataItem): string | void => {
   if (entry.type_id === 3) return dollarFormat(entry.amount);
 };
@@ -95,11 +91,11 @@ export const getEntryExpense = (entry: LedgerDataItem): string | void => {
   if (entry.type_id === 2) return dollarFormat(entry.amount);
 };
 
-export const getEntryPaid = (paid: boolean | string): { __html: string } => {
+export const getEntryPaid = (paid: boolean | string): string => {
   if ((paid || paid === "true") && paid !== "false") {
-    return { __html: PAID_SYMBOL };
+    return String.fromCharCode(PAID_SYMBOL);
   } else {
-    return { __html: '' };
+    return '';
   }
 };
 

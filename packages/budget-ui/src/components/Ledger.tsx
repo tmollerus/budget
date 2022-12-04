@@ -12,7 +12,7 @@ import {
 } from '@blueprintjs/table';
 import { useStyles } from './Ledger.styles';
 import { parseDate } from '../utils/date';
-import { dollarFormat, getMonthAsName } from '../utils/format';
+import { dollarFormat, formatDate, getMonthAsName } from '../utils/format';
 import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerData, LedgerDataItem, MessageType } from '../types';
 import { LedgerNav } from './LedgerNav';
@@ -21,6 +21,7 @@ import { createEntry, deleteEntry, getBudgetGuid, getBudgetItems, updateEntry } 
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
 import { IFocusedCellCoordinates } from '@blueprintjs/table/lib/esm/common/cellTypes';
+import { Table } from './Table';
 
 export const Ledger = (props: any) => {
   const classes = useStyles();
@@ -130,13 +131,13 @@ export const Ledger = (props: any) => {
   const dateRenderer = (index: number) => {
     if (filteredLedgerData.items[index]) {
       const settledDate = parseDate(
-        filteredLedgerData.items[index]?.settledDate.split('T')[0],
+        filteredLedgerData.items[index]?.settledDate.split('T')[0]
       );
       return (
         <Cell className={getCellClassName(index, [classes.date])} interactive={itemToEdit === index}>
           {itemToEdit === index
             ? <input className={classes.dateInput} type="date" name="settledDate" defaultValue={editedSettledDate!.split('T')[0]} onChange={(e) => setEditedSettledDate(e.target.value)} />
-            : `${getMonthAsName(settledDate.getMonth(),)}. ${settledDate.getDate()}`}
+            : formatDate(settledDate, 'MMM. d')}
         </Cell>
       );
     }
