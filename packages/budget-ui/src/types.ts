@@ -87,6 +87,12 @@ export interface Statistics {
   deficitDate: Date | null;
 }
 
+export interface LedgerTotals {
+  totalIncome: number;
+  totalTransfers: number;
+  totalExpenses: number;
+}
+
 export interface UserInfo {
   name: string;
   email: string;

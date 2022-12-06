@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useBudgetContext } from '../context';
-import { LedgerData, LedgerDataItem, PartialLedgerDataItem } from '../types';
-import { getRowClassName, getLedgerItemBalance, getLedgerItemDate, getLedgerItemExpense, getLedgerItemIncome, getLedgerItemPaid, getLedgerItemTransfer, getFirstOfDateClass, getCellClassName, ColumnType, getRowId } from '../utils/table';
+import { LedgerData, LedgerDataItem, LedgerTotals, PartialLedgerDataItem } from '../types';
+import { dollarFormat } from '../utils/format';
+import { getRowClassName, getLedgerItemBalance, getLedgerItemDate, getLedgerItemExpense, getLedgerItemIncome, getLedgerItemPaid, getLedgerItemTransfer, getFirstOfDateClass, getCellClassName, ColumnType, getRowId, getLedgerTotals } from '../utils/table';
 import { useStyles } from './Table.styles';
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
@@ -12,11 +13,12 @@ interface Props {
 }
 export const Table = (props: Props) => {
   const classes = useStyles();
-  const { budgetGuid, budgetYear, ledgerData } = useBudgetContext();
+  const { budgetYear, ledgerData } = useBudgetContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredLedgerData, setFilteredLedgerData] = useState<LedgerData>(Object.assign({}, ledgerData));
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
+  const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
 
   const [isFirstRenderedYear, setIsFirstRenderedYear] = useState<boolean>(true);
 
@@ -48,6 +50,7 @@ export const Table = (props: Props) => {
       );
     });
     setFilteredLedgerData(newFilteredLedgerData);
+    setLedgerTotals(getLedgerTotals(ledgerData.items));
   }, [filteredLedgerData, ledgerData.items, ledgerData.starting_balance, searchTerm]);
 
   const saveEditedItem = () => {
@@ -275,11 +278,11 @@ export const Table = (props: Props) => {
         { getRows(filteredLedgerData.items) }
       </div>
       <div className={[classes.tableRow, classes.tableFooter].join(' ')}>
+        <div className={classes.tableRowItem}>Totals:</div>
+        <div className={classes.tableRowItem}>{ledgerTotals ? dollarFormat(ledgerTotals.totalIncome) : null}</div>
+        <div className={classes.tableRowItem}>{ledgerTotals ? dollarFormat(ledgerTotals.totalTransfers) : null}</div>
         <div className={classes.tableRowItem}></div>
-        <div className={classes.tableRowItem}>Total:</div>
-        <div className={classes.tableRowItem}>Total:</div>
-        <div className={classes.tableRowItem}></div>
-        <div className={classes.tableRowItem}>Total:</div>
+        <div className={classes.tableRowItem}>{ledgerTotals ? dollarFormat(ledgerTotals.totalExpenses) : null}</div>
         <div className={classes.tableRowItem}></div>
         <div className={classes.tableRowItem}></div>
         <div className={classes.tableRowItem}></div>

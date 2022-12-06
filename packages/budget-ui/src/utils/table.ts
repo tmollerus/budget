@@ -1,5 +1,5 @@
 import { PAID_SYMBOL } from "../constants/theme";
-import { LedgerDataItem } from "../types";
+import { LedgerDataItem, LedgerTotals } from "../types";
 import { parseDate } from "./date";
 import { dollarFormat, formatDate } from "./format";
 
@@ -74,4 +74,30 @@ export const getLedgerItemExpense = (item: LedgerDataItem): string => {
 
 export const getLedgerItemPaid = (paid: boolean | string): string => {
   return paid ? String.fromCharCode(PAID_SYMBOL) : '';
+};
+
+export const getLedgerTotals = (items: Array<LedgerDataItem>): LedgerTotals => {
+  let totalIncome = 0;
+  let totalTransfers = 0;
+  let totalExpenses = 0;
+
+  items.forEach((item: LedgerDataItem) => {
+    switch(item.type_id) {
+      case 1:
+        totalIncome += item.amount;
+        break;
+      case 3:
+        totalTransfers += item.amount;
+        break;
+      case 2:
+        totalExpenses += item.amount;
+        break;
+    }
+  });
+
+  return {
+    totalIncome,
+    totalTransfers,
+    totalExpenses,
+  };
 };
