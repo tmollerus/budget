@@ -201,6 +201,7 @@ export const useStyles = createUseStyles({
   },
   button: {
     marginLeft: '6px',
+    whiteSpace: 'nowrap',
   },
   delete: {
     '& .bp4-table-truncated-text': {
