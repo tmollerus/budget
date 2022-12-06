@@ -40,6 +40,15 @@ export interface ChartPoint {
   y: number;
 }
 
+export interface PartialLedgerDataItem {
+  guid?: string;
+  settledDate: string;
+  type_id: number;
+  amount: number;
+  paid: boolean;
+  label: string;
+};
+
 export interface LedgerDataItem {
   dateModified: string;
   dateCreated: string;

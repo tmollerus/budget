@@ -7,11 +7,11 @@ export const useStyles = createUseStyles({
     alignItems: 'stretch',
     overflowY: 'scroll',
     height: '100%',
+    backgroundColor: COLORS.table,
   },
   ledgerLeft: {
     width: '80px',
     minWidth: '80px',
-    backgroundColor: COLORS.table,
   },
   ledgerRight: {
     width: '100%',

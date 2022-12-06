@@ -1,6 +1,6 @@
 import { PAID_SYMBOL } from "../constants/theme";
 import { LedgerData, LedgerDataItem } from "../types";
-import { delimitNumbers, dollarFormat, getEntryBalance, getEntryExpense, getEntryIncome, getEntryPaid, getEntryTransfer, getEntryTypeName, getIncomeClass, formatDate, getMonthAsName, getIncomeOrExpense, getGravatarHash } from "./format";
+import { delimitNumbers, dollarFormat, getEntryBalance, getEntryExpense, getEntryPaid, getEntryTransfer, getEntryTypeName, getIncomeClass, formatDate, getMonthAsName, getIncomeOrExpense, getGravatarHash } from "./format";
 
 describe('Formatting functions', () => {
   test('getMonthAsName', () => {
@@ -101,25 +101,6 @@ describe('Formatting functions', () => {
     expect(getEntryTypeName(null)).toBe('Income');
   });
 
-  test('getEntryIncome', () => {
-    const amount = 10;
-    const entry: LedgerDataItem = {
-      dateModified: '',
-      dateCreated: '',
-      settledDate: '',
-      paid: false,
-      budget_guid: '',
-      amount,
-      active: true,
-      type_id: 1,
-      label: '',
-      guid: '',
-    };
-    expect(getEntryIncome(Object.assign(entry, { type_id: 1}))).toBe(dollarFormat(amount));
-    expect(getEntryIncome(Object.assign(entry, { type_id: 2}))).toBe(undefined);
-    expect(getEntryIncome(Object.assign(entry, { type_id: 3}))).toBe(undefined);
-  });
-
   test('getEntryTransfer', () => {
     const amount = 10;
     const entry: LedgerDataItem = {
@@ -163,8 +144,8 @@ describe('Formatting functions', () => {
   });
 
   test('getEntryPaid', () => {
-    expect(getEntryPaid(true).__html).toBe(PAID_SYMBOL);
-    expect(getEntryPaid(false).__html).not.toBe(PAID_SYMBOL);
+    expect(getEntryPaid(true)).toBe(PAID_SYMBOL);
+    expect(getEntryPaid(false)).not.toBe(PAID_SYMBOL);
   });
 
   test('getGravatarHash', () => {

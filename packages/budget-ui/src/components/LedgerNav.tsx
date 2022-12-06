@@ -18,8 +18,8 @@ export const LedgerNav = (props: any) => {
     setNextBudgetYear(budgetYear + 1);
   }, [budgetYear]);
 
-  const scrollToMonth = (month: number) => {
-    props.scrollToMonth(month);
+  const scrollToMonth = (event: React.MouseEvent<HTMLElement, MouseEvent>, target: number | string) => {
+    props.scrollToMonth(event, target);
   };
 
   const isCurrentYear = budgetYear === new Date().getFullYear();
@@ -27,7 +27,7 @@ export const LedgerNav = (props: any) => {
 
   const getMonthNavFor = (month: number) => {
     return (
-      <div key={month} className={classes.month} onClick={() => scrollToMonth(month)}>
+      <div key={month} className={classes.month} onClick={(e) => scrollToMonth(e, `month-${month}`)}>
         {getMonthAsName(month)}
       </div>
     );
@@ -47,7 +47,7 @@ export const LedgerNav = (props: any) => {
         <a href={`${APP.ROUTES.LEDGER}/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
       </div>
       <div className={classes.monthNav}>
-        {isCurrentYear && <span className={classes.todayIndicator} onClick={() => scrollToMonth(currentMonth)} />}
+        {isCurrentYear && <span className={classes.todayIndicator} onClick={(e) => scrollToMonth(e, 'today')} />}
         {getMonthNavFor(0)}
         {getMonthNavFor(1)}
         {getMonthNavFor(2)}
