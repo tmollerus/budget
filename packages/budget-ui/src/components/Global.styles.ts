@@ -36,6 +36,7 @@ export const useGlobalStyles = createUseStyles({
   button: {
     // width: '100%',
     padding: '8px 32px',
+    whiteSpace: 'nowrap',
     // borderRadius: '4px',
     // '&.bp4-button.bp4-intent-primary': {
     //   backgroundColor: COLORS.income,

@@ -107,6 +107,7 @@ export const useStyles = createUseStyles({
     marginLeft: '6px',
     height: '23px',
     width: 'max-content',
+    whiteSpace: 'nowrap',
   },
 
   addIcon: {
