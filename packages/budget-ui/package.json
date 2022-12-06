@@ -8,7 +8,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "eject": "react-scripts eject",
-    "prepare": "husky install"
+    "prepare": "cd ../.. && husky install packages/budget-ui/.husky"
   },
   "dependencies": {
     "@blueprintjs/core": "^4.12.0",
