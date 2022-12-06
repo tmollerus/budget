@@ -1,3 +1,10 @@
+# [budget-ui-v3.4.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.4.0...budget-ui-v3.4.1) (2022-12-06)
+
+
+### Bug Fixes
+
+* prevented button labels from wrapping ([e5cabb7](https://github.com/tmollerus/budget/commit/e5cabb779f525a4da029eeff6eb7e4187d143ae2))
+
 # [budget-ui-v3.4.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.3.0...budget-ui-v3.4.0) (2022-12-06)
 
 
