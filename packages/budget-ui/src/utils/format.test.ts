@@ -144,8 +144,9 @@ describe('Formatting functions', () => {
   });
 
   test('getEntryPaid', () => {
-    expect(getEntryPaid(true)).toBe(PAID_SYMBOL);
-    expect(getEntryPaid(false)).not.toBe(PAID_SYMBOL);
+    const expected = String.fromCharCode(PAID_SYMBOL);
+    expect(getEntryPaid(true)).toBe(expected);
+    expect(getEntryPaid(false)).toBe('');
   });
 
   test('getGravatarHash', () => {
