@@ -1,6 +1,6 @@
-import { PAID_SYMBOL } from "../constants/theme";
-import { LedgerData, LedgerDataItem } from "../types";
-import { delimitNumbers, dollarFormat, getEntryBalance, getEntryExpense, getEntryPaid, getEntryTransfer, getEntryTypeName, getIncomeClass, formatDate, getMonthAsName, getIncomeOrExpense, getGravatarHash } from "./format";
+import { LedgerDataItem } from "../types";
+import { delimitNumbers, dollarFormat, getEntryBalance, getEntryExpense, getEntryTransfer, getEntryTypeName, getIncomeClass, formatDate, getMonthAsName, getIncomeOrExpense, getGravatarHash } from "./format";
+import { ledgerData } from "./test/ledgerData";
 
 describe('Formatting functions', () => {
   test('getMonthAsName', () => {
@@ -47,50 +47,9 @@ describe('Formatting functions', () => {
   });
 
   test('getIncomeOrExpense', () => {
-    const ledgerData: LedgerData = {
-      "items": [
-        {
-            "dateModified": "2021-12-11T14:00:22.933329+00:00Z",
-            "dateCreated": "2021-12-11T14:00:22.933322+00:00Z",
-            "settledDate": "2022-01-01T00:00:00+00:00Z",
-            "paid": true,
-            "budget_guid": "2e02e112-78e4-11e1-8645-4e6ec7412f43",
-            "amount": 700,
-            "active": true,
-            "type_id": 3,
-            "label": "To Discretionary",
-            "guid": "492f1733-1a32-4b14-a596-c5076cacf4a1"
-        },
-        {
-            "dateModified": "2021-12-11T14:00:22.864954+00:00Z",
-            "dateCreated": "2021-12-11T14:00:22.864944+00:00Z",
-            "settledDate": "2022-01-03T00:00:00+00:00Z",
-            "paid": true,
-            "budget_guid": "2e02e112-78e4-11e1-8645-4e6ec7412f43",
-            "amount": 25.12,
-            "active": true,
-            "type_id": 2,
-            "label": "Web hosting",
-            "guid": "246922c7-7279-4a35-a3cd-03b8fa606a0e"
-        },
-        {
-            "dateModified": "2021-12-11T14:00:22.888684+00:00Z",
-            "dateCreated": "2021-12-11T14:00:22.888676+00:00Z",
-            "settledDate": "2022-01-03T00:00:00+00:00Z",
-            "paid": true,
-            "budget_guid": "2e02e112-78e4-11e1-8645-4e6ec7412f43",
-            "amount": 65.82,
-            "active": true,
-            "type_id": 1,
-            "label": "Email hosting",
-            "guid": "8e85cd7f-1bb9-431c-aa7f-45552b025e80"
-        },
-      ],
-      "starting_balance": 16202.41
-    };
-    expect(getIncomeOrExpense(ledgerData.items[0])).toBe(-ledgerData.items[0].amount);
+    expect(getIncomeOrExpense(ledgerData.items[2])).toBe(-ledgerData.items[2].amount);
     expect(getIncomeOrExpense(ledgerData.items[1])).toBe(-ledgerData.items[1].amount);
-    expect(getIncomeOrExpense(ledgerData.items[2])).toBe(ledgerData.items[2].amount);
+    expect(getIncomeOrExpense(ledgerData.items[0])).toBe(ledgerData.items[0].amount);
   });
 
   test('getEntryTypeName', () => {
@@ -141,12 +100,6 @@ describe('Formatting functions', () => {
 
   test('getEntryBalance', () => {
     expect(getEntryBalance(10)).toBe(dollarFormat(10, true, true, true));
-  });
-
-  test('getEntryPaid', () => {
-    const expected = String.fromCharCode(PAID_SYMBOL);
-    expect(getEntryPaid(true)).toBe(expected);
-    expect(getEntryPaid(false)).toBe('');
   });
 
   test('getGravatarHash', () => {

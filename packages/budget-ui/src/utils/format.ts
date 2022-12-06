@@ -91,14 +91,6 @@ export const getEntryExpense = (entry: LedgerDataItem): string | void => {
   if (entry.type_id === 2) return dollarFormat(entry.amount);
 };
 
-export const getEntryPaid = (paid: boolean | string): string => {
-  if ((paid || paid === "true") && paid !== "false") {
-    return String.fromCharCode(PAID_SYMBOL);
-  } else {
-    return '';
-  }
-};
-
 export const getGravatarHash = (email: string): string | null => {
   return email ? md5(email).toString() : null;
 };
