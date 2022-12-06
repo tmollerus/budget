@@ -41,6 +41,7 @@ export interface ChartPoint {
 }
 
 export interface PartialLedgerDataItem {
+  guid?: string;
   settledDate: string;
   type_id: number;
   amount: number;

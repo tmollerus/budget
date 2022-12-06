@@ -7,7 +7,6 @@ import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useBudgetContext } from '../context';
 import { BudgetUrlParams } from '../types';
-import { LedgerFlexTable } from './LedgerFlexTable';
 
 function Budget() {
   const classes = useStyles();
@@ -24,7 +23,7 @@ function Budget() {
     <div className={classes.wrapper}>
       <div className={classes.body}>
         <Header />
-        <LedgerFlexTable />
+        <Ledger />
         <Footer />
       </div>
       <div className={classes.sidebar}>

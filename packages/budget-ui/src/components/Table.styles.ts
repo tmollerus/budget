@@ -7,7 +7,7 @@ const inputStyles = {
   border: `1px solid #cccccc`,
   borderRadius: '3px',
   fontSize: '12px',
-  height: '24px',
+  height: '22px',
 };
 
 const iconStyles = {
@@ -98,7 +98,7 @@ export const useStyles = createUseStyles({
     // margin: '4px 0px 4px 10px',
   },
   labelInput: {
-    width: '50%',
+    width: '60%',
     ...inputStyles,
   },
 
@@ -178,7 +178,7 @@ export const useStyles = createUseStyles({
       overflowY: 'overlay',
     },
     '&:nth-of-type(1)': { // Date
-      flexGrow: 3.2,
+      flexGrow: 2,
       '&$notFirstOfDate': {
         color: 'transparent',
       },
@@ -190,7 +190,7 @@ export const useStyles = createUseStyles({
       flexGrow: 3,
     },
     '&:nth-of-type(4)': { // Balance
-      flexGrow: 5,
+      flexGrow: 4,
     },
     '&:nth-of-type(5)': { // Expense
       flexGrow: 3,
@@ -201,7 +201,7 @@ export const useStyles = createUseStyles({
       justifyContent: 'center',
     },
     '&:nth-of-type(7)': { // Label
-      flexGrow: 8,
+      flexGrow: 10,
     },
     '&:nth-of-type(8)': { // Add/delete
       flexBasis: '20px',
@@ -216,8 +216,13 @@ export const useStyles = createUseStyles({
   },
   rowCollection: {
     overflow: 'auto',
+    height: 'inherit',
+  },
+  searchInputGroupContainer: {
+    width: '100%',
   },
   searchInputGroup: {
+    width: '100%',
     display: 'inline-flex',
     maxHeight: '24px',
     backgroundColor: COLORS.white,
@@ -247,7 +252,6 @@ export const useStyles = createUseStyles({
   },
   searchInput: {
     width: '100%',
-    // height: '24px',
     margin: '0px',
     paddingRight: '20px',
     border: 'none',
@@ -258,5 +262,7 @@ export const useStyles = createUseStyles({
     display: 'inline-flex',
     maxHeight: '24px',
     alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
   },
 });
