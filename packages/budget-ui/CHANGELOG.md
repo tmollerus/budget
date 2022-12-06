@@ -1,3 +1,15 @@
+# [budget-ui-v3.3.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.2.1...budget-ui-v3.3.0) (2022-12-06)
+
+
+### Bug Fixes
+
+* corrected getentrypaid test ([d4d163a](https://github.com/tmollerus/budget/commit/d4d163a92c705ce103e3cab208981b4d76101c7f))
+
+
+### Features
+
+* Added .husky folder and lerna ([e9b43f0](https://github.com/tmollerus/budget/commit/e9b43f0c67264f25b793990efda5ad4bbc87670e))
+
 # [budget-ui-v3.2.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.2.0...budget-ui-v3.2.1) (2022-12-03)
 
 
