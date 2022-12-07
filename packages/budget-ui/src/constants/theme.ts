@@ -1,3 +1,5 @@
+import { Breakpoints } from "../types";
+
 export enum COLORS {
   white = '#ffffff',
   sidebar = '#f2f2f2',
@@ -15,6 +17,12 @@ export enum COLORS {
   ledgerEven = '#ecf3fe',
   ledgerHover = '#ddeedd',
 };
+
+export const BREAKPOINTS: Breakpoints = {
+  large: { bottom: 1170, top: 3000 },
+  medium: { bottom: 800, top: 1169 },
+  small: { bottom: 0, top: 799 }
+}
 
 export const PAID_SYMBOL = 10003;
 export const STAT_PLACEHOLDER = '&mdash;';

@@ -1,5 +1,14 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
+export interface BreakpointRange {
+  top: number;
+  bottom: number;
+}
+
+export interface Breakpoints {
+  [index: string]: BreakpointRange;
+}
+
 export interface BudgetAuthResponse {
   budgetGUID: string;
 }
