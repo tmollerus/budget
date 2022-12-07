@@ -56,7 +56,7 @@ export const getStatistics = (entries: Array<LedgerDataItem>, startingBalance: n
   return statistics;
 };
 
-const getEntryBalance = (previousEntryBalance: number, entry: LedgerDataItem): number => {
+export const getEntryBalance = (previousEntryBalance: number, entry: LedgerDataItem): number => {
   previousEntryBalance = Number(previousEntryBalance) || 0;
 
   if (entry.type_id === 1) {
@@ -65,33 +65,3 @@ const getEntryBalance = (previousEntryBalance: number, entry: LedgerDataItem): n
     return previousEntryBalance - entry.amount;
   }
 };
-
-// const addIncome = (previousTotal: number, entry: LedgerDataItem): number => {
-//   previousTotal = Number(previousTotal) || 0;
-
-//   if (entry.type_id === 1) {
-//     return previousTotal + entry.amount;
-//   } else {
-//     return previousTotal;
-//   }
-// };
-
-// const addTransfer = (previousTotal: number, entry: LedgerDataItem): number => {
-//   previousTotal = Number(previousTotal) || 0;
-
-//   if (entry.type_id === 3) {
-//     return previousTotal + entry.amount;
-//   } else {
-//     return previousTotal;
-//   }
-// };
-
-// const addExpense = (previousTotal: number, entry: LedgerDataItem): number => {
-//   previousTotal = Number(previousTotal) || 0;
-
-//   if (entry.type_id === 2) {
-//     return previousTotal + entry.amount;
-//   } else {
-//     return previousTotal;
-//   }
-// };

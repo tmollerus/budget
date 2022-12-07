@@ -10,12 +10,14 @@ interface Props {
   confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => void;
   addItem: (newEntry: PartialLedgerDataItem) => void;
   editItem: (editedEntry: PartialLedgerDataItem) => void;
+  scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
 }
 export const Table = (props: Props) => {
   const classes = useStyles();
   const { budgetYear, ledgerData } = useBudgetContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredLedgerData, setFilteredLedgerData] = useState<LedgerData>(Object.assign({}, ledgerData));
+  const currentDate = new Date();
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
   const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
@@ -43,6 +45,19 @@ export const Table = (props: Props) => {
   }, [budgetYear, defaultDate]);
 
   useEffect(() => {
+    try {
+      if (isFirstRenderedYear && budgetYear === currentDate.getFullYear()) {
+        if (!props.scrollToMonth('today')) {
+          props.scrollToMonth(`month-${currentDate.getMonth()}`);
+        }
+        setIsFirstRenderedYear(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }, [budgetYear, filteredLedgerData]);
+
+  useEffect(() => {
     const newFilteredLedgerData: LedgerData = { items: [], starting_balance: ledgerData.starting_balance };
     newFilteredLedgerData.items = ledgerData.items.filter((item) => {
       return (
@@ -51,7 +66,7 @@ export const Table = (props: Props) => {
     });
     setFilteredLedgerData(newFilteredLedgerData);
     setLedgerTotals(getLedgerTotals(ledgerData.items));
-  }, [filteredLedgerData, ledgerData.items, ledgerData.starting_balance, searchTerm]);
+  }, [ledgerData.items, ledgerData.starting_balance, searchTerm]);
 
   const saveEditedItem = () => {
     setIsAdding(false);

@@ -19,11 +19,10 @@ export const LedgerNav = (props: any) => {
   }, [budgetYear]);
 
   const scrollToMonth = (event: React.MouseEvent<HTMLElement, MouseEvent>, target: number | string) => {
-    props.scrollToMonth(event, target);
+    props.scrollToMonth(target, event);
   };
 
   const isCurrentYear = budgetYear === new Date().getFullYear();
-  const currentMonth = new Date().getMonth();
 
   const getMonthNavFor = (month: number) => {
     return (

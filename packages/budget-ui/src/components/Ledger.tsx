@@ -43,9 +43,8 @@ export const Ledger = () => {
     }
   }, [budgetGuid, budgetYear, reloadLedgerData, setLedgerData]);
 
-  const scrollToMonth = (event: React.MouseEvent<HTMLElement, MouseEvent>, target: string) => {
-    event.preventDefault();
-    console.log(target);
+  const scrollToMonth = (target: string, event?: React.MouseEvent<HTMLElement, MouseEvent>): boolean => {
+    event?.preventDefault();
     const el = document.getElementById(target);
 
     if (el) {
@@ -54,8 +53,10 @@ export const Ledger = () => {
         block: "start",
         inline: "nearest"
       });
+      return true;
     } else {
-      console.log('Cannot find target.', target);
+      console.log('Cannot find target', target);
+      return false;
     }
   }
 
@@ -135,6 +136,7 @@ export const Ledger = () => {
           confirmDeletion={confirmDeletion}
           addItem={addItem}
           editItem={editItem}
+          scrollToMonth={scrollToMonth}
         />
       </div>
       <Dialog
