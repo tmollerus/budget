@@ -1,3 +1,10 @@
+# [budget-ui-v3.5.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.5.0...budget-ui-v3.5.1) (2022-12-08)
+
+
+### Bug Fixes
+
+* prevented display of statistics handle on large screens ([4a9c593](https://github.com/tmollerus/budget/commit/4a9c593bffa658e975f4cec7e831dc2f9e93d1ee))
+
 # [budget-ui-v3.5.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.4.1...budget-ui-v3.5.0) (2022-12-07)
 
 
