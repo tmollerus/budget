@@ -55,20 +55,21 @@ export const useStyles = createUseStyles({
     // backgroundImage: 'linear-gradient(to bottom, #F6F6F6, #EEE)',
     borderLeft: '1px solid #cccccc',
     borderRadius: '6px 0px 0px 6px',
-    width: '0',
+    width: `${sidebarDimensions.handleWidth}px`,
+    writingMode: 'vertical-rl',
+    textOrientation: 'upright',
     padding: `20px ${(sidebarDimensions.handleWidth - 14) / 2}px`,
     marginTop: '120px',
     marginRight: `-${sidebarDimensions.borderWidth}px`,
     cursor: 'pointer',
-    transition: 'width .1s ease-out 0s',
+    display: 'none',
+    // transition: 'width .1s ease-out 0s',
     '&:hover': {
       backgroundColor: COLORS.table,
       color: 'black',
     },
     [`@media (max-width: ${BREAKPOINTS.medium.top}px)`]: {
-      width: `${sidebarDimensions.handleWidth}px`,
-      writingMode: 'vertical-rl',
-      textOrientation: 'upright',
+      display: 'inline',
     }
   }
 });
