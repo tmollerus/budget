@@ -1,3 +1,10 @@
+# [budget-ui-v3.5.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.4.1...budget-ui-v3.5.0) (2022-12-07)
+
+
+### Features
+
+* made sidebar responsive, acts as a drawer on medium screens ([10812aa](https://github.com/tmollerus/budget/commit/10812aa96e332c79103fa76bda16a47e7b76c9b3))
+
 # [budget-ui-v3.4.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.4.0...budget-ui-v3.4.1) (2022-12-06)
 
 
