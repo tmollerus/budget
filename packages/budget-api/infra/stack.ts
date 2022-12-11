@@ -3,7 +3,7 @@ import { BasePathMapping, DomainName, EndpointType, LambdaIntegration, RestApi, 
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
-import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/V1/utils/cdk';
+import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 
 [
   'ENV_NAME',

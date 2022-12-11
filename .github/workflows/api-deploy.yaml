@@ -16,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Use Node.js 16.15.0
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.15.0
 
@@ -85,9 +85,9 @@ jobs:
         id: deploy
         working-directory: packages/budget-api
         env:
-          ENV_NAME: 'production',
-          CORS_DOMAINS: 'https://budget.mollerus.net',
-          DOMAIN_NAME: 'budget-api.mollerus.net': 
+          ENV_NAME: production
+          CORS_DOMAINS: https://budget.mollerus.net
+          DOMAIN_NAME: budget-api.mollerus.net
         run: cdk deploy --require-approval=never
 
       - name: Create changeset if deploy failed
