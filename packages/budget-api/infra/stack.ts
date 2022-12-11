@@ -11,7 +11,7 @@ import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMetho
   'DOMAIN_NAME'
 ].forEach((envVar) => {
   if (!process.env[envVar]) {
-    throw new Error(`process.env.${envVar} must be defined`);
+    throw new Error(`process.env.${envVar} must be defined, variable ${envVar} currently set to ${process.env[envVar]}`);
   }
 });
 
