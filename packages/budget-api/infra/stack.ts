@@ -1,5 +1,5 @@
 import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
-import { BasePathMapping, DomainName, EndpointType, LambdaIntegration, RestApi, Stage, StageOptions } from '@aws-cdk/aws-apigateway';
+import { EndpointType, LambdaIntegration, RestApi } from '@aws-cdk/aws-apigateway';
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
@@ -40,21 +40,6 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const domainName = DomainName.fromDomainNameAttributes(
-      this,
-      `${stackName}-DomainName`,
-      // @ts-ignore
-      {
-        domainName: process.env.DOMAIN_NAME || '',
-      }
-    );
-
-    new BasePathMapping(this, `${stackName}-BasePathMapping`, {
-      domainName,
-      restApi: budgetApi,
-      basePath: '/',
-    });
-
     const getAuthLambda = new NodejsFunction(
       this,
       `${stackName}-GetAuthLambda`,
@@ -70,7 +55,7 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const authResource =  budgetApi.root.addResource('auth');
+    const authResource =  budgetApi.root.addResource('auth/login');
     authResource.addMethod(
       'GET',
       new LambdaIntegration(getAuthLambda)
