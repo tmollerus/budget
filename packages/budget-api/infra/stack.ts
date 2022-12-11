@@ -1,5 +1,6 @@
 import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
-import { BasePathMapping, DomainName, EndpointType, LambdaIntegration, RestApi } from '@aws-cdk/aws-apigateway';
+import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
@@ -21,24 +22,23 @@ export class BudgetApiStack extends Stack {
     const stackName = `${process.env.ENV_NAME}-${id}`;
     const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
 
-    const budgetApi = new RestApi(
+    const budgetApi = new HttpApi(
       this,
-      `${stackName}-RestApi`,
+      `${stackName}-HttpApi`,
       {
-        endpointTypes: [EndpointType.REGIONAL],
-        restApiName: `${stackName}-RestApi`,
-        defaultCorsPreflightOptions: {
+        apiName: `${stackName}-HttpApi`,
+        createDefaultStage: false,
+        corsPreflight: {
           allowHeaders: getAllowedPreflightHeaders(),
           allowMethods: getAllowedPreflightMethods(),
           allowCredentials: false,
           allowOrigins: allowedOrigins,
         },
-        deployOptions: {
-          stageName: 'v1',
-        },
         description: 'Rest API for the Budget application',
       }
     );
+
+    // const stage = new Stage();
 
     const getAuthLambda = new NodejsFunction(
       this,
@@ -54,27 +54,45 @@ export class BudgetApiStack extends Stack {
         },
       }
     );
-
-    const domainName = DomainName.fromDomainNameAttributes(
-      this,
-      `${stackName}-domainName`,
-      // @ts-ignore
-      {
-        domainName: process.env.DOMAIN_NAME || '',
-      }
+    const getAuthIntegration = new HttpLambdaIntegration(
+      `${stackName}-GetAuthIntegration`,
+      getAuthLambda
     );
 
-    new BasePathMapping(this, `${stackName}-BasePathMapping`, {
-      domainName: domainName,
-      restApi: budgetApi,
-      basePath: 'auth',
+    budgetApi.addRoutes({
+      path: '/v1/auth/login',
+      methods: [ HttpMethod.GET ],
+      integration: getAuthIntegration,
     });
 
-    const authResource =  budgetApi.root.addResource('login');
-    authResource.addMethod(
-      'GET',
-      new LambdaIntegration(getAuthLambda)
-    );
+    // const domainName = DomainName.fromDomainNameAttributes(
+    //   this,
+    //   `${stackName}-domainName`,
+    //   // @ts-ignore
+    //   {
+    //     domainName: process.env.DOMAIN_NAME || '',
+    //   }
+    // );
+
+    // const apiMapping = new ApiMapping(this, 'MyApiMapping', {
+    //   api: budgetApi,
+    //   domainName: domainName,
+    
+    //   // the properties below are optional
+    //   apiMappingKey: 'apiMappingKey',
+    //   stage: stage,
+    // });
+    // new BasePathMapping(this, `${stackName}-BasePathMapping`, {
+    //   domainName: domainName,
+    //   restApi: budgetApi,
+    //   basePath: 'auth',
+    // });
+
+    // const authResource =  budgetApi.root.addResource('login');
+    // authResource.addMethod(
+    //   'GET',
+    //   new LambdaIntegration(getAuthLambda),
+    // );
   }
 }
 

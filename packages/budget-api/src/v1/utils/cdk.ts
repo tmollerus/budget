@@ -1,3 +1,5 @@
+import { CorsHttpMethod } from '@aws-cdk/aws-apigatewayv2';
+
 export const getAllowedOrigins = (corsDomains: string | undefined, localDomain: string): Array<string> => {
   const allowedDomains: Array<string> = [];
   corsDomains?.split(',').forEach((corsDomain) => {
@@ -19,6 +21,12 @@ export const getAllowedPreflightHeaders = (): Array<string> => {
   ];
 };
 
-export const getAllowedPreflightMethods = (): Array<string> => {
-  return ['OPTIONS', 'GET', 'POST', 'PUT'];
+export const getAllowedPreflightMethods = (): Array<CorsHttpMethod> => {
+  return [
+    CorsHttpMethod.GET,
+    CorsHttpMethod.HEAD,
+    CorsHttpMethod.OPTIONS,
+    CorsHttpMethod.POST,
+    CorsHttpMethod.PUT,
+  ];
 };

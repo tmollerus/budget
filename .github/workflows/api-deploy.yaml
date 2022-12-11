@@ -94,6 +94,10 @@ jobs:
         if: ${{ failure() && steps.deploy.conclusion == 'failure' }}
         id: changeset
         working-directory: packages/budget-api
+        env:
+          ENV_NAME: production
+          CORS_DOMAINS: https://budget.mollerus.net
+          DOMAIN_NAME: budget-api.mollerus.net
         run: cdk deploy --require-approval=never --no-execute
 
       - name: If change-set created, comment on PR
