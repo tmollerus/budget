@@ -48,7 +48,7 @@ export class BudgetApiStack extends Stack {
         runtime: Runtime.NODEJS_16_X,
         functionName: `${stackName}-GetAuthLambda`,
         handler: 'getHandler',
-        entry: 'src/v1/handers/auth/login/item.ts',
+        entry: 'src/v1/handlers/auth/login/item.ts',
         timeout: Duration.seconds(60),
         environment: {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
