@@ -5,6 +5,7 @@ import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 
+console.log(process.env);
 [
   'ENV_NAME',
   'CORS_DOMAINS',
