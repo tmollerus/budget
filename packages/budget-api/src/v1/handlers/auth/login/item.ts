@@ -6,7 +6,8 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
-  const authToken = getAuthToken(event);
+  const authToken = getAuthToken(event.headers);
+  console.log('Auth token', authToken);
   const user = getOktaUser(authToken);
 
   return {

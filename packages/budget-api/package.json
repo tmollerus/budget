@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@okta/okta-auth-js": "7.1.0",
+    "node-fetch": "^3.3.0",
     "typescript": "^4.8.4"
   },
   "devDependencies": {
