@@ -1,1 +1,1 @@
-export const LOCAL_DOMAIN = 'localhost:3000';
+export const LOCAL_DOMAIN = 'http://localhost:3000';
