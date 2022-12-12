@@ -3,7 +3,7 @@ import { OKTA } from '../constants/okta';
 
 export const getOktaUser = async (token: string): Promise<any> => {
   let user: any = {};
-  const body = JSON.stringify({
+  const body = new URLSearchParams({
     token,
     token_type_hint: 'id_token',
     client_id: OKTA.CLIENT_ID
