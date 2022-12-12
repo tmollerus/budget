@@ -9,16 +9,21 @@ export const getOktaUser = async (token: string): Promise<any> => {
     client_id: OKTA.CLIENT_ID
   });
   console.log('Getting user info from Okta', body);
-  const response = await fetch(
-    `https://${OKTA.DOMAIN}/oauth2/default/v1/introspect`,
-    {
-      method: 'post',
-      body,
-      headers: {'Content-Type': 'application/json'}
-    }
-  );
-  user = await response.json();
-  console.log('Got user info from Okta', user);
+
+  try {
+    const response = await fetch(
+      `https://${OKTA.DOMAIN}/oauth2/default/v1/introspect`,
+      {
+        method: 'post',
+        body,
+        headers: {'Content-Type': 'application/json'}
+      }
+    );
+    user = await response.json();
+    console.log('Got user info from Okta', user);
+  } catch (err: any) {
+    console.log(err.message);
+  }
 
   return user;
 };

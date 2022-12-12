@@ -8,7 +8,7 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
 
   const authToken = getAuthToken(event.headers);
   console.log('Auth token', authToken);
-  const user = getOktaUser(authToken);
+  const user = await getOktaUser(authToken);
 
   return {
     statusCode: 200,
