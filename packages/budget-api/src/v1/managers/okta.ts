@@ -16,7 +16,6 @@ export const getOktaUser = async (token: string): Promise<any> => {
       {
         method: 'post',
         body,
-        headers: {'Content-Type': 'application/json'}
       }
     );
     user = await response.json();
