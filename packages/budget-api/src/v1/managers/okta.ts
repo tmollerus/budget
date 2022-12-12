@@ -10,7 +10,7 @@ export const getOktaUser = async (token: string): Promise<any> => {
   });
   console.log('Getting user info from Okta', body);
   const response = await fetch(
-    `${OKTA.DOMAIN}/oauth2/default/v1/introspect`,
+    `https://${OKTA.DOMAIN}/oauth2/default/v1/introspect`,
     {
       method: 'post',
       body,
