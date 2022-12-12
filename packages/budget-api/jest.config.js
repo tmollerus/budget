@@ -7,14 +7,14 @@ module.exports = {
     '**/*.{ts,tsx}',
   ],
 
-  // coverageThreshold: {
-  //   global: {
-  //     branches: 24,
-  //     functions: 22,
-  //     lines: 27,
-  //     statements: 26,
-  //   }
-  // },
+  coverageThreshold: {
+    global: {
+      branches: 7,
+      functions: 20,
+      lines: 20,
+      statements: 20,
+    }
+  },
 
   // Jest transformations -- this adds support for TypeScript
   // using ts-jest

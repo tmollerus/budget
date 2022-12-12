@@ -3,7 +3,9 @@ import { CorsHttpMethod } from '@aws-cdk/aws-apigatewayv2';
 export const getAllowedOrigins = (corsDomains: string | undefined, localDomain: string): Array<string> => {
   const allowedDomains: Array<string> = [];
   corsDomains?.split(',').forEach((corsDomain) => {
-    allowedDomains.push(corsDomain.trim());
+    if (corsDomain) {
+      allowedDomains.push(corsDomain.trim());
+    }
   });
   allowedDomains.push(localDomain);
 
