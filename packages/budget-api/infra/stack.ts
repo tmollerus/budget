@@ -81,9 +81,9 @@ export class BudgetApiStack extends Stack {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
         },
         vpc,
-        // vpcSubnets: vpc.selectSubnets({
-        //   subnetType: SubnetType.PRIVATE_ISOLATED,
-        // }),
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_ISOLATED,
+        }),
         // securityGroups: [securityGroup],
       }
     );
