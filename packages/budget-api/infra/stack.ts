@@ -29,6 +29,7 @@ export class BudgetApiStack extends Stack {
       `${process.env.ENV_NAME}-Vpc`,
       {
         vpcId: 'vpc-b7a5cdcf',
+        region: 'us-east-1',
       },
     );
 
