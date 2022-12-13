@@ -125,4 +125,4 @@ export class BudgetApiStack extends Stack {
 }
 
 const app = new App();
-new BudgetApiStack(app, `budget-api`, { env: { account: '360115878429', region: 'us-east-1' }});
+new BudgetApiStack(app, `budget-api`, { env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: 'us-east-1' }});
