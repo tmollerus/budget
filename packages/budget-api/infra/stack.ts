@@ -29,7 +29,6 @@ export class BudgetApiStack extends Stack {
       `${process.env.ENV_NAME}-Vpc`,
       {
         vpcId: 'vpc-b7a5cdcf',
-        region: 'us-east-1',
       },
     );
 
@@ -126,4 +125,4 @@ export class BudgetApiStack extends Stack {
 }
 
 const app = new App();
-new BudgetApiStack(app, `budget-api`, { env: { region: 'us-east-1' }});
+new BudgetApiStack(app, `budget-api`, { env: { account: '360115878429', region: 'us-east-1' }});
