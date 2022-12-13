@@ -8,7 +8,6 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.229.0",
     "@okta/okta-auth-js": "7.1.0",
     "aws-sdk": "^2.1273.0",
     "node-fetch": "^3.3.0",

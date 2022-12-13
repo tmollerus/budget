@@ -1,9 +1,12 @@
-const { SecretsManagerClient } = require('@aws-sdk/client-secrets-manager');
-// https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/getting-started.html
+import { SecretsManager } from 'aws-sdk';
 
+export const getSecret = async (secretId: string) => {
+  const secretsManager = new SecretsManager();
+  const secretParams = {
+    SecretId: secretId,
+  };
 
-export const getSecrets = async (secretId: string): Promise<any> => {
-  const secretsManager = new SecretsManagerClient({ region: "us-east-1" });
+  const secretValue = await secretsManager.getSecretValue(secretParams).promise();
 
-  return JSON.parse(secretsManager.getSecretValue({ secretId }));
+  return JSON.parse(secretValue.SecretString || '{}');
 };

@@ -1,10 +1,10 @@
-const { Client } = require('pg');
-import { getSecrets } from './secrets';
+import { Client } from 'pg';
+import { getSecret } from './secrets';
 
 export const foo = () => { return 'bar' };
 
 export const getClient = async (): Promise<any> => {
-  const { budget_rds_username, budget_rds_password } = await getSecrets('production-budget-api-Secret');
+  const { budget_rds_username, budget_rds_password } = await getSecret('production-budget-api-Secret');
   const client = new Client({
     user: budget_rds_username,
     host: 'db.cemrvg9zsjzo.us-east-1.rds.amazonaws.com',
