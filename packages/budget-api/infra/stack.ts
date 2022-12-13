@@ -32,11 +32,11 @@ export class BudgetApiStack extends Stack {
       },
     );
 
-    const securityGroup = SecurityGroup.fromLookupById(
-      this,
-      `${process.env.ENV_NAME}-SecurityGroup`,
-      'sg-2a96cb5e',
-    );
+    // const securityGroup = SecurityGroup.fromLookupById(
+    //   this,
+    //   `${process.env.ENV_NAME}-SecurityGroup`,
+    //   'sg-2a96cb5e',
+    // );
 
     const secret = new Secret(this,
       `${stackName}-Secret`,
@@ -81,10 +81,10 @@ export class BudgetApiStack extends Stack {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
         },
         vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_ISOLATED,
-        }),
-        securityGroups: [securityGroup],
+        // vpcSubnets: vpc.selectSubnets({
+        //   subnetType: SubnetType.PRIVATE_ISOLATED,
+        // }),
+        // securityGroups: [securityGroup],
       }
     );
     secret.grantRead(getAuthLambda);
@@ -125,4 +125,4 @@ export class BudgetApiStack extends Stack {
 }
 
 const app = new App();
-new BudgetApiStack(app, `budget-api`, { env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: 'us-east-1' }});
+new BudgetApiStack(app, `budget-api`, { env: { account: '360115878429', region: 'us-east-1' }});
