@@ -1,5 +1,7 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { getOktaUser } from '../../../managers/okta';
+import { getBudgetByEmail } from '../../../managers/postgres';
+import { OktaUser } from '../../../types';
 import { getAuthToken } from '../../../utils/event';
 
 export const getHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -7,12 +9,13 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
   const authToken = getAuthToken(event.headers);
-  console.log('Auth token', authToken);
-  const user = await getOktaUser(authToken);
+  const user: OktaUser = await getOktaUser(authToken);
 
+  console.log('User email from Okta', user.user.username);
+  // const budgetGuid = getBudgetByEmail(user.user.username!);
   return {
     statusCode: 200,
-    body: JSON.stringify({user}),
+    body: JSON.stringify({user: user}),
   };
 
   // // Get the auth token

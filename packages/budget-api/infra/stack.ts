@@ -1,5 +1,6 @@
 import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
 import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
+import { Secret } from '@aws-cdk/aws-secretsmanager';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
@@ -21,6 +22,14 @@ export class BudgetApiStack extends Stack {
     super(scope, id, props);
     const stackName = `${process.env.ENV_NAME}-${id}`;
     const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
+
+    const secret = new Secret(this,
+      `${stackName}-Secret`,
+      {
+        description: `Secret for Budget API`,
+        secretName: `${stackName}-Secret`,
+      }
+    );
 
     const budgetApi = new HttpApi(
       this,
@@ -54,6 +63,7 @@ export class BudgetApiStack extends Stack {
         },
       }
     );
+    secret.grantRead(getAuthLambda);
     const getAuthIntegration = new HttpLambdaIntegration(
       `${stackName}-GetAuthIntegration`,
       getAuthLambda
@@ -87,12 +97,6 @@ export class BudgetApiStack extends Stack {
     //   restApi: budgetApi,
     //   basePath: 'auth',
     // });
-
-    // const authResource =  budgetApi.root.addResource('login');
-    // authResource.addMethod(
-    //   'GET',
-    //   new LambdaIntegration(getAuthLambda),
-    // );
   }
 }
 

@@ -1,8 +1,9 @@
 import fetch from 'node-fetch';
 import { OKTA } from '../constants/okta';
+import { OktaUser } from '../types';
 
-export const getOktaUser = async (token: string): Promise<any> => {
-  let user: any = {};
+export const getOktaUser = async (token: string): Promise<OktaUser> => {
+  let user: OktaUser = { user: { active: false }};
   const body = new URLSearchParams({
     token,
     token_type_hint: 'id_token',
@@ -22,7 +23,7 @@ export const getOktaUser = async (token: string): Promise<any> => {
         }
       }
     );
-    user = await response.json();
+    user = await response.json() as unknown as OktaUser;
     console.log('Got user info from Okta', user);
   } catch (err: any) {
     console.log(err.message);
