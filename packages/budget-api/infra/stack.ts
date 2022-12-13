@@ -58,6 +58,12 @@ export class BudgetApiStack extends Stack {
         handler: 'getHandler',
         entry: 'src/v1/handlers/auth/login/item.ts',
         timeout: Duration.seconds(60),
+        bundling: {
+          externalModules: [
+            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+            'pg-native',
+          ],
+        },
         environment: {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
         },
