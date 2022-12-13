@@ -11,11 +11,18 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
   const authToken = getAuthToken(event.headers);
   const user: OktaUser = await getOktaUser(authToken);
 
-  console.log('User email from Okta', user.user.username);
-  // const budgetGuid = getBudgetByEmail(user.user.username!);
+  console.log('User email from Okta', user.username);
+  let budgetGuid = '';
+  
+  try {
+    budgetGuid = await getBudgetByEmail(user.username!);
+  } catch (err) {
+    console.log(err);
+  }
+
   return {
     statusCode: 200,
-    body: JSON.stringify({user: user}),
+    body: JSON.stringify({user: user, budgetGuid}),
   };
 
   // // Get the auth token

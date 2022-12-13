@@ -3,7 +3,7 @@ import { OKTA } from '../constants/okta';
 import { OktaUser } from '../types';
 
 export const getOktaUser = async (token: string): Promise<OktaUser> => {
-  let user: OktaUser = { user: { active: false }};
+  let user: OktaUser = { active: false };
   const body = new URLSearchParams({
     token,
     token_type_hint: 'id_token',
