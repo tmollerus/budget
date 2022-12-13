@@ -84,6 +84,7 @@ export class BudgetApiStack extends Stack {
         vpcSubnets: vpc.selectSubnets({
           subnetType: SubnetType.PUBLIC,
         }),
+        allowPublicSubnet: true,
         // securityGroups: [securityGroup],
       }
     );
