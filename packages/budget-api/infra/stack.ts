@@ -2,6 +2,7 @@ import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
 import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
 import { Secret } from '@aws-cdk/aws-secretsmanager';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
+import { SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
@@ -22,6 +23,20 @@ export class BudgetApiStack extends Stack {
     super(scope, id, props);
     const stackName = `${process.env.ENV_NAME}-${id}`;
     const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
+
+    const vpc = Vpc.fromLookup(
+      this,
+      `${process.env.ENV_NAME}-Vpc`,
+      {
+        vpcId: 'vpc-b7a5cdcf',
+      },
+    );
+
+    const securityGroup = SecurityGroup.fromLookupById(
+      this,
+      `${process.env.ENV_NAME}-SecurityGroup`,
+      'sg-2a96cb5e',
+    );
 
     const secret = new Secret(this,
       `${stackName}-Secret`,
@@ -47,8 +62,6 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    // const stage = new Stage();
-
     const getAuthLambda = new NodejsFunction(
       this,
       `${stackName}-GetAuthLambda`,
@@ -67,6 +80,11 @@ export class BudgetApiStack extends Stack {
         environment: {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
         },
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_ISOLATED,
+        }),
+        securityGroups: [securityGroup],
       }
     );
     secret.grantRead(getAuthLambda);
