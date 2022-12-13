@@ -1,4 +1,4 @@
-import { Client } from 'pg';
+const { Client } = require('pg');
 import { getSecrets } from './secrets';
 
 export const foo = () => { return 'bar' };
