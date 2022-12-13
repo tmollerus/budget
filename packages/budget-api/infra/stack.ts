@@ -125,4 +125,4 @@ export class BudgetApiStack extends Stack {
 }
 
 const app = new App();
-new BudgetApiStack(app, `budget-api`);
+new BudgetApiStack(app, `budget-api`, { env: { region: 'us-east-1' }});
