@@ -81,7 +81,6 @@ export class BudgetApiStack extends Stack {
         vpcSubnets: vpc.selectSubnets({
           subnetType: SubnetType.PRIVATE_WITH_NAT,
         }),
-        vpcPlacement: { subnetType: SubnetType.PUBLIC },
         databaseName,
         securityGroups: [dbSecurityGroup],
         credentials: Credentials.fromGeneratedSecret('postgres'),
