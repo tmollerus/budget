@@ -77,10 +77,11 @@ export class BudgetApiStack extends Stack {
       'Allow lambdas to access budget postgres database'
     );
     
-    const databaseName = `${stackName}-db`;
+    const databaseName = `${stackName}-db`.replace('-', '');
+    console.log('Database name', databaseName);
     const db = new DatabaseInstance(
       this,
-      `${stackName}-database`,
+      `${stackName}-Database`,
       {
         engine: DatabaseInstanceEngine.postgres({
           version: PostgresEngineVersion.VER_14_2,
