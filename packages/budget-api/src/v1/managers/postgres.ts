@@ -4,15 +4,14 @@ import { getSecret } from './secrets';
 export const foo = () => { return 'bar' };
 
 export const getClient = async (): Promise<any> => {
-  const { budget_rds_username, budget_rds_password } = await getSecret('production-budget-api-Secret');
+  const { username, password, port, dbname, host } = await getSecret("production-budget-api-Secret");
   const client = new Client({
-    user: budget_rds_username,
-    host: 'db.cemrvg9zsjzo.us-east-1.rds.amazonaws.com',
-    database: 'budget',
-    password: budget_rds_password,
-    port: 5432,
+    user: username,
+    host,
+    database: dbname,
+    password,
+    port
   });
-  // postgresql://budget_user:[password]@db.cemrvg9zsjzo.us-east-1.rds.amazonaws.com/budget
   await client.connect();
 
   return client;

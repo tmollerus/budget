@@ -1,5 +1,7 @@
 import { Context, APIGatewayAuthorizerEvent, APIGatewayAuthorizerResult } from 'aws-lambda';
-import { Effect } from '../types';
+import { getOktaUser } from '../managers/okta';
+import { getBudgetByEmail } from '../managers/postgres';
+import { Effect, OktaUser } from '../types';
 import { getPolicy } from '../utils/authorizer';
 
 export const handler = async (event: APIGatewayAuthorizerEvent, context: Context): Promise<APIGatewayAuthorizerResult> => {
@@ -10,27 +12,22 @@ export const handler = async (event: APIGatewayAuthorizerEvent, context: Context
     throw new Error('Expected "event.type" parameter to have value "TOKEN"');
   }
 
-  const accessToken: string = event?.authorizationToken;
-  if (!accessToken) throw new Error('Missing access token!');
+  const authToken: string = event?.authorizationToken;
+  if (!authToken) throw new Error('Missing auth token!');
 
-  return getPolicy('user', Effect.ALLOW, event.methodArn);
+  const user: OktaUser = await getOktaUser(authToken);
 
-  // // Get the auth token
-  // const auth_token = event?.headers?['Authorization']?[0].split(' ')[1];
+  console.log('User email from Okta', user.username);
+  
+  try {
+    const budget = await getBudgetByEmail(user.username!);
+    console.log('Budget', budget);
+    if (budget.guid) {
+      return getPolicy('user', Effect.ALLOW, event.methodArn);
+    }
+  } catch (err) {
+    console.log(err);
+  }
 
-  // // Get the corresponding email address via Okta
-  // email = OktaConnection(auth_token).get_user()
-
-  // // Get the corresponding budget
-  // budget = BudgetDao(self.db, session=session).get_budget_by_email(email)
-
-  // if 'guid' in budget:
-  //   self.set_secure_cookie(config.COOKIE_NAME, budget['guid'], 1)
-  //   return {"budgetGUID": budget['guid']}
-  //   return {
-  //       statusCode: 200,
-  //       body: JSON.stringify({
-  //           message: 'hello world',
-  //       }),
-  //   };
+  return getPolicy('user', Effect.DENY, event.methodArn);
 };

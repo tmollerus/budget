@@ -9,6 +9,8 @@ import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVe
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 
+// Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
+
 [
   'ENV_NAME',
   'CORS_DOMAINS',
@@ -25,14 +27,6 @@ export class BudgetApiStack extends Stack {
     const stackName = `${process.env.ENV_NAME}-${id}`;
     const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
 
-    // const vpc = Vpc.fromLookup(
-    //   this,
-    //   `${process.env.ENV_NAME}-Vpc`,
-    //   {
-    //     vpcId: 'vpc-b7a5cdcf',
-    //   },
-    // );
-
     const vpc = new Vpc(this, `${stackName}-Vpc`, {
       maxAzs: 2,
       subnetConfiguration: [
@@ -48,12 +42,6 @@ export class BudgetApiStack extends Stack {
         },
       ],
     });
-
-    // const securityGroup = SecurityGroup.fromLookupById(
-    //   this,
-    //   `${process.env.ENV_NAME}-SecurityGroup`,
-    //   'sg-2a96cb5e',
-    // );
 
     const dbSecurityGroup = new SecurityGroup(
       this,
@@ -93,6 +81,7 @@ export class BudgetApiStack extends Stack {
         vpcSubnets: vpc.selectSubnets({
           subnetType: SubnetType.PRIVATE_WITH_NAT,
         }),
+        vpcPlacement: { subnetType: SubnetType.PUBLIC },
         databaseName,
         securityGroups: [dbSecurityGroup],
         credentials: Credentials.fromGeneratedSecret('postgres'),
@@ -101,6 +90,7 @@ export class BudgetApiStack extends Stack {
         allowMajorVersionUpgrade: true,
       }
     );
+    db.connections.allowFromAnyIpv4(Port.tcp(5432))
 
     const secret = new Secret(this,
       `${stackName}-Secret`,
