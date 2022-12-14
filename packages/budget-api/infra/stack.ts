@@ -87,7 +87,7 @@ export class BudgetApiStack extends Stack {
         }),
         instanceType: InstanceType.of(
           InstanceClass.BURSTABLE3,
-          InstanceSize.SMALL
+          InstanceSize.MICRO
         ),
         vpc,
         vpcSubnets: vpc.selectSubnets({
@@ -96,7 +96,7 @@ export class BudgetApiStack extends Stack {
         databaseName,
         securityGroups: [dbSecurityGroup],
         credentials: Credentials.fromGeneratedSecret('postgres'),
-        maxAllocatedStorage: 20,
+        maxAllocatedStorage: 2,
       }
     );
 
