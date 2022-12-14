@@ -78,7 +78,6 @@ export class BudgetApiStack extends Stack {
     );
     
     const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
-    console.log('Database name', databaseName);
     const db = new DatabaseInstance(
       this,
       `${stackName}-Database`,
@@ -97,7 +96,7 @@ export class BudgetApiStack extends Stack {
         databaseName,
         securityGroups: [dbSecurityGroup],
         credentials: Credentials.fromGeneratedSecret('postgres'),
-        maxAllocatedStorage: 2,
+        maxAllocatedStorage: 40,
         allowMajorVersionUpgrade: true,
       }
     );
