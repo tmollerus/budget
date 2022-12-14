@@ -133,9 +133,6 @@ export class BudgetApiStack extends Stack {
         },
         environment: {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
-          DB_ENDPOINT_ADDRESS: db.dbInstanceEndpointAddress,
-          DB_NAME: databaseName,
-          DB_SECRET_ARN: db.secret?.secretFullArn || '',
         },
         vpc,
         vpcSubnets: vpc.selectSubnets({
@@ -178,6 +175,43 @@ export class BudgetApiStack extends Stack {
     //   restApi: budgetApi,
     //   basePath: 'auth',
     // });
+
+    const getMigrationsLambda = new NodejsFunction(
+      this,
+      `${stackName}-GetMigrationsLambda`,
+      {
+        runtime: Runtime.NODEJS_16_X,
+        functionName: `${stackName}-GetMigrationsLambda`,
+        handler: 'getHandler',
+        entry: 'src/v1/handlers/db/migrations/item.ts',
+        timeout: Duration.seconds(60),
+        bundling: {
+          externalModules: [
+            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+            'pg-native',
+          ],
+        },
+        environment: {
+          ALLOWED_ORIGINS: allowedOrigins.join(','),
+        },
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
+        }),
+        securityGroups: [lambdaSecurityGroup],
+      }
+    );
+    secret.grantRead(getMigrationsLambda);
+    const getMigrationsIntegration = new HttpLambdaIntegration(
+      `${stackName}-GetMigrationsIntegration`,
+      getAuthLambda
+    );
+
+    budgetApi.addRoutes({
+      path: '/v1/db/migrations',
+      methods: [ HttpMethod.GET ],
+      integration: getMigrationsIntegration,
+    });
   }
 }
 
