@@ -96,7 +96,8 @@ export class BudgetApiStack extends Stack {
         databaseName,
         securityGroups: [dbSecurityGroup],
         credentials: Credentials.fromGeneratedSecret('postgres'),
-        maxAllocatedStorage: 40,
+        allocatedStorage: 10,
+        maxAllocatedStorage: 200,
         allowMajorVersionUpgrade: true,
       }
     );
