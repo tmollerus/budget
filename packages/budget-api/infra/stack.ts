@@ -77,7 +77,7 @@ export class BudgetApiStack extends Stack {
       'Allow lambdas to access budget postgres database'
     );
     
-    const databaseName = `${stackName}-Database`;
+    const databaseName = `${stackName}-db`;
     const db = new DatabaseInstance(
       this,
       `${stackName}-Database`,
