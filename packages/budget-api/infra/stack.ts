@@ -2,9 +2,10 @@ import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
 import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
 import { Secret } from '@aws-cdk/aws-secretsmanager';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
+import { InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
 import { Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from '@aws-cdk/aws-rds';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 
@@ -24,19 +25,80 @@ export class BudgetApiStack extends Stack {
     const stackName = `${process.env.ENV_NAME}-${id}`;
     const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
 
-    const vpc = Vpc.fromLookup(
-      this,
-      `${process.env.ENV_NAME}-Vpc`,
-      {
-        vpcId: 'vpc-b7a5cdcf',
-      },
-    );
+    // const vpc = Vpc.fromLookup(
+    //   this,
+    //   `${process.env.ENV_NAME}-Vpc`,
+    //   {
+    //     vpcId: 'vpc-b7a5cdcf',
+    //   },
+    // );
+
+    const vpc = new Vpc(this, `${stackName}-Vpc`, {
+      maxAzs: 2,
+      subnetConfiguration: [
+        {
+          cidrMask: 24,
+          name: `${stackName}-Vpc-Subnet-PWN`,
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
+        },
+        {
+          cidrMask: 24,
+          name: `${stackName}-Vpc-Subnet-PUB`,
+          subnetType: SubnetType.PUBLIC,
+        },
+      ],
+    });
 
     // const securityGroup = SecurityGroup.fromLookupById(
     //   this,
     //   `${process.env.ENV_NAME}-SecurityGroup`,
     //   'sg-2a96cb5e',
     // );
+
+    const dbSecurityGroup = new SecurityGroup(
+      this,
+      `${stackName}-dbSecurityGroup`,
+      {
+        vpc,
+      }
+    );
+
+    const lambdaSecurityGroup = new SecurityGroup(
+      this,
+      `${stackName}-lambdaSecurityGroup`,
+      {
+        vpc,
+      }
+    );
+
+    dbSecurityGroup.addIngressRule(
+      lambdaSecurityGroup,
+      Port.tcp(5432),
+      'Allow lambdas to access budget postgres database'
+    );
+    
+    const databaseName = `${stackName}-Database`;
+    const db = new DatabaseInstance(
+      this,
+      `${stackName}-Database`,
+      {
+        engine: DatabaseInstanceEngine.postgres({
+          version: PostgresEngineVersion.VER_14_2,
+        }),
+        instanceType: InstanceType.of(
+          InstanceClass.BURSTABLE3,
+          InstanceSize.SMALL
+        ),
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
+        }),
+        databaseName,
+        securityGroups: [dbSecurityGroup],
+        credentials: Credentials.fromGeneratedSecret('postgres'),
+        maxAllocatedStorage: 20,
+      }
+    );
 
     const secret = new Secret(this,
       `${stackName}-Secret`,
@@ -79,13 +141,15 @@ export class BudgetApiStack extends Stack {
         },
         environment: {
           ALLOWED_ORIGINS: allowedOrigins.join(','),
+          DB_ENDPOINT_ADDRESS: db.dbInstanceEndpointAddress,
+          DB_NAME: databaseName,
+          DB_SECRET_ARN: db.secret?.secretFullArn || '',
         },
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PUBLIC,
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
         }),
-        allowPublicSubnet: true,
-        // securityGroups: [securityGroup],
+        securityGroups: [lambdaSecurityGroup],
       }
     );
     secret.grantRead(getAuthLambda);
