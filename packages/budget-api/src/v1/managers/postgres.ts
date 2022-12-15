@@ -7,7 +7,7 @@ import budget from '../schema/postgres/seeds/budget.seeds.json';
 import item from '../schema/postgres/seeds/item.seeds.json';
 import type from '../schema/postgres/seeds/type.seeds.json';
 import user from '../schema/postgres/seeds/user.seeds.json';
-import { getInsertFieldnames, getInsertValues } from '../utils/db';
+import { getInsertColumnNames, getInsertValues } from '../utils/db';
 import { getSecret } from './secrets';
 
 export const foo = () => { return 'bar' };
@@ -55,7 +55,7 @@ export const getClient = async (): Promise<any> => {
 
   if (rowCount?.rows[0]?.count === '0') {
     for (let i = 1; i < seeds.length; i++) {
-      const sql = `INSERT INTO ${seedName} (${getInsertFieldnames(seeds[0])}) VALUES (${getInsertValues(seeds[i])});`;
+      const sql = `INSERT INTO ${seedName} (${getInsertColumnNames(seeds[0])}) VALUES (${getInsertValues(seeds[i])});`;
       try {
         dryRun || await client.query(sql);
       } catch (err: any) {

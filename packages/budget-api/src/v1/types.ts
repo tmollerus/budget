@@ -17,3 +17,7 @@ export interface OktaUser {
   client_id?: string;
   uid?: string;
 }
+
+export interface Seeds {
+  seeds: Array<Array<string | boolean | number>>;
+}

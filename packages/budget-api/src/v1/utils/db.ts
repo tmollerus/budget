@@ -1,4 +1,4 @@
-export const getInsertFieldnames = (fields: Array<string>): string => {
+export const getInsertColumnNames = (fields: Array<string>): string => {
   let result = '';
 
   fields.forEach((field) => {
@@ -15,7 +15,7 @@ export const getInsertValues = (values: Array<string | boolean | number>): strin
     if (['boolean', 'number'].includes(typeof value)) {
       result += `${value}, `;
     } else {
-      result += `'${value}', `;
+      result += `'${(value as string).replace("'", "\'")}', `;
     }
   });
 
