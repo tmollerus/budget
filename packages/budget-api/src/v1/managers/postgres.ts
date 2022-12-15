@@ -1,9 +1,13 @@
 import { Client } from 'pg';
-import { migrate } from 'postgres-migrations';
-import { migration001 } from '../schema/postgres/migrations/001-createBudgetsTable';
-import { migration002 } from '../schema/postgres/migrations/002-createTypesTable';
-import { migration003 } from '../schema/postgres/migrations/003-createUsersTable';
-import { migration004 } from '../schema/postgres/migrations/004-createItemsTable';
+import { migration001 } from '../schema/postgres/migrations/001-createBudgetsTable.sql';
+import { migration002 } from '../schema/postgres/migrations/002-createTypesTable.sql';
+import { migration003 } from '../schema/postgres/migrations/003-createUsersTable.sql';
+import { migration004 } from '../schema/postgres/migrations/004-createItemsTable.sql';
+import budget from '../schema/postgres/seeds/budget.seeds.json';
+import item from '../schema/postgres/seeds/item.seeds.json';
+import type from '../schema/postgres/seeds/type.seeds.json';
+import user from '../schema/postgres/seeds/user.seeds.json';
+import { getInsertFieldnames, getInsertValues } from '../utils/db';
 import { getSecret } from './secrets';
 
 export const foo = () => { return 'bar' };
@@ -22,16 +26,60 @@ export const getClient = async (): Promise<any> => {
   return client;
  };
 
- export const describeDatabase = async () => {
+ export const applySeeds = async () => {
   const client = await getClient();
+  const results: Array<string> = [];
 
   try {
-    return await client.query(`SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';`);
+    results.push(await insertSeeds(client, budget.seeds, 'types'));
+    // results.push(await insertSeeds(client, type.seeds, 'types'));
+    // results.push(await insertSeeds(client, user.seeds, 'types'));
+    // results.push(await insertSeeds(client, item.seeds, 'types'));
+    return results;
   } catch (err) {
     console.log(err);
   } finally {
     client.end();
   }
+ };
+
+ export const insertSeeds = async (client: any, seeds: Array<Array<any>>, seedName: string, dryRun = false): Promise<string> => {
+  let result = '';
+  const rowCount = dryRun
+    ? { rows: [{ count: '0' }] }
+    : await client.query(`SELECT COUNT(*) FROM ${seedName};`);
+
+  if (rowCount?.rows[0]?.count === '0') {
+    for (let i = 1; i < seeds.length; i++) {
+      const sql = `INSERT INTO ${seedName} (${getInsertFieldnames(seeds[0])}) VALUES (${getInsertValues(seeds[i])});`;
+      dryRun || await client.query(sql);
+    }
+
+    result = `Inserted ${seeds.length - 1} records into ${seedName}`;
+    console.log(result);
+  } else {
+    result = `Not inserting seed records into ${seedName} since row count is already ${rowCount?.rows[0]?.count}`;
+    console.log(result);
+  }
+
+  return result;
+ }
+
+ export const describeDatabase = async (): Promise<string> => {
+  const client = await getClient();
+  let result = '';
+
+  try {
+    const budgets = await client.query(`SELECT COUNT(*) FROM budgets;`);
+    result += `Table budgets contains ${budgets.rows[0].count} rows;`;
+  } catch (err) {
+    console.log(err);
+    result += err;
+  } finally {
+    client.end();
+  }
+
+  return result;
  };
 
  export const getBudgetByEmail = async (email: string) => {

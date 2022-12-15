@@ -212,6 +212,43 @@ export class BudgetApiStack extends Stack {
       methods: [ HttpMethod.GET ],
       integration: getMigrationsIntegration,
     });
+
+    const getSeedsLambda = new NodejsFunction(
+      this,
+      `${stackName}-GetSeedsLambda`,
+      {
+        runtime: Runtime.NODEJS_16_X,
+        functionName: `${stackName}-GetSeedsLambda`,
+        handler: 'getHandler',
+        entry: 'src/v1/handlers/db/seeds/item.ts',
+        timeout: Duration.seconds(60),
+        bundling: {
+          externalModules: [
+            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+            'pg-native',
+          ],
+        },
+        environment: {
+          ALLOWED_ORIGINS: allowedOrigins.join(','),
+        },
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
+        }),
+        securityGroups: [lambdaSecurityGroup],
+      }
+    );
+    secret.grantRead(getSeedsLambda);
+    const getSeedsIntegration = new HttpLambdaIntegration(
+      `${stackName}-GetSeedsIntegration`,
+      getSeedsLambda
+    );
+
+    budgetApi.addRoutes({
+      path: '/v1/db/seeds',
+      methods: [ HttpMethod.GET ],
+      integration: getSeedsIntegration,
+    });
   }
 }
 
