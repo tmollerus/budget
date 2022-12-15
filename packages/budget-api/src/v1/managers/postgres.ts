@@ -34,7 +34,8 @@ export const getClient = async (): Promise<any> => {
     results.push(await insertSeeds(client, type.seeds, 'types'));
     results.push(await insertSeeds(client, budget.seeds, 'budgets'));
     results.push(await insertSeeds(client, user.seeds, 'users'));
-    // results.push(await insertSeeds(client, item.seeds, 'items'));
+    results.push(await insertSeeds(client, item.seeds, 'items'));
+
     return results;
   } catch (err) {
     console.log(err);
@@ -72,6 +73,12 @@ export const getClient = async (): Promise<any> => {
   try {
     const budgets = await client.query(`SELECT COUNT(*) FROM budgets;`);
     result += `Table budgets contains ${budgets.rows[0].count} rows;`;
+    const types = await client.query(`SELECT COUNT(*) FROM types;`);
+    result += `Table types contains ${types.rows[0].count} rows;`;
+    const users = await client.query(`SELECT COUNT(*) FROM users;`);
+    result += `Table users contains ${users.rows[0].count} rows;`;
+    const items = await client.query(`SELECT COUNT(*) FROM items;`);
+    result += `Table items contains ${items.rows[0].count} rows;`;
   } catch (err) {
     console.log(err);
     result += err;

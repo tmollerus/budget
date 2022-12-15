@@ -12,7 +12,6 @@ export const getInsertValues = (values: Array<string | boolean | number>): strin
   let result = '';
 
   values.forEach((value) => {
-    console.log(value, typeof value)
     if (['boolean', 'number'].includes(typeof value)) {
       result += `${value}, `;
     } else {
