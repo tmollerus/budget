@@ -1,0 +1,5 @@
+{ "seeds": [
+    ["guid","active","fullname","username","password","dateLastLogin","dateCreated","dateModified","starting_balance","email"],
+    ["2e02e112-78e4-11e1-8645-4e6ec7412f43",true,"Tom Mollerus","tmollerus","380BCE0AC2C9ADB7765620004FC94E61","2012-03-28 11:42:01+00","2012-03-28 11:42:01+00","2012-03-28 11:42:01+00",10661.63,"tom+otka@mollerus.net"]
+  ]
+}
