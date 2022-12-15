@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx lerna run test",
-    "build": "npx lerna run build",
+    "lint": "npx lerna run lint --since origin/master",
+    "test": "npx lerna run test --since origin/master",
+    "build": "npx lerna run build --since origin/master --loglevel error",
     "prepare": "husky install"
   },
   "repository": {

@@ -1,0 +1,6 @@
+{ "seeds": [
+    ["guid","budget_guid","active","fullname","email","dateLastLogin","dateCreated","dateModified"],
+    ["C5C4746D-6CA2-4410-A835206A28768FFA","2e02e112-78e4-11e1-8645-4e6ec7412f43",true,"Tom Mollerus","tom+otka@mollerus.net","2012-03-28 11:42:01+00","2012-03-28 11:42:01+00","2012-03-28 11:42:01+00"],
+    ["2CF011C1-8C80-4BBE-92CA9E15D53BE826","2e02e112-78e4-11e1-8645-4e6ec7412f43",true,"Kristin Mollerus","kristin@mollerus.net",null,"2018-04-27 22:43:53.965921+00","2018-04-27 22:43:53.965921+00"]
+  ]
+}
