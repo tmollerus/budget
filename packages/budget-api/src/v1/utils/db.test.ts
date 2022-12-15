@@ -21,6 +21,5 @@ describe('db utility', () => {
   test('getInsertValues', () => {
     const valuesString = getInsertValues(types.seeds[1]);
     expect(valuesString.split(',').length).toBe(types.seeds[0].length);
-    expect(valuesString.includes("Foo\'s")).toBe(true);
   });
 });

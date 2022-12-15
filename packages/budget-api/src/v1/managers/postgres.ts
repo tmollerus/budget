@@ -57,7 +57,7 @@ export const getClient = async (): Promise<any> => {
     for (let i = 1; i < seeds.length; i++) {
       const sql = `INSERT INTO ${seedName} (${getInsertColumnNames(seeds[0])}) VALUES (${getInsertValues(seeds[i])});`;
       try {
-        dryRun || await client.query(sql);
+        dryRun || await client.query(sql, seeds[i]);
       } catch (err: any) {
         console.log('Error while tring to execute SQL', sql);
         console.log(err);

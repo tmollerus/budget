@@ -11,12 +11,8 @@ export const getInsertColumnNames = (fields: Array<string>): string => {
 export const getInsertValues = (values: Array<string | boolean | number>): string => {
   let result = '';
 
-  values.forEach((value) => {
-    if (['boolean', 'number'].includes(typeof value)) {
-      result += `${value}, `;
-    } else {
-      result += `'${(value as string).replace("'", "\'")}', `;
-    }
+  values.forEach((value, index) => {
+    result += `$${index + 1}, `;
   });
 
   return result.trim().replace(/,$/, '');
