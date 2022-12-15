@@ -1,7 +1,7 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { getOktaUser } from '../../../managers/okta';
 import { describeDatabase, getBudgetByEmail } from '../../../managers/postgres';
-import { OktaUser } from '../../../types';
+import { BudgetRecord, OktaUser } from '../../../types';
 import { getAuthToken } from '../../../utils/event';
 
 export const getHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
@@ -10,12 +10,12 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
 
   const authToken = getAuthToken(event.headers);
   const user: OktaUser = await getOktaUser(authToken);
-
-  console.log('User email from Okta', user.username);
-  let budgetGuid = '';
+  let budget: BudgetRecord | void;
+  let budgetGuid: string | undefined;
 
   try {
-    budgetGuid = await getBudgetByEmail(user.username!);
+    budget = await getBudgetByEmail(user.username!);
+    budgetGuid = budget?.guid;
   } catch (err) {
     console.log(err);
   }

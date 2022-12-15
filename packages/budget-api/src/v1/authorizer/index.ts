@@ -8,21 +8,19 @@ export const handler = async (event: APIGatewayAuthorizerEvent, context: Context
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
-  if (!event.type || event.type !== 'TOKEN') {
-    throw new Error('Expected "event.type" parameter to have value "TOKEN"');
-  }
-
-  const authToken: string = event?.authorizationToken;
-  if (!authToken) throw new Error('Missing auth token!');
-
-  const user: OktaUser = await getOktaUser(authToken);
-
-  console.log('User email from Okta', user.username);
-  
   try {
+    if (!event.type || event.type !== 'TOKEN') {
+      throw new Error('Expected "event.type" parameter to have value "TOKEN"');
+    }
+
+    if (!event?.authorizationToken) {
+      throw new Error('Missing auth token!');
+    }
+
+    const user: OktaUser = await getOktaUser(event?.authorizationToken);
     const budget = await getBudgetByEmail(user.username!);
-    console.log('Budget', budget);
-    if (budget.guid) {
+
+    if (budget?.guid) {
       return getPolicy('user', Effect.ALLOW, event.methodArn);
     }
   } catch (err) {

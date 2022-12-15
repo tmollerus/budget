@@ -249,6 +249,43 @@ export class BudgetApiStack extends Stack {
       methods: [ HttpMethod.GET ],
       integration: getSeedsIntegration,
     });
+
+    const getDbDescriptionLambda = new NodejsFunction(
+      this,
+      `${stackName}-GetDbDescriptionLambda`,
+      {
+        runtime: Runtime.NODEJS_16_X,
+        functionName: `${stackName}-GetDbDescriptionLambda`,
+        handler: 'getHandler',
+        entry: 'src/v1/handlers/db/describe/item.ts',
+        timeout: Duration.seconds(60),
+        bundling: {
+          externalModules: [
+            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+            'pg-native',
+          ],
+        },
+        environment: {
+          ALLOWED_ORIGINS: allowedOrigins.join(','),
+        },
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
+        }),
+        securityGroups: [lambdaSecurityGroup],
+      }
+    );
+    secret.grantRead(getDbDescriptionLambda);
+    const getDbDescriptionIntegration = new HttpLambdaIntegration(
+      `${stackName}-GetDbDescriptionIntegration`,
+      getDbDescriptionLambda
+    );
+
+    budgetApi.addRoutes({
+      path: '/v1/db/describe',
+      methods: [ HttpMethod.GET ],
+      integration: getDbDescriptionIntegration,
+    });
   }
 }
 

@@ -5,12 +5,11 @@ import { migration003 } from '../schema/postgres/migrations/003-createUsersTable
 import { migration004 } from '../schema/postgres/migrations/004-createItemsTable.sql';
 import budget from '../schema/postgres/seeds/budget.seeds.json';
 import item from '../schema/postgres/seeds/item.seeds.json';
-import type from '../schema/postgres/seeds/type.seeds.json';
+import itemType from '../schema/postgres/seeds/type.seeds.json';
 import user from '../schema/postgres/seeds/user.seeds.json';
+import { BudgetRecord, QueryResult } from '../types';
 import { getInsertColumnNames, getInsertValues } from '../utils/db';
 import { getSecret } from './secrets';
-
-export const foo = () => { return 'bar' };
 
 export const getClient = async (): Promise<any> => {
   const { username, password, port, dbname, host } = await getSecret("production-budget-api-Secret");
@@ -31,10 +30,10 @@ export const getClient = async (): Promise<any> => {
   const results: Array<string> = [];
 
   try {
-    results.push(await insertSeeds(client, type.seeds, 'types'));
+    results.push(await insertSeeds(client, itemType.seeds, 'types'));
     results.push(await insertSeeds(client, budget.seeds, 'budgets'));
     results.push(await insertSeeds(client, user.seeds, 'users'));
-    results.push(await insertSeeds(client, item.seeds, 'items', false, true));
+    results.push(await insertSeeds(client, item.seeds, 'items'));
 
     return results;
   } catch (err) {
@@ -42,6 +41,8 @@ export const getClient = async (): Promise<any> => {
   } finally {
     client.end();
   }
+
+  return results.join('; ');
  };
 
  export const insertSeeds = async (client: any, seeds: Array<Array<any>>, seedName: string, dryRun = false, deleteFirst = false): Promise<string> => {
@@ -98,11 +99,12 @@ export const getClient = async (): Promise<any> => {
   return result;
  };
 
- export const getBudgetByEmail = async (email: string) => {
+ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
   const client = await getClient();
 
   try {
-    return await client.query(`SELECT * FROM budgets WHERE email = '${email}';`);
+    const budgets: QueryResult<BudgetRecord> = await client.query(`SELECT * FROM budgets WHERE email = '${email}';`);
+    return budgets.rows[0];
   } catch (err) {
     console.log(err);
   } finally {
