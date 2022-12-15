@@ -169,6 +169,7 @@ export class BudgetApiStack extends Stack {
     //   apiMappingKey: 'apiMappingKey',
     //   stage: stage,
     // });
+
     // new BasePathMapping(this, `${stackName}-BasePathMapping`, {
     //   domainName: domainName,
     //   restApi: budgetApi,
@@ -203,7 +204,7 @@ export class BudgetApiStack extends Stack {
     secret.grantRead(getMigrationsLambda);
     const getMigrationsIntegration = new HttpLambdaIntegration(
       `${stackName}-GetMigrationsIntegration`,
-      getAuthLambda
+      getMigrationsLambda
     );
 
     budgetApi.addRoutes({
