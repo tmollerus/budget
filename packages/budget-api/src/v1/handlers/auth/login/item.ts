@@ -15,8 +15,7 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
   let budgetGuid = '';
 
   try {
-    // budgetGuid = await getBudgetByEmail(user.username!);
-    budgetGuid = await describeDatabase();
+    budgetGuid = await getBudgetByEmail(user.username!);
   } catch (err) {
     console.log(err);
   }

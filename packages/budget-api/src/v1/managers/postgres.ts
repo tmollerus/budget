@@ -34,7 +34,7 @@ export const getClient = async (): Promise<any> => {
     results.push(await insertSeeds(client, type.seeds, 'types'));
     results.push(await insertSeeds(client, budget.seeds, 'budgets'));
     results.push(await insertSeeds(client, user.seeds, 'users'));
-    results.push(await insertSeeds(client, item.seeds, 'items'));
+    results.push(await insertSeeds(client, item.seeds, 'items', false, true));
 
     return results;
   } catch (err) {
@@ -44,8 +44,11 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
- export const insertSeeds = async (client: any, seeds: Array<Array<any>>, seedName: string, dryRun = false): Promise<string> => {
+ export const insertSeeds = async (client: any, seeds: Array<Array<any>>, seedName: string, dryRun = false, deleteFirst = false): Promise<string> => {
   let result = '';
+  if (deleteFirst) {
+    await client.query(`DELETE FROM ${seedName};`);
+  }
   const rowCount = dryRun
     ? { rows: [{ count: '0' }] }
     : await client.query(`SELECT COUNT(*) FROM ${seedName};`);
@@ -53,7 +56,13 @@ export const getClient = async (): Promise<any> => {
   if (rowCount?.rows[0]?.count === '0') {
     for (let i = 1; i < seeds.length; i++) {
       const sql = `INSERT INTO ${seedName} (${getInsertFieldnames(seeds[0])}) VALUES (${getInsertValues(seeds[i])});`;
-      dryRun || await client.query(sql);
+      try {
+        dryRun || await client.query(sql);
+      } catch (err: any) {
+        console.log('Error while tring to execute SQL', sql);
+        console.log(err);
+        throw new Error(err);
+      }
     }
 
     result = `Inserted ${seeds.length - 1} records into ${seedName}`;
