@@ -31,10 +31,10 @@ export const getClient = async (): Promise<any> => {
   const results: Array<string> = [];
 
   try {
-    results.push(await insertSeeds(client, budget.seeds, 'types'));
-    // results.push(await insertSeeds(client, type.seeds, 'types'));
-    // results.push(await insertSeeds(client, user.seeds, 'types'));
-    // results.push(await insertSeeds(client, item.seeds, 'types'));
+    results.push(await insertSeeds(client, type.seeds, 'types'));
+    results.push(await insertSeeds(client, budget.seeds, 'budgets'));
+    results.push(await insertSeeds(client, user.seeds, 'users'));
+    // results.push(await insertSeeds(client, item.seeds, 'items'));
     return results;
   } catch (err) {
     console.log(err);
