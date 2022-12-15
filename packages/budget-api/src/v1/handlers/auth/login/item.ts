@@ -1,6 +1,6 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { getOktaUser } from '../../../managers/okta';
-import { getBudgetByEmail } from '../../../managers/postgres';
+import { describeDatabase } from '../../../managers/postgres';
 import { OktaUser } from '../../../types';
 import { getAuthToken } from '../../../utils/event';
 
@@ -13,9 +13,9 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
 
   console.log('User email from Okta', user.username);
   let budgetGuid = '';
-  
+
   try {
-    budgetGuid = await getBudgetByEmail(user.username!);
+    budgetGuid = await describeDatabase();
   } catch (err) {
     console.log(err);
   }
