@@ -1,3 +1,11 @@
+# [budget-ui-v3.6.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.5.1...budget-ui-v3.6.0) (2022-12-16)
+
+
+### Features
+
+* corrected case of budgetguid ([b6fb1e5](https://github.com/tmollerus/budget/commit/b6fb1e5dab48f051dbfed6bf31477b3dba8d86ad))
+* removed trailing slashes from endpoints ([a4ac2e6](https://github.com/tmollerus/budget/commit/a4ac2e6267e033adb8e3d32d09fc48ba98e2169d))
+
 # [budget-ui-v3.5.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.5.0...budget-ui-v3.5.1) (2022-12-08)
 
 
