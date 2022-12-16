@@ -170,7 +170,7 @@ export const getClient = async (): Promise<any> => {
 
   try {
     const sql = `
-      INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, dateCreated, dateModified)
+      INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
     `;
     const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label];
