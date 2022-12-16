@@ -128,7 +128,7 @@ export class BudgetApiStack extends Stack {
       authorizerLambda,
       {
         responseTypes: [HttpLambdaResponseType.IAM],
-        resultsCacheTtl: Duration.minutes(2),
+        resultsCacheTtl: Duration.seconds(0),
       }
     );
 
