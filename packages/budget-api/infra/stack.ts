@@ -1,10 +1,11 @@
 import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
 import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers';
+import { Certificate } from '@aws-cdk/aws-certificatemanager';
 import { Secret } from '@aws-cdk/aws-secretsmanager';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
-import { Code, Function, IFunction, Runtime } from '@aws-cdk/aws-lambda';
+import { IFunction, Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from '@aws-cdk/aws-rds';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
@@ -132,12 +133,20 @@ export class BudgetApiStack extends Stack {
       }
     );
 
+    const domainName = new DomainName(
+      this,
+      `${stackName}-DomainName`,
+      {
+        domainName: process.env.DOMAIN_NAME || '',
+        certificate: Certificate.fromCertificateArn(this, 'cert', 'arn:aws:acm:us-east-1:360115878429:certificate/9da4d61d-3c50-4685-a7e7-288e59b67720'),
+      }
+    );
+
     const budgetApi = new HttpApi(
       this,
       `${stackName}-HttpApi`,
       {
         apiName: `${stackName}-HttpApi`,
-        createDefaultStage: false,
         corsPreflight: {
           allowHeaders: getAllowedPreflightHeaders(),
           allowMethods: getAllowedPreflightMethods(),
@@ -146,6 +155,7 @@ export class BudgetApiStack extends Stack {
         },
         defaultAuthorizer: authorizer,
         description: 'Rest API for the Budget application',
+        defaultDomainMapping: { domainName },
       }
     );
 
@@ -185,15 +195,6 @@ export class BudgetApiStack extends Stack {
       methods: [ HttpMethod.GET ],
       integration: getAuthIntegration,
     });
-
-    // const domainName = DomainName.fromDomainNameAttributes(
-    //   this,
-    //   `${stackName}-domainName`,
-    //   // @ts-ignore
-    //   {
-    //     domainName: process.env.DOMAIN_NAME || '',
-    //   }
-    // );
 
     // const apiMapping = new ApiMapping(this, 'MyApiMapping', {
     //   api: budgetApi,
