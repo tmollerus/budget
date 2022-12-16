@@ -24,7 +24,7 @@ export const Ledger = () => {
     async function checkBudgetGuid() {
       if (!budgetGuid) {
         const budgetAuthResponse: BudgetAuthResponse = await getBudgetGuid();
-        setBudgetGuid(budgetAuthResponse.budgetGUID);
+        setBudgetGuid(budgetAuthResponse.budgetGuid);
       }
     }
     checkBudgetGuid();
