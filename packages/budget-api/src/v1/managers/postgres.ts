@@ -121,8 +121,8 @@ export const getClient = async (): Promise<any> => {
       FROM items
       WHERE budget_guid = $1
         AND active = true
-        AND EXTRACT(YEAR FROM "settledDate") = $2
-        ORDER BY settledDate ASC, type_id ASC, amount ASC;
+        AND EXTRACT(YEAR FROM "items.settledDate") = $2
+        ORDER BY "items.settledDate" ASC, type_id ASC, amount ASC;
     `, [budgetGuid, year]);
     console.log(result);
     return result.rows[0];
@@ -140,7 +140,7 @@ export const getClient = async (): Promise<any> => {
     const result = client.query(`
       SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
       FROM items
-      WHERE EXTRACT(YEAR FROM "settledDate") < $2
+      WHERE EXTRACT(YEAR FROM "items.settledDate") < $2
         AND items.active = true
         AND items.budget_guid = :budget_guid)) AS balance,
       COUNT(*) AS item_count
