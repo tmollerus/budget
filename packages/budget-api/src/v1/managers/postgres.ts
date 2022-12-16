@@ -165,7 +165,7 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
- export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<number | undefined> => {
+ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<any> => {
   const client = await getClient();
 
   try {
@@ -174,6 +174,23 @@ export const getClient = async (): Promise<any> => {
       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
     `;
     const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      UPDATE items SET active = false WHERE budget_guid = $1 AND guid = $2
+    `;
+    const params = [budgetGuid, itemGuid];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
     console.log(result);

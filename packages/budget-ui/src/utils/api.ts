@@ -83,10 +83,9 @@ export const updateEntry = async (budgetGuid: string, entry: any) => {
   });
 };
 
-export const deleteEntry = async (budgetGuid: string, entryGuid: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/${entryGuid}`, {
-    method: 'PUT',
-    body: JSON.stringify({ active: false }),
+export const deleteEntry = async (budgetGuid: string, itemGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/${itemGuid}`, {
+    method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },
