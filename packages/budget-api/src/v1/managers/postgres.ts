@@ -154,6 +154,21 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
+ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<number | undefined> => {
+  const client = await getClient();
+
+  try {
+    const result = await client.query(`
+      INSERT INTO budgets (budget_guid, guid, "settledDate", type_id, amount, paid, label)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [budgetGuid, budgetItem.guid, budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label]);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
  export const createSchema = async (): Promise<any> => {
   const client = await getClient();
 

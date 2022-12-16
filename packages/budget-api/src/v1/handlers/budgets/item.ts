@@ -1,20 +1,19 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { getBudgetItemsByYear, getStartingBalanceForYear } from '../../managers/postgres';
-import { BudgetRecord } from '../../types';
+import { createBudgetItem } from '../../managers/postgres';
+import { ItemRecord } from '../../types';
 
-export const getHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const postHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
-  const year = event.queryStringParameters?.year || '';
+  const budgetItem: ItemRecord = JSON.parse(event.body || '{}');
 
   try {
-    const items = await getBudgetItemsByYear(budgetGuid, year);
-    const starting_balance = await getStartingBalanceForYear(budgetGuid, year);
+    const item = await createBudgetItem(budgetGuid, budgetItem);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({items, starting_balance}),
+      body: JSON.stringify({item}),
     };
   } catch (err) {
     console.log(err);
