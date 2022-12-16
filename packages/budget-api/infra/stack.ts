@@ -121,6 +121,7 @@ export class BudgetApiStack extends Stack {
         securityGroups: [lambdaSecurityGroup],
       }
     );
+    secret.grantRead(authorizerLambda);
 
     const authorizer = new HttpLambdaAuthorizer(
       `${stackName}-HttpLambdaAuthorizer`,
