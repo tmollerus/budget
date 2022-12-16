@@ -29,6 +29,51 @@ export class BudgetApiStack extends Stack {
     const stackName = `${process.env.ENV_NAME}-${id}`;
     const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
 
+    const createLambdaAndRoute = (
+      lambdaName: string,
+      lambdaHandler: string,
+      lambdaEntry: string,
+      route: string,
+      httpMethods: Array<HttpMethod>,
+    ) => {
+      const lambda = new NodejsFunction(
+        this,
+        `${stackName}-${lambdaName}Lambda`,
+        {
+          runtime: Runtime.NODEJS_16_X,
+          functionName: `${stackName}-${lambdaName}`,
+          handler: lambdaHandler,
+          entry: lambdaEntry,
+          timeout: Duration.seconds(60),
+          bundling: {
+            externalModules: [
+              'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+              'pg-native',
+            ],
+          },
+          environment: {
+            ALLOWED_ORIGINS: allowedOrigins.join(','),
+          },
+          vpc,
+          vpcSubnets: vpc.selectSubnets({
+            subnetType: SubnetType.PRIVATE_WITH_NAT,
+          }),
+          securityGroups: [lambdaSecurityGroup],
+        }
+      );
+      secret.grantRead(lambda);
+      const integration = new HttpLambdaIntegration(
+        `${stackName}-${lambdaName}Integration`,
+        lambda
+      );
+  
+      budgetApi.addRoutes({
+        path: route,
+        methods: httpMethods,
+        integration: integration,
+      });
+    };
+
     const vpc = new Vpc(this, `${stackName}-Vpc`, {
       maxAzs: 2,
       subnetConfiguration: [
@@ -159,168 +204,37 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const getAuthLambda = new NodejsFunction(
-      this,
-      `${stackName}-GetAuthLambda`,
-      {
-        runtime: Runtime.NODEJS_16_X,
-        functionName: `${stackName}-GetAuthLambda`,
-        handler: 'getHandler',
-        entry: 'src/v1/handlers/auth/login/item.ts',
-        timeout: Duration.seconds(60),
-        bundling: {
-          externalModules: [
-            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-            'pg-native',
-          ],
-        },
-        environment: {
-          ALLOWED_ORIGINS: allowedOrigins.join(','),
-        },
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
-        }),
-        securityGroups: [lambdaSecurityGroup],
-      }
-    );
-    secret.grantRead(getAuthLambda);
-    const getAuthIntegration = new HttpLambdaIntegration(
-      `${stackName}-GetAuthIntegration`,
-      getAuthLambda
+    createLambdaAndRoute(
+      'GetAuth',
+      'getHandler',
+      'src/v1/handlers/auth/login/item.ts',
+      '/v1/auth/login',
+      [ HttpMethod.GET ]
     );
 
-    budgetApi.addRoutes({
-      path: '/v1/auth/login',
-      methods: [ HttpMethod.GET ],
-      integration: getAuthIntegration,
-    });
-
-    // const apiMapping = new ApiMapping(this, 'MyApiMapping', {
-    //   api: budgetApi,
-    //   domainName: domainName,
-    
-    //   // the properties below are optional
-    //   apiMappingKey: 'apiMappingKey',
-    //   stage: stage,
-    // });
-
-    // new BasePathMapping(this, `${stackName}-BasePathMapping`, {
-    //   domainName: domainName,
-    //   restApi: budgetApi,
-    //   basePath: 'auth',
-    // });
-
-    const getMigrationsLambda = new NodejsFunction(
-      this,
-      `${stackName}-GetMigrationsLambda`,
-      {
-        runtime: Runtime.NODEJS_16_X,
-        functionName: `${stackName}-GetMigrationsLambda`,
-        handler: 'getHandler',
-        entry: 'src/v1/handlers/db/migrations/item.ts',
-        timeout: Duration.seconds(60),
-        bundling: {
-          externalModules: [
-            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-            'pg-native',
-          ],
-        },
-        environment: {
-          ALLOWED_ORIGINS: allowedOrigins.join(','),
-        },
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
-        }),
-        securityGroups: [lambdaSecurityGroup],
-      }
-    );
-    secret.grantRead(getMigrationsLambda);
-    const getMigrationsIntegration = new HttpLambdaIntegration(
-      `${stackName}-GetMigrationsIntegration`,
-      getMigrationsLambda
+    createLambdaAndRoute(
+      'GetMigrations',
+      'getHandler',
+      'src/v1/handlers/db/migrations/item.ts',
+      '/v1/db/migrations',
+      [ HttpMethod.GET ]
     );
 
-    budgetApi.addRoutes({
-      path: '/v1/db/migrations',
-      methods: [ HttpMethod.GET ],
-      integration: getMigrationsIntegration,
-    });
-
-    const getSeedsLambda = new NodejsFunction(
-      this,
-      `${stackName}-GetSeedsLambda`,
-      {
-        runtime: Runtime.NODEJS_16_X,
-        functionName: `${stackName}-GetSeedsLambda`,
-        handler: 'getHandler',
-        entry: 'src/v1/handlers/db/seeds/item.ts',
-        timeout: Duration.seconds(60),
-        bundling: {
-          externalModules: [
-            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-            'pg-native',
-          ],
-        },
-        environment: {
-          ALLOWED_ORIGINS: allowedOrigins.join(','),
-        },
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
-        }),
-        securityGroups: [lambdaSecurityGroup],
-      }
-    );
-    secret.grantRead(getSeedsLambda);
-    const getSeedsIntegration = new HttpLambdaIntegration(
-      `${stackName}-GetSeedsIntegration`,
-      getSeedsLambda
+    createLambdaAndRoute(
+      'GetSeeds',
+      'getHandler',
+      'src/v1/handlers/db/seeds/item.ts',
+      '/v1/db/seeds',
+      [ HttpMethod.GET ]
     );
 
-    budgetApi.addRoutes({
-      path: '/v1/db/seeds',
-      methods: [ HttpMethod.GET ],
-      integration: getSeedsIntegration,
-    });
-
-    const getDbDescriptionLambda = new NodejsFunction(
-      this,
-      `${stackName}-GetDbDescriptionLambda`,
-      {
-        runtime: Runtime.NODEJS_16_X,
-        functionName: `${stackName}-GetDbDescriptionLambda`,
-        handler: 'getHandler',
-        entry: 'src/v1/handlers/db/describe/item.ts',
-        timeout: Duration.seconds(60),
-        bundling: {
-          externalModules: [
-            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-            'pg-native',
-          ],
-        },
-        environment: {
-          ALLOWED_ORIGINS: allowedOrigins.join(','),
-        },
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
-        }),
-        securityGroups: [lambdaSecurityGroup],
-      }
+    createLambdaAndRoute(
+      'GetDbDescription',
+      'getHandler',
+      'src/v1/handlers/db/describe/item.ts',
+      '/v1/db/describe',
+      [ HttpMethod.GET ]
     );
-    secret.grantRead(getDbDescriptionLambda);
-    const getDbDescriptionIntegration = new HttpLambdaIntegration(
-      `${stackName}-GetDbDescriptionIntegration`,
-      getDbDescriptionLambda
-    );
-
-    budgetApi.addRoutes({
-      path: '/v1/db/describe',
-      methods: [ HttpMethod.GET ],
-      integration: getDbDescriptionIntegration,
-    });
   }
 }
 
