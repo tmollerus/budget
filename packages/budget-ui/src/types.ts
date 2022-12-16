@@ -10,7 +10,7 @@ export interface Breakpoints {
 }
 
 export interface BudgetAuthResponse {
-  budgetGUID: string;
+  budgetGuid: string;
 }
 
 export type BudgetContextType = {
