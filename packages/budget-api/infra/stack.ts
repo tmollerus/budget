@@ -235,6 +235,14 @@ export class BudgetApiStack extends Stack {
       '/v1/db/describe',
       [ HttpMethod.GET ]
     );
+
+    createLambdaAndRoute(
+      'GetBudgetItemsForYear',
+      'getHandler',
+      'src/v1/handlers/budgets/item.ts',
+      '/v1/budgets/{budgetGuid}',
+      [ HttpMethod.GET ]
+    );
   }
 }
 
