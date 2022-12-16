@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - "master"
+    paths:
+      - "packages/budget-api/**"
   pull_request:
     types:
       - labeled
+    paths:
+      - "packages/budget-api/**"
 
 env:
   AWS_REGION: us-east-1
