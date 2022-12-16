@@ -3,7 +3,7 @@ import { BudgetAuthResponse, LedgerData } from '../types';
 import { getAuthorization } from './session';
 
 export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/auth/login/`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/auth/login`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -17,7 +17,7 @@ export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
 };
 
 export const getBudget = async (budgetGUID: string, year: string): Promise<LedgerData> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/?year=${year}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -33,7 +33,7 @@ export const getBudget = async (budgetGUID: string, year: string): Promise<Ledge
 };
 
 export const getBudgetItems = async (budgetGUID: string, year: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items/?year=${year}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -49,7 +49,7 @@ export const getBudgetItems = async (budgetGUID: string, year: string) => {
 };
 
 export const createEntry = async (budgetGUID: string, entry: any) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items/`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGUID}/items`, {
     method: 'POST',
     body: JSON.stringify(Object.assign(entry, {budget_guid: budgetGUID})),
     headers: {
