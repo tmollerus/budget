@@ -17,13 +17,13 @@ export enum Effect {
 }
 
 export interface ItemRecord {
-  dateModified: string;
-  dateCreated: string;
+  dateModified?: string;
+  dateCreated?: string;
   settledDate: string;
   paid: boolean;
-  budget_guid: string;
+  budget_guid?: string;
   amount: number;
-  active: boolean;
+  active?: boolean;
   type_id: number;
   label: string;
   guid: string;

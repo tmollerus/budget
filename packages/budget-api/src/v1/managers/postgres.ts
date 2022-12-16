@@ -1,4 +1,5 @@
 import { Client } from 'pg';
+import { v4 as uuidv4 } from 'uuid';
 import { migration001 } from '../schema/postgres/migrations/001-createBudgetsTable.sql';
 import { migration002 } from '../schema/postgres/migrations/002-createTypesTable.sql';
 import { migration003 } from '../schema/postgres/migrations/003-createUsersTable.sql';
@@ -116,14 +117,21 @@ export const getClient = async (): Promise<any> => {
   const client = await getClient();
 
   try {
-    const result: QueryResult<ItemRecord> = await client.query(`
+    const sql = `
       SELECT *
       FROM items
       WHERE budget_guid = $1
         AND active = true
         AND EXTRACT(YEAR FROM "settledDate") = $2
         ORDER BY "settledDate" ASC, type_id ASC, amount ASC;
-    `, [budgetGuid, year]);
+    `;
+    const params = [budgetGuid, year];
+    console.log('Executing sql', sql, params);
+    const result: QueryResult<ItemRecord> = await client.query(sql, params);
+    console.log('Result returned', result);
+    result.rows.forEach((row, index) => {
+      result.rows[index].amount = Number(row.amount);
+    });
     return result.rows;
   } catch (err) {
     console.log(err);
@@ -136,7 +144,7 @@ export const getClient = async (): Promise<any> => {
   const client = await getClient();
 
   try {
-    const result = await client.query(`
+    const sql = `
       SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
       FROM items
       WHERE EXTRACT(YEAR FROM "settledDate") < $2
@@ -146,9 +154,30 @@ export const getClient = async (): Promise<any> => {
       FROM budgets
       WHERE guid = $1
       GROUP BY guid
-    `, [budgetGuid, year]);
+    `;
+    const params = [budgetGuid, year];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
     console.log(result);
-    return result.rows[0].balance;
+    return Number(result.rows[0].balance);
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<number | undefined> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+    `;
+    const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result;
   } catch (err) {
     console.log(err);
   }
