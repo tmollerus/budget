@@ -1,6 +1,6 @@
 import { Effect } from "../types";
 
-export const getPolicy = (
+export const getPolicyResponse = (
   principalId: string,
   effect: Effect,
   resource: string,
@@ -20,4 +20,11 @@ export const getPolicy = (
     },
     context: Object.assign({}, context || {})
   };
+};
+
+export const getSimpleResponse = (isAuthorized: boolean, context?: {[index: string]: string}) => {
+  return {
+    isAuthorized,
+    context,
+  }
 };

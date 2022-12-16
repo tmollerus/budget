@@ -1,9 +1,10 @@
 import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
 import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
+import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers';
 import { Secret } from '@aws-cdk/aws-secretsmanager';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
-import { Runtime } from '@aws-cdk/aws-lambda';
+import { Code, Function, IFunction, Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
 import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from '@aws-cdk/aws-rds';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
@@ -99,6 +100,30 @@ export class BudgetApiStack extends Stack {
       }
     );
 
+    const authorizerLambda: IFunction = new NodejsFunction(
+      this,
+      `${stackName}-AuthorizerLambda`,
+      {
+        runtime: Runtime.NODEJS_16_X,
+        functionName: `${stackName}-AuthorizerLambda`,
+        handler: 'index.handler',
+        entry: 'src/v1/authorizer/index.ts',
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_NAT,
+        }),
+        securityGroups: [lambdaSecurityGroup],
+      }
+    );
+
+    const authorizer = new HttpLambdaAuthorizer(
+      `${stackName}-HttpLambdaAuthorizer`,
+      authorizerLambda,
+      {
+        responseTypes: [HttpLambdaResponseType.IAM],
+      }
+    );
+
     const budgetApi = new HttpApi(
       this,
       `${stackName}-HttpApi`,
@@ -111,6 +136,7 @@ export class BudgetApiStack extends Stack {
           allowCredentials: false,
           allowOrigins: allowedOrigins,
         },
+        defaultAuthorizer: authorizer,
         description: 'Rest API for the Budget application',
       }
     );
