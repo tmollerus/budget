@@ -106,8 +106,14 @@ export class BudgetApiStack extends Stack {
       {
         runtime: Runtime.NODEJS_16_X,
         functionName: `${stackName}-AuthorizerLambda`,
-        handler: 'index.handler',
+        handler: 'handler',
         entry: 'src/v1/authorizer/index.ts',
+        bundling: {
+          externalModules: [
+            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+            'pg-native',
+          ],
+        },
         vpc,
         vpcSubnets: vpc.selectSubnets({
           subnetType: SubnetType.PRIVATE_WITH_NAT,
