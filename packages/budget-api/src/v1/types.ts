@@ -16,6 +16,19 @@ export enum Effect {
   DENY = 'Deny'
 }
 
+export interface ItemRecord {
+  dateModified: string;
+  dateCreated: string;
+  settledDate: string;
+  paid: boolean;
+  budget_guid: string;
+  amount: number;
+  active: boolean;
+  type_id: number;
+  label: string;
+  guid: string;
+}
+
 export interface OktaUser {
   active: boolean;
   scope?: string;

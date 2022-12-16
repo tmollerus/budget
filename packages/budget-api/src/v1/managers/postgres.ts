@@ -7,7 +7,7 @@ import budget from '../schema/postgres/seeds/budget.seeds.json';
 import item from '../schema/postgres/seeds/item.seeds.json';
 import itemType from '../schema/postgres/seeds/type.seeds.json';
 import user from '../schema/postgres/seeds/user.seeds.json';
-import { BudgetRecord, QueryResult } from '../types';
+import { BudgetRecord, ItemRecord, QueryResult } from '../types';
 import { getInsertColumnNames, getInsertValues } from '../utils/db';
 import { getSecret } from './secrets';
 
@@ -109,6 +109,48 @@ export const getClient = async (): Promise<any> => {
     console.log(err);
   } finally {
     client.end();
+  }
+ };
+
+ export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Promise<Array<ItemRecord> | void> => {
+  const client = await getClient();
+
+  try {
+    const result: QueryResult<ItemRecord> = await client.query(`
+      SELECT *
+      FROM items
+      WHERE budget_guid = $1
+        AND active = true
+        AND EXTRACT(YEAR FROM "settledDate") = $2
+        ORDER BY "settledDate" ASC, type_id ASC, amount ASC;
+    `, [budgetGuid, year]);
+    return result.rows;
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.end();
+  }
+ };
+
+ export const getStartingBalanceForYear = async (budgetGuid: string, year: string): Promise<number | undefined> => {
+  const client = await getClient();
+
+  try {
+    const result = await client.query(`
+      SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
+      FROM items
+      WHERE EXTRACT(YEAR FROM "settledDate") < $2
+        AND items.active = true
+        AND items.budget_guid = $1)) AS balance,
+      COUNT(*) AS item_count
+      FROM budgets
+      WHERE guid = $1
+      GROUP BY guid
+    `, [budgetGuid, year]);
+    console.log(result);
+    return result.rows[0].balance;
+  } catch (err) {
+    console.log(err);
   }
  };
 
