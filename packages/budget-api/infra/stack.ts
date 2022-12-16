@@ -240,7 +240,7 @@ export class BudgetApiStack extends Stack {
       'GetBudgetItemsForYear',
       'getHandler',
       'src/v1/handlers/budgets/item.ts',
-      '/v1/budgets/{budgetGuid}',
+      '/v1/budgets/{budgetGuid}/items',
       [ HttpMethod.GET ]
     );
   }

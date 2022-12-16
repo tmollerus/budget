@@ -116,15 +116,16 @@ export const getClient = async (): Promise<any> => {
   const client = await getClient();
 
   try {
-    const items: QueryResult<ItemRecord> = await client.query(`
+    const result: QueryResult<ItemRecord> = await client.query(`
       SELECT *
       FROM items
       WHERE budget_guid = $1
         AND active = true
-        AND extract('year', settledDate) = $2
+        AND EXTRACT(YEAR FROM "settledDate") = $2
         ORDER BY settledDate ASC, type_id ASC, amount ASC;
     `, [budgetGuid, year]);
-    return items.rows[0];
+    console.log(result);
+    return result.rows[0];
   } catch (err) {
     console.log(err);
   } finally {
@@ -136,7 +137,7 @@ export const getClient = async (): Promise<any> => {
   const client = await getClient();
 
   try {
-    const balance = client.query(`
+    const result = client.query(`
       SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
       FROM items
       WHERE EXTRACT(YEAR FROM "settledDate") < $2
@@ -147,7 +148,8 @@ export const getClient = async (): Promise<any> => {
       WHERE guid = $1
       GROUP BY guid
     `, [budgetGuid, year]);
-    return balance.rows[0].balance;
+    console.log(result);
+    return result.rows[0].balance;
   } catch (err) {
     console.log(err);
   }
