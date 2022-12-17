@@ -36,7 +36,7 @@ export const putHandler = async (event: APIGatewayEvent, context: Context): Prom
 
     return {
       statusCode: 200,
-      body: '',
+      body: JSON.stringify(budgetItem),
     };
   } catch (err) {
     console.log(err);

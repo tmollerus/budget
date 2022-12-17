@@ -23,7 +23,7 @@ export const getInsertValues = (values: Array<string | boolean | number>): strin
 export const getSetStatementAndParams = (budgetGuid: string, budgetItem: ItemRecord): { setStatement: string, setParameters: Array<string | number | boolean> } => {
   let setStatement = 'SET "dateModified" = NOW()';
   let setParameters: Array<string | number | boolean> = [budgetGuid, budgetItem.guid]
-  let paramIndex = 1;
+  let paramIndex = 3;
   if (budgetItem.type_id) {
     setStatement += `, type_id = $${paramIndex++}`;
     setParameters.push(budgetItem.type_id);
@@ -39,6 +39,10 @@ export const getSetStatementAndParams = (budgetGuid: string, budgetItem: ItemRec
   if (budgetItem.label) {
     setStatement += `, label = $${paramIndex++}`;
     setParameters.push(budgetItem.label);
+  }
+  if (budgetItem.settledDate) {
+    setStatement += `, "settledDate" = $${paramIndex++}`;
+    setParameters.push(budgetItem.settledDate);
   }
 
   return { setStatement, setParameters };
