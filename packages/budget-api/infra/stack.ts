@@ -254,7 +254,7 @@ export class BudgetApiStack extends Stack {
 
     createLambdaAndRoute(
       'UpdateBudgetItem',
-      'updateHandler',
+      'putHandler',
       'src/v1/handlers/budgets/item.ts',
       '/v1/budgets/{budgetGuid}/items/{itemGuid}',
       [ HttpMethod.PUT ]
