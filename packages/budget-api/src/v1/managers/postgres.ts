@@ -9,7 +9,7 @@ import item from '../schema/postgres/seeds/item.seeds.json';
 import itemType from '../schema/postgres/seeds/type.seeds.json';
 import user from '../schema/postgres/seeds/user.seeds.json';
 import { BudgetRecord, ItemRecord, QueryResult } from '../types';
-import { getInsertColumnNames, getInsertValues } from '../utils/db';
+import { getInsertColumnNames, getInsertValues, getSetStatementAndParams } from '../utils/db';
 import { getSecret } from './secrets';
 
 export const getClient = async (): Promise<any> => {
@@ -165,7 +165,7 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
- export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<number | undefined> => {
+ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<any> => {
   const client = await getClient();
 
   try {
@@ -176,6 +176,46 @@ export const getClient = async (): Promise<any> => {
     const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      UPDATE items
+      SET active = false
+      WHERE budget_guid = $1
+        AND guid = $2
+    `;
+    const params = [budgetGuid, itemGuid];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const { setStatement, setParameters } = getSetStatementAndParams(budgetGuid, budgetItem);
+    const sql = `
+      UPDATE items
+      ${setStatement}
+      WHERE budget_guid = $1 
+        AND guid = $2
+    `;
+    console.log('Executing sql', sql, setParameters);
+    const result = await client.query(sql, setParameters);
     console.log(result);
     return result;
   } catch (err) {
