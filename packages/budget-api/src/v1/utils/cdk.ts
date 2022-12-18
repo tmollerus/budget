@@ -25,6 +25,7 @@ export const getAllowedPreflightHeaders = (): Array<string> => {
 
 export const getAllowedPreflightMethods = (): Array<CorsHttpMethod> => {
   return [
+    CorsHttpMethod.DELETE,
     CorsHttpMethod.GET,
     CorsHttpMethod.HEAD,
     CorsHttpMethod.OPTIONS,
