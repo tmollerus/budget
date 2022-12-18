@@ -75,7 +75,7 @@ export class BudgetApiStack extends Stack {
     };
 
     const vpc = new Vpc(this, `${stackName}-Vpc`, {
-      maxAzs: 1,
+      maxAzs: 2,
       subnetConfiguration: [
         {
           cidrMask: 24,
