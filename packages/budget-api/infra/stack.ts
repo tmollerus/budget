@@ -14,6 +14,7 @@ import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMetho
 import { ManagedPolicy } from '@aws-cdk/aws-iam';
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
+// and https://sewb.dev/posts/cdk-series:-creating-an-elasticache-cluster-bc1zupe
 
 [
   'ENV_NAME',
