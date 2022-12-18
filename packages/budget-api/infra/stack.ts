@@ -56,6 +56,7 @@ export class BudgetApiStack extends Stack {
           },
           environment: {
             ALLOWED_ORIGINS: allowedOrigins.join(','),
+            REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
           },
           vpc,
           vpcSubnets: vpc.selectSubnets({
@@ -75,6 +76,17 @@ export class BudgetApiStack extends Stack {
         methods: httpMethods,
         integration: integration,
       });
+
+      lambda.role?.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'AmazonElastiCacheFullAccess',
+        ),
+      );
+      lambda.role?.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AWSLambdaENIManagementAccess',
+        ),
+      );
     };
 
     const vpc = new Vpc(this, `${stackName}-Vpc`, {
