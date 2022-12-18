@@ -1,3 +1,10 @@
+# [budget-ui-v3.7.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.6.0...budget-ui-v3.7.0) (2022-12-17)
+
+
+### Features
+
+* added delete endpoint ([2f80c59](https://github.com/tmollerus/budget/commit/2f80c59f00da3e36c9edb6f00cdf78e551f1ba32))
+
 # [budget-ui-v3.6.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.5.1...budget-ui-v3.6.0) (2022-12-16)
 
 
