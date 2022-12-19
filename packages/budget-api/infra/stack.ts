@@ -1,17 +1,20 @@
 import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
-import { ApiMapping, DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
+import { DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
 import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers';
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
+import { CfnCacheCluster, CfnSubnetGroup } from '@aws-cdk/aws-elasticache';
 import { Secret } from '@aws-cdk/aws-secretsmanager';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
 import { IFunction, Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from '@aws-cdk/aws-rds';
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, DatabaseProxy, PostgresEngineVersion, ProxyTarget } from '@aws-cdk/aws-rds';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
+import { ManagedPolicy } from '@aws-cdk/aws-iam';
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
+// and https://sewb.dev/posts/cdk-series:-creating-an-elasticache-cluster-bc1zupe
 
 [
   'ENV_NAME',
@@ -53,6 +56,7 @@ export class BudgetApiStack extends Stack {
           },
           environment: {
             ALLOWED_ORIGINS: allowedOrigins.join(','),
+            REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
           },
           vpc,
           vpcSubnets: vpc.selectSubnets({
@@ -72,6 +76,17 @@ export class BudgetApiStack extends Stack {
         methods: httpMethods,
         integration: integration,
       });
+
+      lambda.role?.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'AmazonElastiCacheFullAccess',
+        ),
+      );
+      lambda.role?.addManagedPolicy(
+        ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AWSLambdaENIManagementAccess',
+        ),
+      );
     };
 
     const vpc = new Vpc(this, `${stackName}-Vpc`, {
@@ -111,6 +126,45 @@ export class BudgetApiStack extends Stack {
       Port.tcp(5432),
       'Allow lambdas to access budget postgres database'
     );
+
+    const redisSecurityGroup = new SecurityGroup(
+      this,
+      `${stackName}-redisSecurityGroup`,
+      {
+        vpc,
+      }
+    );
+
+    lambdaSecurityGroup.connections.allowTo(
+      redisSecurityGroup,
+      Port.tcp(6379),
+      "Allow this lambda function connect to the redis cache"
+    );
+
+    const redisSubnetGroup = new CfnSubnetGroup(
+      this,
+      `${stackName}-redisSubnetGroup`,
+      {
+        description: "Subnet group for the redis cluster",
+        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
+        cacheSubnetGroupName: `${stackName}-redisSubnetGroup`,
+      }
+    );
+
+    const redisCache = new CfnCacheCluster(
+      this,
+      `${stackName}-RedisCache`,
+      {
+        engine: "redis",
+        cacheNodeType: "cache.t3.micro",
+        numCacheNodes: 1,
+        clusterName: `${stackName}-RedisCache`,
+        vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
+        cacheSubnetGroupName: redisSubnetGroup.ref,
+        engineVersion: "6.2",
+        preferredMaintenanceWindow: "fri:00:30-fri:01:30",
+      }
+    );
     
     const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
     const db = new DatabaseInstance(
@@ -146,6 +200,17 @@ export class BudgetApiStack extends Stack {
       }
     );
 
+    const dbProxy = new DatabaseProxy(this, 'Proxy', {
+      proxyTarget: ProxyTarget.fromInstance(db),
+      secrets: [db.secret!],
+      securityGroups: [dbSecurityGroup],
+      vpc,
+      requireTLS: false,
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: SubnetType.PRIVATE_WITH_NAT,
+      }),
+    });
+
     const authorizerLambda: IFunction = new NodejsFunction(
       this,
       `${stackName}-AuthorizerLambda`,
@@ -165,9 +230,22 @@ export class BudgetApiStack extends Stack {
           subnetType: SubnetType.PRIVATE_WITH_NAT,
         }),
         securityGroups: [lambdaSecurityGroup],
+        environment: {
+          REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
+        }
       }
     );
     secret.grantRead(authorizerLambda);
+    authorizerLambda.role?.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        'AmazonElastiCacheFullAccess',
+      ),
+    );
+    authorizerLambda.role?.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName(
+        'service-role/AWSLambdaENIManagementAccess',
+      ),
+    );
 
     const authorizer = new HttpLambdaAuthorizer(
       `${stackName}-HttpLambdaAuthorizer`,

@@ -10,6 +10,7 @@ import itemType from '../schema/postgres/seeds/type.seeds.json';
 import user from '../schema/postgres/seeds/user.seeds.json';
 import { BudgetRecord, ItemRecord, QueryResult } from '../types';
 import { getInsertColumnNames, getInsertValues, getSetStatementAndParams } from '../utils/db';
+import { logElapsedTime } from '../utils/event';
 import { getSecret } from './secrets';
 
 export const getClient = async (): Promise<any> => {
@@ -102,10 +103,21 @@ export const getClient = async (): Promise<any> => {
 
  export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
   const client = await getClient();
+  const startTime = new Date();
 
   try {
-    const budgets: QueryResult<BudgetRecord> = await client.query(`SELECT * FROM budgets WHERE email = '${email}';`);
-    return budgets.rows[0];
+    const sql = `
+      SELECT guid
+      FROM budgets
+      WHERE email = $1;
+    `;
+    const params = [email];
+    console.log('Executing sql', sql, params);
+    let elapsedTime = logElapsedTime(`About to query for budget for email '${email}'`, startTime);
+    const result: QueryResult<BudgetRecord> = await client.query(sql, params);
+    elapsedTime = logElapsedTime(`Queried for budget for email '${email}'`, elapsedTime);
+    console.log('Result returned', result);
+    return result.rows[0];
   } catch (err) {
     console.log(err);
   } finally {
@@ -115,6 +127,7 @@ export const getClient = async (): Promise<any> => {
 
  export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Promise<Array<ItemRecord> | void> => {
   const client = await getClient();
+  const startTime = new Date();
 
   try {
     const sql = `
@@ -127,11 +140,14 @@ export const getClient = async (): Promise<any> => {
     `;
     const params = [budgetGuid, year];
     console.log('Executing sql', sql, params);
+    let elapsedTime = logElapsedTime(`About to query for records from ${year}`, startTime);
     const result: QueryResult<ItemRecord> = await client.query(sql, params);
+    elapsedTime = logElapsedTime(`Queried for records from ${year}`, elapsedTime);
     console.log('Result returned', result);
     result.rows.forEach((row, index) => {
       result.rows[index].amount = Number(row.amount);
     });
+    logElapsedTime(`Transformed amounts in records from ${year}`, elapsedTime);
     return result.rows;
   } catch (err) {
     console.log(err);
@@ -171,9 +187,9 @@ export const getClient = async (): Promise<any> => {
   try {
     const sql = `
       INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     `;
-    const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label];
+    const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label, new Date(), new Date()];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
     console.log(result);

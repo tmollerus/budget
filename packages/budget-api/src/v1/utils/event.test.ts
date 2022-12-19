@@ -1,5 +1,5 @@
 import { headers } from "../test/fixtures/events";
-import { getAuthToken } from "./event";
+import { getAuthToken, logElapsedTime } from "./event";
 
 describe('Event utility', () => {
   test('getAuthToken', () => {
@@ -8,5 +8,10 @@ describe('Event utility', () => {
 
     expect(getAuthToken(headers)).toBe('');
     expect(getAuthToken(headersWithAuth)).toBe(token);
+  });
+
+  test('logElapsedTime', () => {
+    const startDate = new Date();
+    expect(typeof logElapsedTime('Testing', startDate)).toBe('object');
   });
 });
