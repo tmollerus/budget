@@ -8,20 +8,20 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
-  const authToken = getAuthToken(event.headers);
-  const user: OktaUser = await getOktaUser(authToken);
-  let budget: BudgetRecord | void;
-  let budgetGuid: string | undefined;
-
   try {
-    budget = await getBudgetByEmail(user.username!);
-    budgetGuid = budget?.guid;
+    const budgetGuid = event.requestContext.authorizer?.lambda.budgetGuid;
+    const user = JSON.parse(event.requestContext.authorizer?.lambda.user);
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({user: user, budgetGuid}),
+    };
   } catch (err) {
     console.log(err);
   }
-
+  
   return {
-    statusCode: 200,
-    body: JSON.stringify({user: user, budgetGuid}),
+    statusCode: 403,
+    body: '',
   };
 };

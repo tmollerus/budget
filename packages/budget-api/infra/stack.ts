@@ -8,7 +8,7 @@ import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
 import { InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
 import { IFunction, Runtime } from '@aws-cdk/aws-lambda';
 import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, PostgresEngineVersion } from '@aws-cdk/aws-rds';
+import { Credentials, DatabaseInstance, DatabaseInstanceEngine, DatabaseProxy, PostgresEngineVersion, ProxyTarget } from '@aws-cdk/aws-rds';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 import { ManagedPolicy } from '@aws-cdk/aws-iam';
@@ -199,6 +199,17 @@ export class BudgetApiStack extends Stack {
         secretName: `${stackName}-Secret`,
       }
     );
+
+    const dbProxy = new DatabaseProxy(this, 'Proxy', {
+      proxyTarget: ProxyTarget.fromInstance(db),
+      secrets: [db.secret!],
+      securityGroups: [dbSecurityGroup],
+      vpc,
+      requireTLS: false,
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: SubnetType.PRIVATE_WITH_NAT,
+      }),
+    });
 
     const authorizerLambda: IFunction = new NodejsFunction(
       this,

@@ -48,11 +48,14 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: 
       elapsedTime = logElapsedTime('About to retrieve budget', elapsedTime);
       budget = await getBudgetByEmail(user.username!);
       elapsedTime = logElapsedTime('Retrieved budget', elapsedTime);
-      redisClient && await redisClient.set(budgetKey, JSON.stringify(user), { EX: 60 * 60 });
+      redisClient && await redisClient.set(budgetKey, JSON.stringify(budget), { EX: 60 * 60 });
     }
 
     if (budget?.guid) {
-      return getPolicyResponse('user', Effect.ALLOW, event.methodArn);
+      return getPolicyResponse('user', Effect.ALLOW, event.methodArn, {
+        user: JSON.stringify(user) || '',
+        budgetGuid: budget.guid || '',
+      });
     }
   } catch (err) {
     console.log(err);
