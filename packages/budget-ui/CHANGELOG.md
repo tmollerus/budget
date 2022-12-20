@@ -1,3 +1,10 @@
+# [budget-ui-v3.8.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.7.0...budget-ui-v3.8.0) (2022-12-20)
+
+
+### Features
+
+* added loading state to ledger ([ef3328f](https://github.com/tmollerus/budget/commit/ef3328f82d5a6c049c35948c9aac655bb21102d7))
+
 # [budget-ui-v3.7.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.6.0...budget-ui-v3.7.0) (2022-12-17)
 
 
