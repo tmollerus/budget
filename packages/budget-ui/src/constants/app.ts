@@ -1,7 +1,7 @@
 export const APP = {
   // API_HOST: 'https://budget-api.mollerus.net',
   HOSTS: {
-    API: 'http://localhost:8800',
+    API: 'https://budget-api.mollerus.net',
   },
   ROUTES: {
     LOGIN: '/auth/login',

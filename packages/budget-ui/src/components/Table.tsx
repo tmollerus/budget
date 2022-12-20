@@ -3,6 +3,7 @@ import { useBudgetContext } from '../context';
 import { LedgerData, LedgerDataItem, LedgerTotals, PartialLedgerDataItem } from '../types';
 import { dollarFormat } from '../utils/format';
 import { getRowClassName, getLedgerItemBalance, getLedgerItemDate, getLedgerItemExpense, getLedgerItemIncome, getLedgerItemPaid, getLedgerItemTransfer, getFirstOfDateClass, getCellClassName, ColumnType, getRowId, getLedgerTotals } from '../utils/table';
+import { Loader } from './Loader';
 import { useStyles } from './Table.styles';
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
@@ -11,7 +12,9 @@ interface Props {
   addItem: (newEntry: PartialLedgerDataItem) => void;
   editItem: (editedEntry: PartialLedgerDataItem) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
+  isLoading: boolean;
 }
+
 export const Table = (props: Props) => {
   const classes = useStyles();
   const { budgetYear, ledgerData } = useBudgetContext();
@@ -42,7 +45,7 @@ export const Table = (props: Props) => {
   useEffect(() => {
     defaultDate.setFullYear(budgetYear);
     setNewSettledDate(defaultDate.toISOString().split('T')[0]);
-  }, [budgetYear, defaultDate]);
+  }, [budgetYear]);
 
   useEffect(() => {
     try {
@@ -227,11 +230,11 @@ export const Table = (props: Props) => {
           </div>
         </div>
         <div className={classes.tableRowItem}>
-          <span className={classes.addIcon}>
+          { !props.isLoading && <span className={classes.addIcon}>
             <span className="material-icons md-18" title="Add a new item" onClick={() => { clearItemToEdit(); setIsAdding(!isAdding)}}>
               add_circle
             </span>
-          </span>
+          </span> }
         </div>
       </div>
       { isAdding && <div className={[classes.tableRow, classes.tableHeader].join(' ')}>
@@ -290,14 +293,14 @@ export const Table = (props: Props) => {
         <div className={classes.tableRowItem}></div>
       </div> }
       <div className={classes.rowCollection}>
-        { getRows(filteredLedgerData.items) }
+        { props.isLoading ? <Loader year={budgetYear} /> : getRows(filteredLedgerData.items) }
       </div>
       <div className={[classes.tableRow, classes.tableFooter].join(' ')}>
         <div className={classes.tableRowItem}>Totals:</div>
-        <div className={classes.tableRowItem}>{ledgerTotals ? dollarFormat(ledgerTotals.totalIncome) : null}</div>
-        <div className={classes.tableRowItem}>{ledgerTotals ? dollarFormat(ledgerTotals.totalTransfers) : null}</div>
+        <div className={classes.tableRowItem}>{!props.isLoading && ledgerTotals ? dollarFormat(ledgerTotals.totalIncome) : null}</div>
+        <div className={classes.tableRowItem}>{!props.isLoading && ledgerTotals ? dollarFormat(ledgerTotals.totalTransfers) : null}</div>
         <div className={classes.tableRowItem}></div>
-        <div className={classes.tableRowItem}>{ledgerTotals ? dollarFormat(ledgerTotals.totalExpenses) : null}</div>
+        <div className={classes.tableRowItem}>{!props.isLoading && ledgerTotals ? dollarFormat(ledgerTotals.totalExpenses) : null}</div>
         <div className={classes.tableRowItem}></div>
         <div className={classes.tableRowItem}></div>
         <div className={classes.tableRowItem}></div>
