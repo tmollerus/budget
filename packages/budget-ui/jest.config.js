@@ -1,7 +1,9 @@
 module.exports = {
+  // testEnvironment: 'jsdom',
+
   // The root of your source code, typically /src
   // `<rootDir>` is a token Jest substitutes
-  roots: ['<rootDir>'],
+  roots: ['<rootDir>/src'],
 
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
