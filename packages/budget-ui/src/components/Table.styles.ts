@@ -22,6 +22,7 @@ export const useStyles = createUseStyles({
   table: {
     height: '100%',
     overflow: 'hidden',
+    backgroundColor: COLORS.white,
     display: 'flex',
     '-webkit-flex-flow': 'column nowrap',
     '-moz-flex-flow': 'column nowrap',

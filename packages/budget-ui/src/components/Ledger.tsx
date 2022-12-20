@@ -16,6 +16,7 @@ export const Ledger = () => {
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [itemToDelete, setItemToDelete] = useState<number>();
   const [dialogMessage, setDialogMessage] = useState<string>('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -31,9 +32,12 @@ export const Ledger = () => {
   });
 
   const reloadLedgerData = useCallback(async () => {
+    setIsLoading(true);
+    setLedgerData({ items: [], starting_balance: 0});
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     newLedgerData.items = updateItemBalances(newLedgerData);
     setLedgerData(newLedgerData);
+    setIsLoading(false);
   }, [budgetGuid, budgetYear, setLedgerData]);
 
   useEffect(() => {
@@ -137,6 +141,7 @@ export const Ledger = () => {
           addItem={addItem}
           editItem={editItem}
           scrollToMonth={scrollToMonth}
+          isLoading={isLoading}
         />
       </div>
       <Dialog
