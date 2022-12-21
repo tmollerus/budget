@@ -1,3 +1,10 @@
+# [budget-ui-v3.9.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.8.0...budget-ui-v3.9.0) (2022-12-21)
+
+
+### Features
+
+* changed vertical alignment of dialogs ([17cf3c1](https://github.com/tmollerus/budget/commit/17cf3c1994ecdb54326aab93a4faed8a2d072623))
+
 # [budget-ui-v3.8.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.7.0...budget-ui-v3.8.0) (2022-12-20)
 
 
