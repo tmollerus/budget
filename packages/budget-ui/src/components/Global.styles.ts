@@ -8,7 +8,7 @@ export const useGlobalStyles = createUseStyles({
     width: '100vw',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    paddingTop: '20vh',
     alignItems: 'center',
     fontFamily: 'Asap, Helvetica, sans-serif',
     color: COLORS.text,
