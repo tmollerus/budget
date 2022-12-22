@@ -136,7 +136,7 @@ export const getClient = async (): Promise<any> => {
       WHERE budget_guid = $1
         AND active = true
         AND EXTRACT(YEAR FROM "settledDate") = $2
-        ORDER BY "settledDate" ASC, type_id ASC, amount ASC;
+        ORDER BY "settledDate" ASC, paid DESC, type_id ASC, amount ASC;
     `;
     const params = [budgetGuid, year];
     console.log('Executing sql', sql, params);
