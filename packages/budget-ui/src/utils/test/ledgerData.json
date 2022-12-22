@@ -1,6 +1,4 @@
-import { LedgerData } from "../../types";
-
-export const ledgerData: LedgerData = {
+{
   "items": [
     {
       "budget_guid": "2e02e112-78e4-11e1-8645-4e6ec7412f43",
@@ -5188,4 +5186,4 @@ export const ledgerData: LedgerData = {
     }
   ],
   "starting_balance": 16097.27
-};
+}
