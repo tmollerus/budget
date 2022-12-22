@@ -1,3 +1,11 @@
+# [budget-ui-v3.10.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.0...budget-ui-v3.10.1) (2022-12-22)
+
+
+### Bug Fixes
+
+* changed hour on date tests ([4189e9a](https://github.com/tmollerus/budget/commit/4189e9a42090b6f81a30c0e92d710923b38352d0))
+* corrected date interpretation and formatting ([bdacf74](https://github.com/tmollerus/budget/commit/bdacf7443598d06b35f2233ce3130fe7100ae517))
+
 # [budget-ui-v3.10.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.9.0...budget-ui-v3.10.0) (2022-12-21)
 
 
