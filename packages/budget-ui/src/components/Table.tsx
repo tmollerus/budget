@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useBudgetContext } from '../context';
 import { LedgerData, LedgerDataItem, LedgerTotals, PartialLedgerDataItem } from '../types';
-import { dollarFormat } from '../utils/format';
+import { parseDate } from '../utils/date';
+import { dollarFormat, formatDate } from '../utils/format';
 import {
   getRowClassName,
   getLedgerItemBalance,
@@ -39,7 +40,6 @@ export const Table = (props: Props) => {
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
   const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
-  const [areLedgerItemsRendered, setAreLedgerItemsRendered] = useState<boolean>(false);
 
   const [isAdding, setIsAdding] = useState(false);
   const [newSettledDate, setNewSettledDate] = useState<string>(
@@ -173,7 +173,7 @@ export const Table = (props: Props) => {
                 className={classes.dateInput}
                 type="date"
                 name="settledDate"
-                defaultValue={editedSettledDate!.split('T')[0]}
+                defaultValue={formatDate(parseDate(item.settledDate), 'YYYY-MM-DD')}
                 onChange={(e) => setEditedSettledDate(e.target.value)}
               />
             ) : (

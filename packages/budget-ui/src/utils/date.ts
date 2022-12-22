@@ -1,5 +1,9 @@
+import { parse } from 'fecha';
+
 export const parseDate = (date: string): Date => {
-  return new Date(Date.parse(date.replace('+00:00Z', '-05:00')));
+  // return new Date(Date.parse(date));
+  return parse(date, 'isoDateTime') || new Date();
+  //return new Date(Date.parse(date.replace('+00:00Z', '-05:00')));
 };
 
 export const getDateFromDayOfYear = (year: number, day: number): Date => {
@@ -11,16 +15,17 @@ export const isLeapYear = (year: number): boolean => {
   return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
 };
 
-export const getDayOfYear = (datestring: string): number => {
-  let dateArray = datestring.split('T')[0].split('-');
-  let y = Number(dateArray[0]);
-  let m = Number(dateArray[1]);
-  let d = Number(dateArray[2]);
+export const getDayOfYear = (date: Date): number => {
+  console.log(date);
+  let y = date.getFullYear();
+  let m = date.getMonth();
+  let d = date.getDate();
 
   let dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-  let mn = m - 1;
+  let mn = m;
   let dn = d;
   let dayOfYear = +dayCount[mn] + +dn;
+  console.log(mn, y, isLeapYear(y));
   if (mn > 1 && isLeapYear(y)) {
     dayOfYear++;
   }

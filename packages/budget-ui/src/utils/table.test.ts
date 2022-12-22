@@ -1,7 +1,7 @@
 import { PAID_SYMBOL } from "../constants/theme";
 import { dollarFormat } from "./format";
-import { ColumnType, getCellClassName, getFirstOfDateClass, getLedgerItemBalance, getLedgerItemDate, getLedgerItemExpense, getLedgerItemIncome, getLedgerItemPaid, getLedgerItemTransfer, getLedgerTotals, getRowClassName, getRowId, isFirstOfDate } from "./table";
-import { ledgerData } from "./test/ledgerData";
+import { ColumnType, getCellClassName, getFirstOfDateClass, getLedgerItemBalance, getLedgerItemExpense, getLedgerItemIncome, getLedgerItemPaid, getLedgerItemTransfer, getLedgerTotals, getRowClassName, getRowId, isFirstOfDate } from "./table";
+import ledgerData from "./test/ledgerData.json";
 
 describe('Table functions', () => {
   test('getRowClassName', () => {
