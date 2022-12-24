@@ -83,16 +83,15 @@ export const updateEntry = async (budgetGuid: string, entry: any) => {
   });
 };
 
-export const deleteEntry = async (budgetGuid: string, itemGuid: string) => {
+export const deleteEntry = async (budgetGuid: string, itemGuid: string): Promise<boolean> => {
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/${itemGuid}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },
   })
-  .then((response) => response.json())
-  .then((data) => {
-    return data;
+  .then((response) => {
+    return response.ok;
   })
   .catch((err) => {
     return Promise.reject(err);

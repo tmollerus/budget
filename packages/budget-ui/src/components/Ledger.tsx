@@ -74,17 +74,19 @@ export const Ledger = () => {
   const deleteItem = async () => {
     setIsDeleteDialogOpen(false);
     if (itemToDelete) {
-      await deleteEntry(budgetGuid, ledgerData.items[itemToDelete].guid);
-      const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
-      const message = getMessage(MessageType.ITEM_DELETED, deletedItem);
-      Toaster.show({
-        message,
-        intent: Intent.SUCCESS,
-        icon: 'tick-circle',
-      });
-      await reloadLedgerData();
+      const success = await deleteEntry(budgetGuid, ledgerData.items[itemToDelete].guid);
+      if (success) {
+        const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
+        const message = getMessage(MessageType.ITEM_DELETED, deletedItem);
+        Toaster.show({
+          message,
+          intent: Intent.SUCCESS,
+          icon: 'tick-circle',
+        });
+        setItemToDelete(undefined);
+        await reloadLedgerData();
+      }
     }
-    setItemToDelete(undefined);
   };
 
   const openDeleteDialog = () => setIsDeleteDialogOpen(true);
