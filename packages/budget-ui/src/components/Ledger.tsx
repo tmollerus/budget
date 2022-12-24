@@ -76,13 +76,13 @@ export const Ledger = () => {
     if (itemToDelete) {
       await deleteEntry(budgetGuid, ledgerData.items[itemToDelete].guid);
       const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
-      await reloadLedgerData();
       const message = getMessage(MessageType.ITEM_DELETED, deletedItem);
       Toaster.show({
         message,
         intent: Intent.SUCCESS,
         icon: 'tick-circle',
       });
+      await reloadLedgerData();
     }
     setItemToDelete(undefined);
   };
@@ -96,10 +96,10 @@ export const Ledger = () => {
 
   const addItem = async (newEntry: PartialLedgerDataItem) => {
     try {
-      const addedEntry = await createEntry(budgetGuid, newEntry);
+      await createEntry(budgetGuid, newEntry);
       await reloadLedgerData();
       Toaster.show({
-        message: getMessage(MessageType.ITEM_ADDED, addedEntry),
+        message: getMessage(MessageType.ITEM_ADDED, newEntry),
         intent: Intent.SUCCESS,
         icon: 'tick-circle',
       });
