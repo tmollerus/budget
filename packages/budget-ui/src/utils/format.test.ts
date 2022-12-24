@@ -1,6 +1,6 @@
 import { LedgerDataItem } from "../types";
 import { delimitNumbers, dollarFormat, getEntryBalance, getEntryExpense, getEntryTransfer, getEntryTypeName, getIncomeClass, formatDate, getMonthAsName, getIncomeOrExpense, getGravatarHash } from "./format";
-import { ledgerData } from "./test/ledgerData";
+import ledgerData from "./test/ledgerData.json";
 
 describe('Formatting functions', () => {
   test('getMonthAsName', () => {

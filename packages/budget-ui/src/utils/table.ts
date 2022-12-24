@@ -53,7 +53,7 @@ export const getFirstOfDateClass = (currentDate: string, previousDate: string, f
 };
 
 export const getLedgerItemDate = (settledDate: string) => {
-  return formatDate(parseDate(settledDate.split('T')[0]), 'MMM. D');
+  return formatDate(parseDate(settledDate), 'MMM. D');
 };
 
 export const getLedgerItemIncome = (item: LedgerDataItem): string => {

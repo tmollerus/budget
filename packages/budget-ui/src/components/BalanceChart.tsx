@@ -3,12 +3,8 @@ import { useEffect } from 'react';
 import { COLORS } from '../constants/theme';
 import { useBudgetContext } from '../context';
 import { ChartData, ChartTooltip, LedgerDataItem } from '../types';
-import { getDateFromDayOfYear, getDayOfYear } from '../utils/date';
-import {
-  formatDate,
-  dollarFormat,
-  getIncomeOrExpense,
-} from '../utils/format';
+import { getDateFromDayOfYear, getDayOfYear, parseDate } from '../utils/date';
+import { formatDate, dollarFormat, getIncomeOrExpense } from '../utils/format';
 import { useStyles } from './StatTable.styles';
 
 export const BalanceChart = () => {
@@ -34,7 +30,7 @@ export const BalanceChart = () => {
 
   const getPlotLine = (entries: Array<LedgerDataItem>) => {
     let today = new Date();
-    
+
     return (entries[0]?.settledDate?.split('-')[0] || '0') !== String(today.getFullYear())
       ? null
       : [
@@ -42,7 +38,7 @@ export const BalanceChart = () => {
             color: COLORS.plotline,
             width: 1,
             dashStyle: 'dash',
-            value: getDayOfYear(formatDate(new Date(), 'YYYY-MM-DD') || ''),
+            value: getDayOfYear(new Date()),
           },
         ];
   };
@@ -58,7 +54,7 @@ export const BalanceChart = () => {
 
     if (entries) {
       entries.forEach(function (entry) {
-        let day = getDayOfYear(entry.settledDate);
+        let day = getDayOfYear(parseDate(entry.settledDate));
 
         if (currentDay && day > currentDay) {
           data.push([currentDay, currentTotal]);
@@ -168,7 +164,7 @@ export const BalanceChart = () => {
           fillOpacity: 0.1,
         },
       ],
-    }
+    };
   };
 
   useEffect(() => {

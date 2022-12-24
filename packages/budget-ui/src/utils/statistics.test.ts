@@ -1,6 +1,6 @@
 import { Statistics } from "../types";
 import { getEntryBalance, getStatistics } from "./statistics";
-import { ledgerData } from "./test/ledgerData";
+import ledgerData from "./test/ledgerData.json";
 
 describe('Statistics functions', () => {
   test('getStatistics', () => {

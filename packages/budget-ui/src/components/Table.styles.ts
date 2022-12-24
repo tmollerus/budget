@@ -82,11 +82,10 @@ export const useStyles = createUseStyles({
 
   dateInput: {
     fontFamily: 'Asap, Arial, sans-serif',
-    width: '100%',
+    position: 'absolute',
     ...inputStyles,
   },
   typeSelect: {
-    // padding: '1px 4px',
     width: '70%',
     ...inputStyles,
   },
@@ -126,23 +125,6 @@ export const useStyles = createUseStyles({
       color: COLORS.expense,
     }
   },
-  // '@media (min-width: 500px)': {
-  //   tableHeader: {
-  //     fontWeight: '700',
-  //   },
-  //   tableRow: {
-  //     display: 'flex',
-  //     '-webkit-flex-flow': 'row nowrap',
-  //     '-moz-flex-flow': 'row nowrap',
-  //     flexFlow: 'row nowrap',
-  //   },
-  //   tableRowItem: {
-  //     padding: '0.5em',
-  //     '&:before': {
-  //       content: 'none',
-  //     },
-  //   },
-  // },
   firstOfDate: {
     color: 'inherit',
   },
@@ -169,7 +151,6 @@ export const useStyles = createUseStyles({
     overflowWrap: 'break-word',
     wordBreak: 'break-all',
     padding: '1px 4px',
-    // border: 'none !important',
     borderTop: '1px dotted #cccccc !important',
     '&$firstOfDate': {
       borderTop: '1px solid #bababa !important',
@@ -177,7 +158,7 @@ export const useStyles = createUseStyles({
     cursor: 'pointer',
     'word-break': 'break-word',
     '&:has(> $dateInput)': {
-      overflowY: 'overlay',
+      position: 'relative',
     },
     '&:nth-of-type(1)': { // Date
       flexGrow: 2,

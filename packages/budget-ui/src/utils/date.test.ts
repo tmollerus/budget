@@ -31,20 +31,20 @@ describe('Date functions', () => {
   });
 
   it('getDayOfYear', () => {
-    expect(getDayOfYear('2012-01-01')).toBe(1);
-    expect(getDayOfYear('2012-02-01')).toBe(32);
-    expect(getDayOfYear('2012-03-01')).toBe(61);
-    expect(getDayOfYear('2012-04-01')).toBe(92);
-    expect(getDayOfYear('2012-05-01')).toBe(122);
-    expect(getDayOfYear('2012-06-01')).toBe(153);
-    expect(getDayOfYear('2012-07-01')).toBe(183);
-    expect(getDayOfYear('2012-08-01')).toBe(214);
-    expect(getDayOfYear('2012-09-01')).toBe(245);
-    expect(getDayOfYear('2012-10-01')).toBe(275);
-    expect(getDayOfYear('2012-11-01')).toBe(306);
-    expect(getDayOfYear('2012-12-01')).toBe(336);
-    expect(getDayOfYear('2012-12-31')).toBe(366);
-    expect(getDayOfYear('2014-12-31')).toBe(365);
+    expect(getDayOfYear(new Date('2012-01-01T00:49:07-05:00'))).toBe(1);
+    expect(getDayOfYear(new Date('2012-02-01T00:49:07-05:00'))).toBe(32);
+    expect(getDayOfYear(new Date('2012-03-01T00:49:07-05:00'))).toBe(61);
+    expect(getDayOfYear(new Date('2012-04-01T00:49:07-05:00'))).toBe(92);
+    expect(getDayOfYear(new Date('2012-05-01T00:49:07-05:00'))).toBe(122);
+    expect(getDayOfYear(new Date('2012-06-01T00:49:07-05:00'))).toBe(153);
+    expect(getDayOfYear(new Date('2012-07-01T00:49:07-05:00'))).toBe(183);
+    expect(getDayOfYear(new Date('2012-08-01T00:49:07-05:00'))).toBe(214);
+    expect(getDayOfYear(new Date('2012-09-01T00:49:07-05:00'))).toBe(245);
+    expect(getDayOfYear(new Date('2012-10-01T00:49:07-05:00'))).toBe(275);
+    expect(getDayOfYear(new Date('2012-11-01T00:49:07-05:00'))).toBe(306);
+    expect(getDayOfYear(new Date('2012-12-01T00:49:07-05:00'))).toBe(336);
+    expect(getDayOfYear(new Date('2012-12-31T00:49:07-05:00'))).toBe(366);
+    expect(getDayOfYear(new Date('2014-12-31T00:49:07-05:00'))).toBe(365);
   });
 
   test('getFirstOfMonth', () => {

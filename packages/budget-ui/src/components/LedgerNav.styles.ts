@@ -40,7 +40,7 @@ export const useStyles = createUseStyles({
   todayIndicator: {
     position: 'absolute',
     width: '100%',
-    top: `${(getDayOfYear((new Date()).toISOString()) / 365) * 100}%`,
+    top: `${(getDayOfYear(new Date()) / 365) * 100}%`,
     height: '1px',
     borderBottom: `1px dashed ${COLORS.icon_default}`,
     cursor: 'pointer',

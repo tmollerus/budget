@@ -1,4 +1,5 @@
 import { LedgerDataItem, Statistics } from "../types";
+import { parseDate } from "./date";
 
 export const getStatistics = (entries: Array<LedgerDataItem>, startingBalance: number) => {
   let today = new Date();
@@ -14,7 +15,7 @@ export const getStatistics = (entries: Array<LedgerDataItem>, startingBalance: n
   };
 
   entries.forEach(function(entry) {
-    date = new Date(Date.parse(entry.settledDate.split('T')[0]));
+    date = parseDate(entry.settledDate);
     // If the entry is in the current month and is an expense
     if (
       date.getMonth() === today.getMonth() &&

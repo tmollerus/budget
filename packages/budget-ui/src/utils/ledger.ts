@@ -1,5 +1,6 @@
 import { Region, Regions } from "@blueprintjs/table";
 import { LedgerData, LedgerDataItem, MessageType } from "../types";
+import { parseDate } from "./date";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 
 export const getMessage = (messageType: MessageType, item: LedgerDataItem) => {
@@ -27,7 +28,7 @@ export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => 
   let currentMonth = 0;
 
   ledgerData.forEach((item: LedgerDataItem, index: number) => {
-    const month = Number(item.settledDate.split('T')[0].split('-')[1]);
+    const month = parseDate(item.settledDate).getMonth() + 1;
 
     if (month >= currentMonth) {
       if (index > 0) {
