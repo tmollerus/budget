@@ -1,3 +1,10 @@
+# [budget-ui-v3.10.2](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.1...budget-ui-v3.10.2) (2022-12-24)
+
+
+### Bug Fixes
+
+* corrected  message after create ([616b8b2](https://github.com/tmollerus/budget/commit/616b8b269a8b17b4808b257c60e8d354dc3c3920))
+
 # [budget-ui-v3.10.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.0...budget-ui-v3.10.1) (2022-12-22)
 
 
