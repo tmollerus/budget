@@ -6,7 +6,11 @@ import { Icon } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
 import { APP } from '../constants/app';
 
-export const LedgerNav = (props: any) => {
+interface Props {
+  scrollToMonth: (target: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
+}
+
+export const LedgerNav = (props: Props) => {
   const classes = useStyles();
   const history = useHistory();
   const { budgetYear, setBudgetYear } = useBudgetContext();
@@ -18,7 +22,7 @@ export const LedgerNav = (props: any) => {
     setNextBudgetYear(budgetYear + 1);
   }, [budgetYear]);
 
-  const scrollToMonth = (event: React.MouseEvent<HTMLElement, MouseEvent>, target: number | string) => {
+  const scrollToMonth = (event: React.MouseEvent<HTMLElement, MouseEvent>, target: string) => {
     props.scrollToMonth(target, event);
   };
 
@@ -26,7 +30,7 @@ export const LedgerNav = (props: any) => {
 
   const getMonthNavFor = (month: number) => {
     return (
-      <div key={month} className={classes.month} onClick={(e) => scrollToMonth(e, `month-${month}`)}>
+      <div key={month} className={classes.month} data-testid={`month${month}`} onClick={(e) => scrollToMonth(e, `month-${month}`)}>
         {getMonthAsName(month)}
       </div>
     );
@@ -40,13 +44,13 @@ export const LedgerNav = (props: any) => {
 
   return (
     <div className={classes.ledgerNav}>
-      <div className={classes.yearNav}>
-        <a href={`${APP.ROUTES.LEDGER}/${prevBudgetYear}`} onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}><Icon icon="caret-left" /></a>
+      <div className={classes.yearNav} data-testid="yearNav">
+        <a href={`${APP.ROUTES.LEDGER}/${prevBudgetYear}`} data-testid="yearNavPrev" onClick={(e) => {changeBudgetYear(e, prevBudgetYear)}}><Icon icon="caret-left" /></a>
         <span className={classes.year}>{budgetYear}</span>
-        <a href={`${APP.ROUTES.LEDGER}/${nextBudgetYear}`} onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
+        <a href={`${APP.ROUTES.LEDGER}/${nextBudgetYear}`} data-testid="yearNavNext" onClick={(e) => {changeBudgetYear(e, nextBudgetYear)}}><Icon icon="caret-right" /></a>
       </div>
-      <div className={classes.monthNav}>
-        {isCurrentYear && <span className={classes.todayIndicator} onClick={(e) => scrollToMonth(e, 'today')} />}
+      <div className={classes.monthNav} data-testid="monthNav">
+        {isCurrentYear && <span className={classes.todayIndicator} data-test-id="todayIndicator" onClick={(e) => scrollToMonth(e, 'today')} />}
         {getMonthNavFor(0)}
         {getMonthNavFor(1)}
         {getMonthNavFor(2)}

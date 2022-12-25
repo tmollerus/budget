@@ -16,7 +16,6 @@ export const isLeapYear = (year: number): boolean => {
 };
 
 export const getDayOfYear = (date: Date): number => {
-  console.log(date);
   let y = date.getFullYear();
   let m = date.getMonth();
   let d = date.getDate();
@@ -25,7 +24,6 @@ export const getDayOfYear = (date: Date): number => {
   let mn = m;
   let dn = d;
   let dayOfYear = +dayCount[mn] + +dn;
-  console.log(mn, y, isLeapYear(y));
   if (mn > 1 && isLeapYear(y)) {
     dayOfYear++;
   }

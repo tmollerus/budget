@@ -76,7 +76,7 @@ export const Ledger = () => {
     if (itemToDelete) {
       const success = await deleteEntry(budgetGuid, ledgerData.items[itemToDelete].guid);
       if (success) {
-        const deletedItem: LedgerDataItem = ledgerData.items.splice(itemToDelete, 1)[0];
+        const deletedItem: LedgerDataItem = ledgerData.items[itemToDelete];
         const message = getMessage(MessageType.ITEM_DELETED, deletedItem);
         Toaster.show({
           message,
