@@ -1,3 +1,10 @@
+# [budget-ui-v3.10.3](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.2...budget-ui-v3.10.3) (2022-12-25)
+
+
+### Bug Fixes
+
+* fixed error on delete ([0fdb30b](https://github.com/tmollerus/budget/commit/0fdb30bf386fbc0bd8f341dfe7f111d6e3db7958))
+
 # [budget-ui-v3.10.2](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.1...budget-ui-v3.10.2) (2022-12-24)
 
 
