@@ -432,7 +432,7 @@ export const Table = (props: Props) => {
         </div>
       )}
       <div className={classes.rowCollection}>
-        {props.isLoading ? <Loader year={budgetYear} /> : getRows(filteredLedgerData.items)}
+        {props.isLoading ? <Loader message={`Loading ${budgetYear} budget`} /> : getRows(filteredLedgerData.items)}
       </div>
       <div className={[classes.tableRow, classes.tableFooter].join(' ')}>
         <div className={classes.tableRowItem}>Totals:</div>

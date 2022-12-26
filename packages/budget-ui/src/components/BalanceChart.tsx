@@ -5,6 +5,7 @@ import { useBudgetContext } from '../context';
 import { ChartData, ChartTooltip, LedgerDataItem } from '../types';
 import { getDateFromDayOfYear, getDayOfYear, parseDate } from '../utils/date';
 import { formatDate, dollarFormat, getIncomeOrExpense } from '../utils/format';
+import { Loader } from './Loader';
 import { useStyles } from './StatTable.styles';
 
 export const BalanceChart = () => {
@@ -168,7 +169,7 @@ export const BalanceChart = () => {
   };
 
   useEffect(() => {
-    if (ledgerData) {
+    if (ledgerData.items.length) {
       Highcharts.chart('chartContainer', getChartOptions(ledgerData.items));
     }
   }, [ledgerData]);
@@ -176,7 +177,9 @@ export const BalanceChart = () => {
   return (
     <div id="BalanceChart" className={classes.balanceChart}>
       <span className={classes.statTableTitle}>Balances by month</span>
-      <div id="chartContainer" style={{ width: '100%', height: '240px' }} />
+      <div style={{ width: '100%', height: '240px' }}>
+        {ledgerData.items.length ? <div id="chartContainer" style={{ width: '100%', height: '240px' }} /> : <Loader size={24} message={'Loading'} />}
+      </div>
     </div>
   );
 };

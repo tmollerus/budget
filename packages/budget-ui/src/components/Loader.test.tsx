@@ -4,18 +4,25 @@ import { Loader } from "./Loader";
 
 describe("<Loader />", () => {
   test("should render a spinner", async () => {
-    const year = (new Date()).getFullYear();
-    render(<Loader year={year} />);
+    render(<Loader />);
 
     const spinner = await screen.findByTestId('spinner');
     expect(spinner).toBeDefined();
   });
 
-  test("should render the year", async () => {
+  test("should render the message", async () => {
     const year = (new Date()).getFullYear();
-    render(<Loader year={year} />);
+    const message = `Loading ${year} budget`;
+    render(<Loader message={message} />);
 
     const loadingMessage = await screen.findByTestId('loadingMessage');
-    expect(loadingMessage.innerHTML).toContain(String(year));
+    expect(loadingMessage.innerHTML).toContain(message);
+  });
+
+  test("shouldn't render a message if none is supplied", async () => {
+    render(<Loader />);
+
+    const noLoadingMessage = screen.queryByTestId('loadingMessage');
+    expect(noLoadingMessage).toBeNull();
   });
 });
