@@ -35,7 +35,7 @@ export const BalanceChart = () => {
       ? null
       : [
           {
-            color: COLORS.plotline,
+            color: COLORS.today,
             width: 1,
             dashStyle: 'dash',
             value: getDayOfYear(new Date()),

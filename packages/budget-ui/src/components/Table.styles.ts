@@ -47,6 +47,7 @@ export const useStyles = createUseStyles({
     '& $tableRowItem': {
       lineHeight: '30px',
       borderTop: 'none !important',
+      borderBottom: `1px solid ${COLORS.monthBorder}`,
       backgroundColor: COLORS.table,
     },
     '& $tableRowItem:nth-of-type(8)': {
@@ -58,7 +59,7 @@ export const useStyles = createUseStyles({
     fontWeight: '700',
     '& $tableRowItem': {
       lineHeight: '30px',
-      borderTop: 'none !important',
+      borderTop: `1px solid ${COLORS.monthBorder} !important`,
       backgroundColor: COLORS.table,
     },
   },
@@ -167,7 +168,7 @@ export const useStyles = createUseStyles({
       },
     },
     '&:nth-of-type(2)': { // Income
-      flexGrow: 3,
+      flexGrow: 4,
     },
     '&:nth-of-type(3)': { // Transfer
       flexGrow: 3,
@@ -176,7 +177,7 @@ export const useStyles = createUseStyles({
       flexGrow: 4,
     },
     '&:nth-of-type(5)': { // Expense
-      flexGrow: 3,
+      flexGrow: 4,
     },
     '&:nth-of-type(6)': { // Paid
       flexBasis: '20px',
@@ -184,7 +185,7 @@ export const useStyles = createUseStyles({
       justifyContent: 'center',
     },
     '&:nth-of-type(7)': { // Label
-      flexGrow: 10,
+      flexGrow: 9,
     },
     '&:nth-of-type(8)': { // Add/delete
       flexBasis: '20px',

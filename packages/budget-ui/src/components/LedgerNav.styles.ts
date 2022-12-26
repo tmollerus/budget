@@ -11,7 +11,7 @@ export const useStyles = createUseStyles({
   },
   yearNav: {
     flexBasis: 'auto',
-    lineHeight: '30px',
+    lineHeight: '32px',
     fontSize: '14px',
     fontWeight: '700',
     '& a': {
@@ -26,6 +26,10 @@ export const useStyles = createUseStyles({
     display: 'flex',
     flexDirection: 'column',
     height: '-webkit-fill-available',
+    // borderTop: `1px solid ${COLORS.monthBorder}`,
+    '& $month:nth-of-type(0)': {
+      background: 'none !important',
+    },
   },
   month: {
     display: 'flex',
@@ -33,16 +37,29 @@ export const useStyles = createUseStyles({
     justifyContent: 'center',
     flexGrow: '1',
     '&:hover': {
-      backgroundColor: COLORS.sidebar,
+      backgroundColor: COLORS.monthBorder,
     },
     cursor: 'pointer',
+    // borderTop: `.5px dotted ${COLORS.sidebar}`,
+    background:
+      `linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
+      linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 100%,
+      linear-gradient(to left, ${COLORS.monthBorder} 1px, transparent 1px) 100% 0,
+      linear-gradient(to left, ${COLORS.monthBorder} 1px, transparent 1px) 100% 100%,
+      linear-gradient(to bottom, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
+      linear-gradient(to bottom, ${COLORS.monthBorder} 1px, transparent 1px) 100% 0,
+      linear-gradient(to top, ${COLORS.monthBorder} 0px, transparent 0px) 0 100%,
+      linear-gradient(to top, ${COLORS.monthBorder} 0px, transparent 0px) 100% 100%`,
+
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: '10px 2px',
   },
   todayIndicator: {
     position: 'absolute',
     width: '100%',
     top: `${(getDayOfYear(new Date()) / 365) * 100}%`,
     height: '1px',
-    borderBottom: `1px dashed ${COLORS.icon_default}`,
+    borderBottom: `1px dashed ${COLORS.today}`,
     cursor: 'pointer',
     '&:hover': {
       borderColor: COLORS.expense,

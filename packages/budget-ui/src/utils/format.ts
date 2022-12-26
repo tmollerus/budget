@@ -1,11 +1,6 @@
 import { format as dateFormat } from 'fecha';
 import md5 from 'crypto-js/md5';
-import { PAID_SYMBOL } from "../constants/theme";
 import { LedgerDataItem } from "../types";
-
-// export const dollarFormat = (amount: number) => {
-//   return amount === 0 ? '' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-// };
 
 export const getMonthAsName = (index: number): string => {
   return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][index];

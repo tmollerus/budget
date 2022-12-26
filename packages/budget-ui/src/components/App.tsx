@@ -24,6 +24,9 @@ import Logout from './Logout';
   };
   
   const restoreOriginalUri = async (_oktaAuth: OktaAuth, originalUri: string) => {
+    if (originalUri?.includes(APP.ROUTES.LOGOUT)) {
+      originalUri = '/';
+    }
     history.replace(toRelativeUrl(originalUri || '/', window.location.origin));
   };
 
