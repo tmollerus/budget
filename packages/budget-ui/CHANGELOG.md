@@ -1,3 +1,10 @@
+# [budget-ui-v3.10.4](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.3...budget-ui-v3.10.4) (2022-12-26)
+
+
+### Bug Fixes
+
+* removed logout url from redirect, add monthnav styles ([5b0b459](https://github.com/tmollerus/budget/commit/5b0b45971d4dc954900c4876be216a7f14dba28a))
+
 # [budget-ui-v3.10.3](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.2...budget-ui-v3.10.3) (2022-12-25)
 
 
