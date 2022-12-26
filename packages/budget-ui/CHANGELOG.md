@@ -1,3 +1,10 @@
+# [budget-ui-v3.11.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.4...budget-ui-v3.11.0) (2022-12-26)
+
+
+### Features
+
+* added loader to chart ([81385a6](https://github.com/tmollerus/budget/commit/81385a6ae1b8826d3c7f2187d86504b25798dd2b))
+
 # [budget-ui-v3.10.4](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.3...budget-ui-v3.10.4) (2022-12-26)
 
 
