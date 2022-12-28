@@ -38,7 +38,7 @@ export const StatTable = () => {
     if (statistics?.yearEnd) {
       return data;
     } else {
-      return <div className="placeholder" dangerouslySetInnerHTML={{ __html: STAT_PLACEHOLDER }} />;
+      return <div className="neutral" dangerouslySetInnerHTML={{ __html: STAT_PLACEHOLDER }} />;
     }
   };
 
@@ -50,80 +50,80 @@ export const StatTable = () => {
       <div className={classes.header}>
         <h2>Statistics</h2>
       </div>
-      <div id="balances">
+      <div id="current">
         <table className={classes.statTable}>
           <tbody>
             <tr>
-              <th colSpan={2}>Balances</th>
+              <th colSpan={2}>Current Balances</th>
             </tr>
             <tr>
               <td>Today</td>
-              <td className={getIncomeClass(statistics?.today || 0)}>
+              <td className={getIncomeClass(statistics?.today || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.today || 0))}
               </td>
             </tr>
             <tr>
               <td>Expenses left this month</td>
-              <td className={getIncomeClass(statistics?.expensesLeft || 0)}>
+              <td className={getIncomeClass(statistics?.expensesLeft || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.expensesLeft || 0))}
               </td>
             </tr>
             <tr>
               <td>Outlook</td>
-              <td className={getIncomeClass(outlook.indexOf('Deficit') > -1 ? -1 : 1)}>
+              <td className={getIncomeClass(outlook.indexOf('Deficit') > -1 ? -1 : 1, !ledgerData.items)}>
                 {showDataOrPlaceholder(outlook)}
               </td>
             </tr>
             <tr>
               <td>Projected year-end</td>
-              <td className={getIncomeClass(statistics?.yearEnd || 0)}>
+              <td className={getIncomeClass(statistics?.yearEnd || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.yearEnd || 0))}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div id="averages" className={classes.averages}>
+      <div id="annual" className={classes.annual}>
         <table className={classes.statTable}>
           <tbody>
             <tr>
-              <th>Income and Expense</th>
-              <th>Averages</th>
-              <th>Totals</th>
+              <th className={classes.label}>Income and Expense</th>
+              <th className={classes.averages}>Averages</th>
+              <th className={classes.totals}>Totals</th>
             </tr>
             <tr>
               <td>Income</td>
-              <td className={getIncomeClass(statistics?.incomeTotal || 0)}>
+              <td className={getIncomeClass(statistics?.incomeTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount((statistics?.incomeTotal || 0) / 12, '/mo.'))}
               </td>
-              <td className={getIncomeClass(statistics?.incomeTotal || 0)}>
+              <td className={getIncomeClass(statistics?.incomeTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.incomeTotal || 0))}
               </td>
             </tr>
             <tr>
               <td>Operating Expenses</td>
-              <td className={getIncomeClass(statistics?.expenseTotal || 0)}>
-                {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0) / 12, '/mo.'))}.
+              <td className={getIncomeClass(statistics?.expenseTotal || 0, !ledgerData.items)}>
+                {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0) / 12, '/mo.'))}
               </td>
-              <td className={getIncomeClass(statistics?.expenseTotal || 0)}>
+              <td className={getIncomeClass(statistics?.expenseTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0)))}
               </td>
             </tr>
             <tr>
               <td>Discretionary Spending</td>
-              <td className={getIncomeClass(statistics?.transferTotal || 0)}>
+              <td className={getIncomeClass(statistics?.transferTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount((statistics?.transferTotal || 0) / 12, '/mo.'))}
               </td>
-              <td className={getIncomeClass(statistics?.transferTotal || 0)}>
+              <td className={getIncomeClass(statistics?.transferTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.transferTotal || 0))}
               </td>
             </tr>
             <tr>
               <td>{getIncomeClass(spendingDiff) === 'income' ? 'Surplus' : 'Deficit'}</td>
-              <td className={getIncomeClass(spendingDiff)}>
+              <td className={getIncomeClass(spendingDiff, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(spendingDiff / 12, '/mo.'))}
               </td>
-              <td className={getIncomeClass(spendingDiff)}>
+              <td className={getIncomeClass(spendingDiff, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(spendingDiff))}
               </td>
             </tr>

@@ -22,7 +22,7 @@ export const useStyles = createUseStyles({
     '& td': {
       borderTop: '1px dotted #999999',
       padding: '4px 0px',
-      '&.income, &.expense': {
+      '&.income, &.expense, &.neutral': {
         textAlign: 'right',
         paddingLeft: '20px',
       },
@@ -31,6 +31,9 @@ export const useStyles = createUseStyles({
       },
       '&.expense': {
         color: COLORS.expense,
+      },
+      '& div.neutral': {
+        color: COLORS.silver,
       },
     },
   },
@@ -48,10 +51,19 @@ export const useStyles = createUseStyles({
     borderTop: '1px dotted #999999',
     padding: '4px 0px',
   },
+  label: {
+    width: '50%',
+  },
   averages: {
-    marginTop: '14px',
+    width: '25%',
+  },
+  totals: {
+    width: '25%',
+  },
+  annual: {
+    marginTop: '24px',
   },
   balanceChart: {
-    marginTop: '14px',
+    marginTop: '24px',
   }
 });

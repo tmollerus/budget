@@ -62,7 +62,10 @@ export const getEntryTypeName = (type_id: number | null): string => {
   }
 };
 
-export const getIncomeClass = (amount: number): string => {
+export const getIncomeClass = (amount: number, isLoading?: boolean): string => {
+  if (isLoading) {
+    return "neutral";
+  }
   return amount > 0 ? "income" : "expense";
 };
 
