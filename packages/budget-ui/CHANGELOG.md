@@ -1,3 +1,10 @@
+# [budget-ui-v3.11.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.11.0...budget-ui-v3.11.1) (2022-12-28)
+
+
+### Bug Fixes
+
+* corrected placeholder colors in stats ([5d8ceb0](https://github.com/tmollerus/budget/commit/5d8ceb098c6f9c490782838d35e1ea59a5a0133f))
+
 # [budget-ui-v3.11.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.10.4...budget-ui-v3.11.0) (2022-12-26)
 
 
