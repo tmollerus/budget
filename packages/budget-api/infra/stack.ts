@@ -326,7 +326,7 @@ export class BudgetApiStack extends Stack {
       'CopyBudgetItemsToYear',
       'postHandler',
       'src/v1/handlers/budgets/items.ts',
-      '/v1/budgets/{budgetGuid}/items',
+      '/v1/budgets/{budgetGuid}/items/copy',
       [ HttpMethod.POST ]
     );
 

@@ -99,7 +99,7 @@ export const deleteEntry = async (budgetGuid: string, itemGuid: string): Promise
 };
 
 export const copyBudget = async (budgetGuid: string, sourceYear: number, destinationYear: number) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items?from=${sourceYear}&to=${destinationYear}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/copy?from=${sourceYear}&to=${destinationYear}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
