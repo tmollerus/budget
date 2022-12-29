@@ -144,6 +144,7 @@ export const getClient = async (): Promise<any> => {
       (SELECT COUNT(*)
         FROM items
         WHERE budget_guid = $1
+          AND items.active = true
           AND EXTRACT(YEAR FROM "settledDate") = $2
       ) AS next_year_item_count
       FROM items
@@ -229,14 +230,16 @@ export const getClient = async (): Promise<any> => {
       // For each item in the source year
       existingItems.forEach((item, index) => {
         // Append to the SQL statment
-        if (index >= 0) {
+        if (index > 0) {
           sql += ', ';
         }
-        sql += ` (${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++})`;
+        sql += ` ($${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++})`;
         // Append to the params array
+        let newSettledDate = new Date(item.settledDate);
+        newSettledDate.setFullYear(Number(fromYear) + 1);
         params.push(budgetGuid);
         params.push(uuidv4());
-        params.push(item.settledDate);
+        params.push(newSettledDate.toISOString().replace('Z', ''));
         params.push(item.type_id);
         params.push(item.amount);
         params.push(item.paid);

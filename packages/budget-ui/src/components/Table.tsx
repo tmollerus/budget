@@ -316,7 +316,7 @@ export const Table = (props: Props) => {
       );
     });
 
-    if (items.length && Number(items[0]?.next_year_item_count) !== 0 && year === parseDate(items[items.length - 1]?.settledDate).getFullYear()) {
+    if (items.length && Number(items[0]?.next_year_item_count) !== 0 && (new Date()).getFullYear() === parseDate(items[items.length - 1]?.settledDate).getFullYear()) {
       rows.push(
         <div className={[classes.tableRow, classes.tableRowCreate].join(' ')}>
           <div className={classes.tableRowItem}>
