@@ -131,7 +131,18 @@ export const getClient = async (): Promise<any> => {
 
   try {
     const sql = `
-      SELECT *
+      SELECT *,
+      (SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
+        FROM items
+        WHERE EXTRACT(YEAR FROM "settledDate") < $2
+          AND items.active = true
+          AND items.budget_guid = $1)
+      ) AS start_balance,
+      (SELECT COUNT(*)
+        FROM items
+        WHERE budget_guid = $1
+          AND EXTRACT(YEAR FROM "settledDate") = $2
+      ) AS next_year_item_count
       FROM items
       WHERE budget_guid = $1
         AND active = true
@@ -197,6 +208,49 @@ export const getClient = async (): Promise<any> => {
   } catch (err) {
     console.log(err);
   }
+ };
+
+ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear: string): Promise<boolean> => {
+  const client = await getClient();
+
+  try {
+    // Get all items from the source year
+    const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
+    if (existingItems) {
+      let sql = `
+        INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
+        VALUES
+      `;
+      const params: Array<any> = [];
+      let paramCounter = 1;
+      // For each item in the source year
+      existingItems.forEach((item, index) => {
+        // Append to the SQL statment
+        if (index >= 0) {
+          sql += ', ';
+        }
+        sql += ` (${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++}, ${paramCounter++})`;
+        // Append to the params array
+        params.push(budgetGuid);
+        params.push(uuidv4());
+        params.push(item.settledDate);
+        params.push(item.type_id);
+        params.push(item.amount);
+        params.push(item.paid);
+        params.push(item.label);
+        params.push(new Date());
+        params.push(new Date());
+      });
+      console.log('Executing sql', sql, params);
+      const result = await client.query(sql, params);
+      console.log(result);
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  return false;
  };
 
  export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string): Promise<any> => {
