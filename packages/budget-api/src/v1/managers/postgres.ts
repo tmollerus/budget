@@ -242,7 +242,7 @@ export const getClient = async (): Promise<any> => {
         params.push(newSettledDate.toISOString().replace('Z', ''));
         params.push(item.type_id);
         params.push(item.amount);
-        params.push(item.paid);
+        params.push(false);
         params.push(item.label);
         params.push(new Date());
         params.push(new Date());
