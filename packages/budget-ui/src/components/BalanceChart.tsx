@@ -2,7 +2,7 @@ import Highcharts from 'highcharts';
 import { useEffect } from 'react';
 import { COLORS } from '../constants/theme';
 import { useBudgetContext } from '../context';
-import { ChartData, ChartTooltip, LedgerDataItem } from '../types';
+import { ChartData, ChartTooltip, ExtendedLedgerDataItem } from '../types';
 import { getDateFromDayOfYear, getDayOfYear, parseDate } from '../utils/date';
 import { formatDate, dollarFormat, getIncomeOrExpense } from '../utils/format';
 import { Loader } from './Loader';
@@ -13,12 +13,12 @@ export const BalanceChart = () => {
   const { ledgerData } = useBudgetContext();
   const classes = useStyles();
 
-  const getLowestBalance = (entries: Array<LedgerDataItem>) => {
-    let currentTotal = ledgerData?.starting_balance || 0;
+  const getLowestBalance = (entries: Array<ExtendedLedgerDataItem>) => {
+    let currentTotal = Number(ledgerData?.items[0].starting_balance || 0);
     let lowestBalance = 0;
 
     if (entries) {
-      entries.forEach(function (entry: LedgerDataItem) {
+      entries.forEach(function (entry: ExtendedLedgerDataItem) {
         currentTotal += getIncomeOrExpense(entry);
         if (currentTotal < lowestBalance) {
           lowestBalance = currentTotal;
@@ -29,7 +29,7 @@ export const BalanceChart = () => {
     return lowestBalance;
   };
 
-  const getPlotLine = (entries: Array<LedgerDataItem>) => {
+  const getPlotLine = (entries: Array<ExtendedLedgerDataItem>) => {
     let today = new Date();
 
     return (entries[0]?.settledDate?.split('-')[0] || '0') !== String(today.getFullYear())
@@ -48,9 +48,9 @@ export const BalanceChart = () => {
     return 0 - Math.max(interval, Math.ceil(Math.abs(minimumValue) / interval) * interval);
   };
 
-  const getGraphData = (entries: Array<LedgerDataItem>) => {
+  const getGraphData = (entries: Array<ExtendedLedgerDataItem>) => {
     const data = [];
-    let currentTotal = ledgerData?.starting_balance || 0;
+    let currentTotal = Number(ledgerData?.items[0].starting_balance || 0);
     let currentDay: number = 0;
 
     if (entries) {
@@ -70,7 +70,7 @@ export const BalanceChart = () => {
     return data;
   };
 
-  const getChartOptions = (entries: Array<LedgerDataItem>) => {
+  const getChartOptions = (entries: Array<ExtendedLedgerDataItem>) => {
     return {
       chart: {
         type: 'area',

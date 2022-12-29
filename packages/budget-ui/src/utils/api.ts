@@ -98,25 +98,9 @@ export const deleteEntry = async (budgetGuid: string, itemGuid: string): Promise
   });
 };
 
-export const getNextYearsCount = async (budgetGuid: string, year: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/${year}/count`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${getAuthorization()}`,
-    },
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    return data;
-  })
-  .catch((err) => {
-    return Promise.reject(err);
-  });
-};
-
 export const copyBudget = async (budgetGuid: string, sourceYear: number, destinationYear: number) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/${sourceYear}/copy?to=${destinationYear}`, {
-    method: 'GET',
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items?from=${sourceYear}&to=${destinationYear}`, {
+    method: 'POST',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },

@@ -1,13 +1,13 @@
-import { LedgerDataItem, Statistics } from "../types";
+import { ExtendedLedgerDataItem, Statistics } from "../types";
 import { parseDate } from "./date";
 
-export const getStatistics = (entries: Array<LedgerDataItem>, startingBalance: number) => {
+export const getStatistics = (entries: Array<ExtendedLedgerDataItem>) => {
   let today = new Date();
   let date;
   let statistics: Statistics = {
     today: 0,
     expensesLeft: 0,
-    yearEnd: startingBalance,
+    yearEnd: Number(entries[0]?.starting_balance) || 0,
     incomeTotal: 0,
     expenseTotal: 0,
     transferTotal: 0,
@@ -57,7 +57,7 @@ export const getStatistics = (entries: Array<LedgerDataItem>, startingBalance: n
   return statistics;
 };
 
-export const getEntryBalance = (previousEntryBalance: number, entry: LedgerDataItem): number => {
+export const getEntryBalance = (previousEntryBalance: number, entry: ExtendedLedgerDataItem): number => {
   previousEntryBalance = Number(previousEntryBalance) || 0;
 
   if (entry.type_id === 1) {

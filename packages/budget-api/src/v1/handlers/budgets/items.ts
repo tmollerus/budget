@@ -9,11 +9,10 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
 
   try {
     const items = await getBudgetItemsByYear(budgetGuid, year);
-    const starting_balance = await getStartingBalanceForYear(budgetGuid, year);
-
+    
     return {
       statusCode: 200,
-      body: JSON.stringify({items, starting_balance}),
+      body: JSON.stringify({items}),
     };
   } catch (err) {
     console.log(err);
@@ -28,11 +27,11 @@ export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayPro
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
-  const year = event.queryStringParameters?.year || '';
+  const fromYear = event.queryStringParameters?.from || '';
   const toYear = event.queryStringParameters?.to || '';
 
   try {
-    const isCopySuccessful = await copyFromYear(budgetGuid, year, toYear);
+    const isCopySuccessful = await copyFromYear(budgetGuid, fromYear, toYear);
     
     if (isCopySuccessful) {
       return {

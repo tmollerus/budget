@@ -72,9 +72,13 @@ export interface LedgerDataItem {
   guid: string;
 }
 
+export interface ExtendedLedgerDataItem extends LedgerDataItem {
+  starting_balance: string;
+  next_year_item_count: string;
+}
+
 export interface LedgerData {
-  items: Array<LedgerDataItem>;
-  starting_balance: number;
+  items: Array<ExtendedLedgerDataItem>;
   updateDate?: Date;
 }
 
@@ -83,6 +87,7 @@ export enum MessageType {
   ITEM_DELETED,
   ITEM_ADDED,
   ITEM_EDITED,
+  ITEMS_COPIED,
   DEFAULT,
 }
 

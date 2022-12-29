@@ -131,13 +131,16 @@ export const getClient = async (): Promise<any> => {
 
   try {
     const sql = `
-      SELECT *,
+      SELECT items.*,
       (SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
-        FROM items
-        WHERE EXTRACT(YEAR FROM "settledDate") < $2
-          AND items.active = true
-          AND items.budget_guid = $1)
-      ) AS start_balance,
+          FROM items
+          WHERE EXTRACT(YEAR FROM "settledDate") < $2
+            AND items.active = true
+            AND items.budget_guid = $1)) AS balance         
+          FROM budgets
+          WHERE guid = $1
+          GROUP BY guid
+      ) AS starting_balance,
       (SELECT COUNT(*)
         FROM items
         WHERE budget_guid = $1

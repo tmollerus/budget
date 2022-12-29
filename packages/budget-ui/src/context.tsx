@@ -10,7 +10,7 @@ const BudgetContextDefaults: BudgetContextType = {
   setBudgetGuid: () => {
     throw new Error('Function not implemented!');
   },
-  ledgerData: { items: [], starting_balance: 0},
+  ledgerData: { items: []},
   setLedgerData: () => {
     throw new Error('Function not implemented!');
   },

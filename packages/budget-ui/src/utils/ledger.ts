@@ -1,5 +1,5 @@
 import { Region, Regions } from "@blueprintjs/table";
-import { LedgerData, LedgerDataItem, MessageType, PartialLedgerDataItem } from "../types";
+import { ExtendedLedgerDataItem, LedgerData, MessageType, PartialLedgerDataItem } from "../types";
 import { parseDate } from "./date";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 
@@ -16,18 +16,20 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
       return `Successfully added ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.ITEM_EDITED:
       return `Successfully updated ${itemType} '${item.label}' from ${itemDate}`;
+    case MessageType.ITEMS_COPIED:
+      return `Successfully updated ${itemType} '${item.label}' from ${itemDate}`;
     default:
       return ``;
   }
 };
 
-export const getRegions = (ledgerData: Array<LedgerDataItem>): Array<Region> => {
+export const getRegions = (ledgerData: Array<ExtendedLedgerDataItem>): Array<Region> => {
   const regions: Array<Region> = [];
   let lowerBoundary: number | undefined;
   let upperBoundary: number | undefined;
   let currentMonth = 0;
 
-  ledgerData.forEach((item: LedgerDataItem, index: number) => {
+  ledgerData.forEach((item: ExtendedLedgerDataItem, index: number) => {
     const month = parseDate(item.settledDate).getMonth() + 1;
 
     if (month >= currentMonth) {
@@ -58,10 +60,10 @@ export const netValue = (amount: number, typeId: number): number => {
   return typeId === 1 ? amount : -amount;
 };
 
-export const updateItemBalances = (ledgerData: LedgerData): Array<LedgerDataItem> => {
-  let balance = ledgerData.starting_balance;
+export const updateItemBalances = (ledgerData: LedgerData): Array<ExtendedLedgerDataItem> => {
+  let balance = Number(ledgerData.items[0].starting_balance);
 
-  return ledgerData.items.map((item: LedgerDataItem, index: number) => {
+  return ledgerData.items.map((item: ExtendedLedgerDataItem, index: number) => {
     balance += netValue(ledgerData.items[index].amount, ledgerData.items[index].type_id);
     return Object.assign(item, { balance });
   });

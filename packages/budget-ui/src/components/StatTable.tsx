@@ -12,7 +12,7 @@ export const StatTable = () => {
   const { budgetYear, ledgerData } = useBudgetContext();
 
   useEffect(() => {
-    setStatistics(getStatistics(ledgerData.items, ledgerData.starting_balance));
+    setStatistics(getStatistics(ledgerData.items));
   }, [ledgerData]);
 
   const getFormattedAmount = (amount: number, suffix?: string, allowZero?: boolean) => {
