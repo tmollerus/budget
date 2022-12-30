@@ -1,3 +1,10 @@
+# [budget-ui-v3.13.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.13.0...budget-ui-v3.13.1) (2022-12-30)
+
+
+### Bug Fixes
+
+* fix balance calculation ([c41471e](https://github.com/tmollerus/budget/commit/c41471eb311043abef207fc24b07f6d76f9550c4))
+
 # [budget-ui-v3.13.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.12.0...budget-ui-v3.13.0) (2022-12-30)
 
 
