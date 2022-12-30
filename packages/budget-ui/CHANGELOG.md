@@ -1,3 +1,10 @@
+# [budget-ui-v3.14.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.13.1...budget-ui-v3.14.0) (2022-12-30)
+
+
+### Features
+
+* added autosuggest to search, create, edit ([db53db2](https://github.com/tmollerus/budget/commit/db53db2bffab288786327bdb3c821fb7553877d3))
+
 # [budget-ui-v3.13.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.13.0...budget-ui-v3.13.1) (2022-12-30)
 
 
