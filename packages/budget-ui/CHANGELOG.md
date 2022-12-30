@@ -1,3 +1,15 @@
+# [budget-ui-v3.13.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.12.0...budget-ui-v3.13.0) (2022-12-30)
+
+
+### Bug Fixes
+
+* corrected ledger totals function ([8b7fa41](https://github.com/tmollerus/budget/commit/8b7fa41a009f9ef17f0499a820a64ba9ca85ef95))
+
+
+### Features
+
+* updated ledger locally instead of reloading ([81236a3](https://github.com/tmollerus/budget/commit/81236a3eea5514a1ba802f89538b1e82792384ab))
+
 # [budget-ui-v3.12.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.11.1...budget-ui-v3.12.0) (2022-12-30)
 
 
