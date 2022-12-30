@@ -5,7 +5,7 @@ import { useStyles } from './Ledger.styles';
 import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerDataItem, MessageType, PartialLedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
-import { getMessage, updateItemBalances } from '../utils/ledger';
+import { addLedgerDataItem, deleteLedgerDataItem, getMessage, updateItemBalances, updateLedgerDataItem } from '../utils/ledger';
 import { copyBudget, createEntry, deleteEntry, getBudgetGuid, getBudgetItems, updateEntry } from '../utils/api';
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
@@ -20,7 +20,7 @@ export const Ledger = () => {
   defaultDate.setFullYear(budgetYear);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [itemToDelete, setItemToDelete] = useState<number>();
+  const [itemToDelete, setItemToDelete] = useState<LedgerDataItem>();
   const [dialogMessage, setDialogMessage] = useState<string>('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   
@@ -62,24 +62,23 @@ export const Ledger = () => {
       });
       return true;
     } else {
-      console.log('Cannot find target', target);
       return false;
     }
   }
 
-  const confirmDeletion = (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
+  const confirmDeletion = (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => {
     event.preventDefault();
-    setItemToDelete(index);
-    setDialogMessage(getMessage(MessageType.CONFIRM_DELETE, ledgerData.items[index]));
+    setItemToDelete(item);
+    setDialogMessage(getMessage(MessageType.CONFIRM_DELETE, item));
     openDeleteDialog();
   };
 
   const deleteItem = async () => {
     setIsDeleteDialogOpen(false);
     if (itemToDelete) {
-      const success = await deleteEntry(budgetGuid, ledgerData.items[itemToDelete].guid);
+      const success = await deleteEntry(budgetGuid, itemToDelete.guid);
       if (success) {
-        const deletedItem: LedgerDataItem = ledgerData.items[itemToDelete];
+        const deletedItem: LedgerDataItem = itemToDelete;
         const message = getMessage(MessageType.ITEM_DELETED, deletedItem);
         Toaster.show({
           message,
@@ -87,7 +86,8 @@ export const Ledger = () => {
           icon: 'tick-circle',
         });
         setItemToDelete(undefined);
-        await reloadLedgerData();
+        //await reloadLedgerData();
+        setLedgerData(deleteLedgerDataItem(ledgerData, deletedItem));
       }
     }
   };
@@ -99,12 +99,12 @@ export const Ledger = () => {
     setItemToDelete(undefined);
   };
 
-  const addItem = async (newEntry: PartialLedgerDataItem) => {
+  const addItem = async (newItem: PartialLedgerDataItem) => {
     try {
-      await createEntry(budgetGuid, newEntry);
-      await reloadLedgerData();
+      const addedItem = await createEntry(budgetGuid, newItem);
+      setLedgerData(addLedgerDataItem(ledgerData, addedItem));
       Toaster.show({
-        message: getMessage(MessageType.ITEM_ADDED, newEntry),
+        message: getMessage(MessageType.ITEM_ADDED, addedItem),
         intent: Intent.SUCCESS,
         icon: 'tick-circle',
       });
@@ -120,7 +120,7 @@ export const Ledger = () => {
   const editItem = async (editedItem: PartialLedgerDataItem) => {
     try {
       const savedItem = await updateEntry(budgetGuid, editedItem);
-      await reloadLedgerData();
+      setLedgerData(updateLedgerDataItem(ledgerData, savedItem));
       Toaster.show({
         message: getMessage(MessageType.ITEM_EDITED, savedItem),
         intent: Intent.SUCCESS,

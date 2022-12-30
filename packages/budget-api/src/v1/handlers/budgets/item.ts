@@ -9,11 +9,11 @@ export const postHandler = async (event: APIGatewayEvent, context: Context): Pro
   const budgetItem: ItemRecord = JSON.parse(event.body || '{}');
 
   try {
-    const item = await createBudgetItem(budgetGuid, budgetItem);
+    const createdItem = await createBudgetItem(budgetGuid, budgetItem);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({item}),
+      body: JSON.stringify(createdItem),
     };
   } catch (err) {
     console.log(err);
@@ -36,7 +36,7 @@ export const putHandler = async (event: APIGatewayEvent, context: Context): Prom
 
     return {
       statusCode: 200,
-      body: JSON.stringify(budgetItem),
+      body: JSON.stringify(item),
     };
   } catch (err) {
     console.log(err);

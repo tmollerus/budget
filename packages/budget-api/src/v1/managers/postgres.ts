@@ -178,12 +178,13 @@ export const getClient = async (): Promise<any> => {
     const sql = `
       INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *
     `;
     const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label, new Date(), new Date()];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
     console.log(result);
-    return result;
+    return result.rows[0];
   } catch (err) {
     console.log(err);
   }
@@ -264,11 +265,12 @@ export const getClient = async (): Promise<any> => {
       ${setStatement}
       WHERE budget_guid = $1 
         AND guid = $2
+      RETURNING *
     `;
     console.log('Executing sql', sql, setParameters);
     const result = await client.query(sql, setParameters);
     console.log(result);
-    return result;
+    return result.rows[0];
   } catch (err) {
     console.log(err);
   }
