@@ -1,9 +1,7 @@
 import { parse } from 'fecha';
 
 export const parseDate = (date: string): Date => {
-  // return new Date(Date.parse(date));
   return parse(date, 'isoDateTime') || new Date();
-  //return new Date(Date.parse(date.replace('+00:00Z', '-05:00')));
 };
 
 export const getDateFromDayOfYear = (year: number, day: number): Date => {

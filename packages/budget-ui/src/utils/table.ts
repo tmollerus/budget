@@ -84,13 +84,13 @@ export const getLedgerTotals = (items: Array<LedgerDataItem>): LedgerTotals => {
   items.forEach((item: LedgerDataItem) => {
     switch(item.type_id) {
       case 1:
-        totalIncome += item.amount;
+        totalIncome += Number(item.amount);
         break;
       case 3:
-        totalTransfers += item.amount;
+        totalTransfers += Number(item.amount);
         break;
       case 2:
-        totalExpenses += item.amount;
+        totalExpenses += Number(item.amount);
         break;
     }
   });

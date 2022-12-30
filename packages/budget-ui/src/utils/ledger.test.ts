@@ -1,6 +1,7 @@
-import { LedgerData, MessageType } from "../types";
+import { LedgerData, MessageType, PartialLedgerDataItem } from "../types";
+import { parseDate } from "./date";
 import { dollarFormat, formatDate, getEntryTypeName } from "./format";
-import { getMessage, getRegions, netValue, updateItemBalances } from "./ledger";
+import { getMessage, getRegions, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
 
 const ledgerData: LedgerData = {
   "items": [
@@ -105,5 +106,35 @@ describe('Ledger functions', () => {
       expectedBalance = expectedBalance + netValue(item.amount, item.type_id);
       expect(item.balance).toBe(expectedBalance);
     });
+  });
+
+  test('updateLedgerDataItem', () => {
+    const previousLedgerData = JSON.parse(JSON.stringify(ledgerData));
+    const newSettledDate = parseDate(previousLedgerData.items[0].settledDate);
+    newSettledDate.setHours(newSettledDate.getHours() + 1);
+    const updatedItem: PartialLedgerDataItem = {
+      guid: previousLedgerData.items[0].guid + ' unknown guid',
+      type_id: previousLedgerData.items[0].type_id + 1,
+      amount: previousLedgerData.items[0].amount + 1.99,
+      label: previousLedgerData.items[0].label + ' new',
+      settledDate: newSettledDate.toISOString(),
+      paid: !!previousLedgerData.items[0].paid,
+    }
+    let updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem);
+    expect(updatedLedgerData.items[0].guid).toBe(previousLedgerData.items[0].guid);
+    expect(updatedLedgerData.items[0].type_id).toBe(previousLedgerData.items[0].type_id);
+    expect(updatedLedgerData.items[0].amount).toBe(previousLedgerData.items[0].amount);
+    expect(updatedLedgerData.items[0].label).toBe(previousLedgerData.items[0].label);
+    expect(updatedLedgerData.items[0].settledDate).toBe(previousLedgerData.items[0].settledDate);
+    expect(updatedLedgerData.items[0].paid).toBe(previousLedgerData.items[0].paid);
+    
+    updatedItem.guid = previousLedgerData.items[0].guid;
+    updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem);
+    expect(updatedLedgerData.items[0].guid).toBe(previousLedgerData.items[0].guid);
+    expect(updatedLedgerData.items[0].type_id).toBe(previousLedgerData.items[0].type_id + 1);
+    expect(updatedLedgerData.items[0].amount).toBe(previousLedgerData.items[0].amount + 1.99);
+    expect(updatedLedgerData.items[0].label).toBe(previousLedgerData.items[0].label + ' new');
+    expect(updatedLedgerData.items[0].settledDate).toBe(newSettledDate.toISOString());
+    expect(updatedLedgerData.items[0].paid).toBe(!!previousLedgerData.items[0].paid);
   });
 });

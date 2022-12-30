@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useBudgetContext } from '../context';
-import { LedgerData, ExtendedLedgerDataItem, LedgerTotals, PartialLedgerDataItem } from '../types';
+import { LedgerData, ExtendedLedgerDataItem, LedgerTotals, PartialLedgerDataItem, LedgerDataItem } from '../types';
 import { parseDate } from '../utils/date';
 import { dollarFormat, formatDate } from '../utils/format';
 import {
@@ -22,7 +22,7 @@ import { useStyles } from './Table.styles';
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
 interface Props {
-  confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => void;
+  confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => void;
   addItem: (newEntry: PartialLedgerDataItem) => void;
   editItem: (editedEntry: PartialLedgerDataItem) => void;
   copyItems: (fromYear: number, toYear: number) => void;
@@ -35,7 +35,7 @@ export const Table = (props: Props) => {
   const { budgetYear, ledgerData } = useBudgetContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredLedgerData, setFilteredLedgerData] = useState<LedgerData>(
-    Object.assign({}, ledgerData),
+    JSON.parse(JSON.stringify(ledgerData)),
   );
   const currentDate = new Date();
   const defaultDate = new Date();
@@ -51,7 +51,7 @@ export const Table = (props: Props) => {
   const [newPaid, setNewPaid] = useState<boolean>(false);
   const [newLabel, setNewLabel] = useState<string>('');
 
-  const [itemToEdit, setItemToEdit] = useState<number>();
+  const [itemToEdit, setItemToEdit] = useState<LedgerDataItem>();
   const [editedItemGuid, setEditedItemGuid] = useState<string>();
   const [editedSettledDate, setEditedSettledDate] = useState<string>();
   const [editedTypeId, setEditedTypeId] = useState<number>();
@@ -103,18 +103,18 @@ export const Table = (props: Props) => {
     clearItemToEdit();
   };
 
-  const handleRowClick = (index: number) => {
-    // if (6 !== 7) { // Don't start the edit action if the delete icon was clicked
-    if (!itemToEdit || itemToEdit !== index) {
-      setEditedItemGuid(filteredLedgerData.items[index].guid);
-      setEditedSettledDate(filteredLedgerData.items[index].settledDate);
-      setEditedTypeId(filteredLedgerData.items[index].type_id);
-      setEditedPaid(filteredLedgerData.items[index].paid);
-      setEditedAmount(filteredLedgerData.items[index].amount);
-      setEditedLabel(filteredLedgerData.items[index].label);
-      setItemToEdit(index);
+  const handleRowClick = (e: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
+    if (!String(e.target).includes('HTMLSpanElement')) { // Don't start the edit action if the delete icon was clicked
+      if (!itemToEdit || itemToEdit !== filteredLedgerData.items[index]) {
+        setEditedItemGuid(filteredLedgerData.items[index].guid);
+        setEditedSettledDate(filteredLedgerData.items[index].settledDate);
+        setEditedTypeId(filteredLedgerData.items[index].type_id);
+        setEditedPaid(filteredLedgerData.items[index].paid);
+        setEditedAmount(filteredLedgerData.items[index].amount);
+        setEditedLabel(filteredLedgerData.items[index].label);
+        setItemToEdit(filteredLedgerData.items[index]);
+      }
     }
-    // }
   };
 
   const clearItemToEdit = () => {
@@ -159,7 +159,7 @@ export const Table = (props: Props) => {
           id={getRowId(item.settledDate, previousSettledDate)}
           className={rowClassName}
           key={item.guid}
-          onClick={() => handleRowClick(index)}
+          onClick={(e) => handleRowClick(e, index)}
         >
           <div
             className={getCellClassName(item, ColumnType.DATE, [
@@ -168,7 +168,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Date"
           >
-            {itemToEdit === index ? (
+            {itemToEdit === item ? (
               <input
                 className={classes.dateInput}
                 type="date"
@@ -188,7 +188,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Income"
           >
-            {itemToEdit !== index ? getLedgerItemIncome(item) : null}
+            {itemToEdit !== item ? getLedgerItemIncome(item) : null}
           </div>
           <div
             className={getCellClassName(item, ColumnType.TRANSFER, [
@@ -198,7 +198,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Transfer"
           >
-            {itemToEdit !== index ? getLedgerItemTransfer(item) : null}
+            {itemToEdit !== item ? getLedgerItemTransfer(item) : null}
           </div>
           <div
             className={getCellClassName(item, ColumnType.BALANCE, [
@@ -208,7 +208,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Balance"
           >
-            {itemToEdit === index ? (
+            {itemToEdit === item ? (
               <select
                 className={classes.typeSelect}
                 name="type_id"
@@ -233,7 +233,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Expense"
           >
-            {itemToEdit === index ? (
+            {itemToEdit === item ? (
               <input
                 type="number"
                 step=".01"
@@ -255,7 +255,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Paid"
           >
-            {itemToEdit === index ? (
+            {itemToEdit === item ? (
               <input
                 type="checkbox"
                 className={classes.paidInput}
@@ -275,7 +275,7 @@ export const Table = (props: Props) => {
             data-header="Label"
           >
             {' '}
-            {itemToEdit === index ? (
+            {itemToEdit === item ? (
               <span className={classes.addInputGroup}>
                 <input
                   className={classes.labelInput}
@@ -306,7 +306,7 @@ export const Table = (props: Props) => {
               <span
                 className="material-icons md-18"
                 title="Delete this item"
-                onClick={(e) => props.confirmDeletion(e, index)}
+                onClick={(e) => props.confirmDeletion(e, item)}
               >
                 cancel
               </span>
