@@ -140,7 +140,7 @@ export const Ledger = () => {
       const isCopySuccessful = await copyBudget(budgetGuid, fromYear, toYear);
       if (isCopySuccessful) {
         Toaster.show({
-          message: getMessage(MessageType.ITEM_EDITED, { label: '', settledDate: '', amount: 0, type_id: 1, paid: false}),
+          message: `Successfully copied items from ${fromYear} to ${toYear}`,
           intent: Intent.SUCCESS,
           icon: 'tick-circle',
         });
@@ -148,6 +148,7 @@ export const Ledger = () => {
         history.push(`${APP.ROUTES.LEDGER}/${toYear}`);
       }
     } catch (err) {
+      console.log(err);
       Toaster.show({
         message: `An error occurred while trying to copy items from ${fromYear} to ${toYear}`,
         intent: Intent.DANGER,

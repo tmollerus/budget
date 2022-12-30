@@ -1,5 +1,5 @@
-import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { copyFromYear, getBudgetItemsByYear, getStartingBalanceForYear } from '../../managers/postgres';
+import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
+import { copyFromYear, getBudgetItemsByYear } from '../../managers/postgres';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);

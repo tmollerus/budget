@@ -145,7 +145,7 @@ export const getClient = async (): Promise<any> => {
         FROM items
         WHERE budget_guid = $1
           AND items.active = true
-          AND EXTRACT(YEAR FROM "settledDate") = $2
+          AND EXTRACT(YEAR FROM "settledDate") = $3
       ) AS next_year_item_count
       FROM items
       WHERE budget_guid = $1
@@ -153,7 +153,7 @@ export const getClient = async (): Promise<any> => {
         AND EXTRACT(YEAR FROM "settledDate") = $2
         ORDER BY "settledDate" ASC, paid DESC, type_id ASC, amount ASC;
     `;
-    const params = [budgetGuid, year];
+    const params = [budgetGuid, year, String(Number(year) + 1)];
     console.log('Executing sql', sql, params);
     let elapsedTime = logElapsedTime(`About to query for records from ${year}`, startTime);
     const result: QueryResult<ItemRecord> = await client.query(sql, params);
@@ -168,31 +168,6 @@ export const getClient = async (): Promise<any> => {
     console.log(err);
   } finally {
     client.end();
-  }
- };
-
- export const getStartingBalanceForYear = async (budgetGuid: string, year: string): Promise<number | undefined> => {
-  const client = await getClient();
-
-  try {
-    const sql = `
-      SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
-      FROM items
-      WHERE EXTRACT(YEAR FROM "settledDate") < $2
-        AND items.active = true
-        AND items.budget_guid = $1)) AS balance,
-      COUNT(*) AS item_count
-      FROM budgets
-      WHERE guid = $1
-      GROUP BY guid
-    `;
-    const params = [budgetGuid, year];
-    console.log('Executing sql', sql, params);
-    const result = await client.query(sql, params);
-    console.log(result);
-    return Number(result.rows[0].balance);
-  } catch (err) {
-    console.log(err);
   }
  };
 

@@ -87,7 +87,6 @@ export enum MessageType {
   ITEM_DELETED,
   ITEM_ADDED,
   ITEM_EDITED,
-  ITEMS_COPIED,
   DEFAULT,
 }
 

@@ -16,8 +16,6 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
       return `Successfully added ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.ITEM_EDITED:
       return `Successfully updated ${itemType} '${item.label}' from ${itemDate}`;
-    case MessageType.ITEMS_COPIED:
-      return `Successfully updated ${itemType} '${item.label}' from ${itemDate}`;
     default:
       return ``;
   }

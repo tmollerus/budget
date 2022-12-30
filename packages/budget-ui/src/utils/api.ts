@@ -105,9 +105,8 @@ export const copyBudget = async (budgetGuid: string, sourceYear: number, destina
       'Authorization': `Bearer ${getAuthorization()}`,
     },
   })
-  .then((response) => response.json())
-  .then((data) => {
-    return data;
+  .then((response) => {
+    return response.ok;
   })
   .catch((err) => {
     return Promise.reject(err);
