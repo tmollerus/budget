@@ -1,3 +1,17 @@
+# [budget-ui-v3.12.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.11.1...budget-ui-v3.12.0) (2022-12-30)
+
+
+### Bug Fixes
+
+* added /copy to endpoint url ([a7e09dd](https://github.com/tmollerus/budget/commit/a7e09ddfdcd156412d7ab18c596b784c2304feaa))
+* corrected multi-row insert ([e3bb938](https://github.com/tmollerus/budget/commit/e3bb9384006741a1054e824dc7f1e8ee7d98faeb))
+* finished api and ui ([fded222](https://github.com/tmollerus/budget/commit/fded222c1fbeedc864dfbef28caf7a9655cec8c8))
+
+
+### Features
+
+* added copy endpoint and ui ([86a6c7e](https://github.com/tmollerus/budget/commit/86a6c7edae4904e3dbb9c1e9a1951f9c81fdf9d7))
+
 # [budget-ui-v3.11.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.11.0...budget-ui-v3.11.1) (2022-12-28)
 
 
