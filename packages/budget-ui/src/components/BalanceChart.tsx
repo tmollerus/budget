@@ -178,7 +178,7 @@ export const BalanceChart = () => {
     <div id="BalanceChart" className={classes.balanceChart}>
       <span className={classes.statTableTitle}>Balances by month</span>
       <div style={{ width: '100%', height: '240px' }}>
-        {ledgerData.items.length ? <div id="chartContainer" style={{ width: '100%', height: '240px' }} /> : <Loader size={24} message={'Loading'} />}
+        {ledgerData.items.length ? <div id="chartContainer" style={{ width: '100%', height: '240px' }} /> : <Loader size={24} message={'Loading chart'} />}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useBudgetContext } from '../context';
 import { LedgerData, ExtendedLedgerDataItem, LedgerTotals, PartialLedgerDataItem, LedgerDataItem } from '../types';
 import { parseDate } from '../utils/date';
@@ -143,6 +143,20 @@ export const Table = (props: Props) => {
     setNewLabel('');
   };
 
+  const getLabelsDataList = (items: Array<LedgerDataItem>): Array<ReactNode> => {
+    const result: Array<ReactNode> = [];
+    const entryLabels: Array<string> = [];
+  
+    items.forEach((item) => {
+      if (!entryLabels.includes(item.label)) {
+        entryLabels.push(item.label);
+        result.push(<option key={item.guid} value={item.label} />);
+      }
+    });
+
+    return result;
+  }
+
   const getRows = (items: Array<ExtendedLedgerDataItem>, year: number) => {
     const rows = items.map((item: ExtendedLedgerDataItem, index: number) => {
       const rowClassName = getRowClassName(index, classes.evenRow, [classes.tableRow]);
@@ -283,6 +297,7 @@ export const Table = (props: Props) => {
                   value={editedLabel}
                   onChange={(e) => setEditedLabel(e.target.value)}
                   placeholder="Description"
+                  list="labels"
                 />
                 <button className={classes.button} onClick={() => saveEditedItem()}>
                   Save
@@ -357,6 +372,7 @@ export const Table = (props: Props) => {
                 name="searchTerm"
                 value={searchTerm}
                 placeholder="Search..."
+                list="labels"
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
               <span
@@ -441,6 +457,7 @@ export const Table = (props: Props) => {
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
                 placeholder="Description"
+                list="labels"
               />
               <button className={classes.button} onClick={addItem}>
                 Save
@@ -472,6 +489,9 @@ export const Table = (props: Props) => {
         <div className={classes.tableRowItem}></div>
         <div className={classes.tableRowItem}></div>
       </div>
+      <datalist id="labels">
+        {getLabelsDataList(ledgerData.items)}
+      </datalist>
     </div>
   );
 };
