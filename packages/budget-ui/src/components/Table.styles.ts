@@ -77,6 +77,11 @@ export const useStyles = createUseStyles({
       visibility: 'visible',
     }
   },
+  tableRowCreate: {
+    '& $tableRowItem': {
+      justifyContent: 'center',
+    }
+  },
   evenRow: {
     backgroundColor: COLORS.ledgerEven,
   },
@@ -248,5 +253,23 @@ export const useStyles = createUseStyles({
     alignItems: 'center',
     width: '100%',
     justifyContent: 'space-between',
+  },
+
+  createItems: {
+    border: 'none',
+    backgroundColor: 'transparent',
+    padding: '4px',
+    display: 'flex',
+    color: COLORS.icon_default,
+    cursor: 'pointer',
+    alignItems: 'center',
+    fontStyle: 'italic',
+    '&:hover': {
+      color: COLORS.income,
+    },
+    '& .material-icons': {
+      fontSize: '15px',
+      paddingLeft: '4px',
+    },
   },
 });

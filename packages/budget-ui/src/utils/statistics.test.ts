@@ -13,7 +13,7 @@ describe('Statistics functions', () => {
       transferTotal: 50000,
       deficitDate: null,
     };
-    expect(getStatistics(ledgerData.items, ledgerData.starting_balance)).toStrictEqual(expectedStatistics);
+    expect(getStatistics(ledgerData.items)).toStrictEqual(expectedStatistics);
   });
 
   test('getEntryBalance', () => {

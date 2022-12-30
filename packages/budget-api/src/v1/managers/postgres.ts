@@ -131,14 +131,29 @@ export const getClient = async (): Promise<any> => {
 
   try {
     const sql = `
-      SELECT *
+      SELECT items.*,
+      (SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
+          FROM items
+          WHERE EXTRACT(YEAR FROM "settledDate") < $2
+            AND items.active = true
+            AND items.budget_guid = $1)) AS balance         
+          FROM budgets
+          WHERE guid = $1
+          GROUP BY guid
+      ) AS starting_balance,
+      (SELECT COUNT(*)
+        FROM items
+        WHERE budget_guid = $1
+          AND items.active = true
+          AND EXTRACT(YEAR FROM "settledDate") = $3
+      ) AS next_year_item_count
       FROM items
       WHERE budget_guid = $1
         AND active = true
         AND EXTRACT(YEAR FROM "settledDate") = $2
         ORDER BY "settledDate" ASC, paid DESC, type_id ASC, amount ASC;
     `;
-    const params = [budgetGuid, year];
+    const params = [budgetGuid, year, String(Number(year) + 1)];
     console.log('Executing sql', sql, params);
     let elapsedTime = logElapsedTime(`About to query for records from ${year}`, startTime);
     const result: QueryResult<ItemRecord> = await client.query(sql, params);
@@ -153,31 +168,6 @@ export const getClient = async (): Promise<any> => {
     console.log(err);
   } finally {
     client.end();
-  }
- };
-
- export const getStartingBalanceForYear = async (budgetGuid: string, year: string): Promise<number | undefined> => {
-  const client = await getClient();
-
-  try {
-    const sql = `
-      SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
-      FROM items
-      WHERE EXTRACT(YEAR FROM "settledDate") < $2
-        AND items.active = true
-        AND items.budget_guid = $1)) AS balance,
-      COUNT(*) AS item_count
-      FROM budgets
-      WHERE guid = $1
-      GROUP BY guid
-    `;
-    const params = [budgetGuid, year];
-    console.log('Executing sql', sql, params);
-    const result = await client.query(sql, params);
-    console.log(result);
-    return Number(result.rows[0].balance);
-  } catch (err) {
-    console.log(err);
   }
  };
 
@@ -197,6 +187,51 @@ export const getClient = async (): Promise<any> => {
   } catch (err) {
     console.log(err);
   }
+ };
+
+ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear: string): Promise<boolean> => {
+  const client = await getClient();
+
+  try {
+    // Get all items from the source year
+    const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
+    if (existingItems) {
+      let sql = `
+        INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
+        VALUES
+      `;
+      const params: Array<any> = [];
+      let paramCounter = 1;
+      // For each item in the source year
+      existingItems.forEach((item, index) => {
+        // Append to the SQL statment
+        if (index > 0) {
+          sql += ', ';
+        }
+        sql += ` ($${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++})`;
+        // Append to the params array
+        let newSettledDate = new Date(item.settledDate);
+        newSettledDate.setFullYear(Number(fromYear) + 1);
+        params.push(budgetGuid);
+        params.push(uuidv4());
+        params.push(newSettledDate.toISOString().replace('Z', ''));
+        params.push(item.type_id);
+        params.push(item.amount);
+        params.push(false);
+        params.push(item.label);
+        params.push(new Date());
+        params.push(new Date());
+      });
+      console.log('Executing sql', sql, params);
+      const result = await client.query(sql, params);
+      console.log(result);
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  return false;
  };
 
  export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string): Promise<any> => {

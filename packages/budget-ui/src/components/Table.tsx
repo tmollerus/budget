@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useBudgetContext } from '../context';
-import { LedgerData, LedgerDataItem, LedgerTotals, PartialLedgerDataItem } from '../types';
+import { LedgerData, ExtendedLedgerDataItem, LedgerTotals, PartialLedgerDataItem } from '../types';
 import { parseDate } from '../utils/date';
 import { dollarFormat, formatDate } from '../utils/format';
 import {
@@ -25,6 +25,7 @@ interface Props {
   confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => void;
   addItem: (newEntry: PartialLedgerDataItem) => void;
   editItem: (editedEntry: PartialLedgerDataItem) => void;
+  copyItems: (fromYear: number, toYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
 }
@@ -77,8 +78,7 @@ export const Table = (props: Props) => {
 
   useEffect(() => {
     const newFilteredLedgerData: LedgerData = {
-      items: [],
-      starting_balance: ledgerData.starting_balance,
+      items: []
     };
     newFilteredLedgerData.items = ledgerData.items.filter((item) => {
       return (
@@ -87,7 +87,7 @@ export const Table = (props: Props) => {
     });
     setFilteredLedgerData(newFilteredLedgerData);
     setLedgerTotals(getLedgerTotals(ledgerData.items));
-  }, [ledgerData.items, ledgerData.starting_balance, searchTerm]);
+  }, [ledgerData.items, searchTerm]);
 
   const saveEditedItem = () => {
     setIsAdding(false);
@@ -143,8 +143,8 @@ export const Table = (props: Props) => {
     setNewLabel('');
   };
 
-  const getRows = (items: Array<LedgerDataItem>) => {
-    return items.map((item: LedgerDataItem, index: number) => {
+  const getRows = (items: Array<ExtendedLedgerDataItem>, year: number) => {
+    const rows = items.map((item: ExtendedLedgerDataItem, index: number) => {
       const rowClassName = getRowClassName(index, classes.evenRow, [classes.tableRow]);
       const previousSettledDate = index > 0 ? items[index - 1].settledDate : '';
       const dateClassName = getFirstOfDateClass(
@@ -315,6 +315,28 @@ export const Table = (props: Props) => {
         </div>
       );
     });
+
+    if (items.length && Number(items[0]?.next_year_item_count) === 0 && (new Date()).getFullYear() === parseDate(items[items.length - 1]?.settledDate).getFullYear()) {
+      rows.push(
+        <div className={[classes.tableRow, classes.tableRowCreate].join(' ')}>
+          <div className={classes.tableRowItem}>
+            <button className={classes.createItems}
+              onClick={() => {
+                clearItemToEdit();
+                setIsAdding(false);
+                props.copyItems(year, year + 1);
+              }}>
+              Create budget items for {year + 1}
+              <span className="material-icons md-18">
+                add_circle
+              </span>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return rows;
   };
 
   return (
@@ -432,7 +454,7 @@ export const Table = (props: Props) => {
         </div>
       )}
       <div className={classes.rowCollection}>
-        {props.isLoading ? <Loader message={`Loading ${budgetYear} budget`} /> : getRows(filteredLedgerData.items)}
+        {props.isLoading ? <Loader message={`Loading ${budgetYear} budget`} /> : getRows(filteredLedgerData.items, budgetYear)}
       </div>
       <div className={[classes.tableRow, classes.tableFooter].join(' ')}>
         <div className={classes.tableRowItem}>Totals:</div>

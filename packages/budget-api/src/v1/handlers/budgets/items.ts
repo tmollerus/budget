@@ -1,7 +1,7 @@
-import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { getBudgetItemsByYear, getStartingBalanceForYear } from '../../managers/postgres';
+import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
+import { copyFromYear, getBudgetItemsByYear } from '../../managers/postgres';
 
-export const getHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
@@ -9,12 +9,41 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
 
   try {
     const items = await getBudgetItemsByYear(budgetGuid, year);
-    const starting_balance = await getStartingBalanceForYear(budgetGuid, year);
-
+    
     return {
       statusCode: 200,
-      body: JSON.stringify({items, starting_balance}),
+      body: JSON.stringify({items}),
     };
+  } catch (err) {
+    console.log(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({err}),
+    };
+  }
+};
+export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  console.log(`Event: ${JSON.stringify(event, null, 2)}`);
+
+  const budgetGuid = event.pathParameters?.budgetGuid || '';
+  const fromYear = event.queryStringParameters?.from || '';
+  const toYear = event.queryStringParameters?.to || '';
+
+  try {
+    const isCopySuccessful = await copyFromYear(budgetGuid, fromYear, toYear);
+    
+    if (isCopySuccessful) {
+      return {
+        statusCode: 200,
+        body: '{}',
+      };
+    } else {
+      return {
+        statusCode: 500,
+        body: '{"error": "Copy failed"}',
+      };
+    }
   } catch (err) {
     console.log(err);
 

@@ -14,7 +14,9 @@ const ledgerData: LedgerData = {
         "active": true,
         "type_id": 3,
         "label": "To Discretionary",
-        "guid": "492f1733-1a32-4b14-a596-c5076cacf4a1"
+        "guid": "492f1733-1a32-4b14-a596-c5076cacf4a1",
+        "starting_balance": "16202.41",
+        "next_year_item_count": "200"
     },
     {
         "dateModified": "2021-12-11T14:00:22.864954+00:00Z",
@@ -26,7 +28,9 @@ const ledgerData: LedgerData = {
         "active": true,
         "type_id": 2,
         "label": "Web hosting",
-        "guid": "246922c7-7279-4a35-a3cd-03b8fa606a0e"
+        "guid": "246922c7-7279-4a35-a3cd-03b8fa606a0e",
+        "starting_balance": "16202.41",
+        "next_year_item_count": "200"
     },
     {
         "dateModified": "2021-12-11T14:00:22.888684+00:00Z",
@@ -38,10 +42,11 @@ const ledgerData: LedgerData = {
         "active": true,
         "type_id": 1,
         "label": "Email hosting",
-        "guid": "8e85cd7f-1bb9-431c-aa7f-45552b025e80"
+        "guid": "8e85cd7f-1bb9-431c-aa7f-45552b025e80",
+        "starting_balance": "16202.41",
+        "next_year_item_count": "200"
     },
-  ],
-  "starting_balance": 16202.41
+  ]
 };
 
 describe('Ledger functions', () => {
@@ -86,7 +91,7 @@ describe('Ledger functions', () => {
 
   test('updateItemBalances', () => {
     let withUpdatedBalances = Object.assign({}, ledgerData);
-    let expectedBalance = withUpdatedBalances.starting_balance;
+    let expectedBalance = Number(withUpdatedBalances.items[0].starting_balance);
     expect(withUpdatedBalances.items[0].balance).not.toBeDefined();
     expect(withUpdatedBalances.items[1].balance).not.toBeDefined();
     expect(withUpdatedBalances.items[2].balance).not.toBeDefined();

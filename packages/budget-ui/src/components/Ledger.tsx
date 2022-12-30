@@ -1,18 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Intent } from '@blueprintjs/core';
+import { useHistory } from 'react-router-dom';
 import { useStyles } from './Ledger.styles';
 import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerDataItem, MessageType, PartialLedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
 import { getMessage, updateItemBalances } from '../utils/ledger';
-import { createEntry, deleteEntry, getBudgetGuid, getBudgetItems, updateEntry } from '../utils/api';
+import { copyBudget, createEntry, deleteEntry, getBudgetGuid, getBudgetItems, updateEntry } from '../utils/api';
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
 import { Table } from './Table';
+import { APP } from '../constants/app';
 
 export const Ledger = () => {
   const classes = useStyles();
-  const { budgetGuid, setBudgetGuid, budgetYear, ledgerData, setLedgerData } = useBudgetContext();
+  const history = useHistory();
+  const { budgetGuid, setBudgetGuid, budgetYear, setBudgetYear, ledgerData, setLedgerData } = useBudgetContext();
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
 
@@ -33,7 +36,7 @@ export const Ledger = () => {
 
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);
-    setLedgerData({ items: [], starting_balance: 0});
+    setLedgerData({ items: [] });
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     newLedgerData.items = updateItemBalances(newLedgerData);
     setLedgerData(newLedgerData);
@@ -132,6 +135,28 @@ export const Ledger = () => {
     }
   };
 
+  const copyItems = async (fromYear: number, toYear: number) => {
+    try {
+      const isCopySuccessful = await copyBudget(budgetGuid, fromYear, toYear);
+      if (isCopySuccessful) {
+        Toaster.show({
+          message: `Successfully copied items from ${fromYear} to ${toYear}`,
+          intent: Intent.SUCCESS,
+          icon: 'tick-circle',
+        });
+        setBudgetYear(toYear);
+        history.push(`${APP.ROUTES.LEDGER}/${toYear}`);
+      }
+    } catch (err) {
+      console.log(err);
+      Toaster.show({
+        message: `An error occurred while trying to copy items from ${fromYear} to ${toYear}`,
+        intent: Intent.DANGER,
+        icon: 'error',
+      });
+    }
+  };
+
   return (
     <div className={classes.ledger}>
       <div className={classes.ledgerLeft}>
@@ -142,6 +167,7 @@ export const Ledger = () => {
           confirmDeletion={confirmDeletion}
           addItem={addItem}
           editItem={editItem}
+          copyItems={copyItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}
         />
