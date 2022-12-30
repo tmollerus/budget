@@ -117,7 +117,7 @@ export const updateItemBalances = (ledgerData: LedgerData): Array<ExtendedLedger
   let balance = Number(ledgerData.items[0].starting_balance);
 
   return ledgerData.items.map((item: ExtendedLedgerDataItem, index: number) => {
-    balance += netValue(ledgerData.items[index].amount, ledgerData.items[index].type_id);
+    balance += netValue(Number(ledgerData.items[index].amount), ledgerData.items[index].type_id);
     return Object.assign(item, { balance });
   });
 };
