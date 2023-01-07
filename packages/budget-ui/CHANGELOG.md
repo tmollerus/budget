@@ -1,3 +1,12 @@
+# [budget-ui-v3.15.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.15.0...budget-ui-v3.15.1) (2023-01-07)
+
+
+### Bug Fixes
+
+* corrected date parsing for local time ([a9d7cab](https://github.com/tmollerus/budget/commit/a9d7cab4a78fead77ca0b04e7a2686f9a2e30961))
+* corrected test ([aab5c13](https://github.com/tmollerus/budget/commit/aab5c13d4f5c185dea9471d0612b7f1ba7e85830))
+* corrected test ([ff6f94b](https://github.com/tmollerus/budget/commit/ff6f94b0dcf921d12b388cdb54d08535431ad86c))
+
 # [budget-ui-v3.15.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.14.0...budget-ui-v3.15.0) (2023-01-07)
 
 
