@@ -1,3 +1,10 @@
+# [budget-ui-v3.15.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.14.0...budget-ui-v3.15.0) (2023-01-07)
+
+
+### Features
+
+* fill empty days in graph at ends of year ([30ef36a](https://github.com/tmollerus/budget/commit/30ef36afa2498665368715e5a748dc398e677b46))
+
 # [budget-ui-v3.14.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.13.1...budget-ui-v3.14.0) (2022-12-30)
 
 
