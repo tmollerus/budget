@@ -5,8 +5,21 @@ import { useStyles } from './Ledger.styles';
 import { useBudgetContext } from '../context';
 import { BudgetAuthResponse, LedgerDataItem, MessageType, PartialLedgerDataItem } from '../types';
 import { LedgerNav } from './LedgerNav';
-import { addLedgerDataItem, deleteLedgerDataItem, getMessage, updateItemBalances, updateLedgerDataItem } from '../utils/ledger';
-import { copyBudget, createEntry, deleteEntry, getBudgetGuid, getBudgetItems, updateEntry } from '../utils/api';
+import {
+  addLedgerDataItem,
+  deleteLedgerDataItem,
+  getMessage,
+  updateItemBalances,
+  updateLedgerDataItem,
+} from '../utils/ledger';
+import {
+  copyBudget,
+  createEntry,
+  deleteEntry,
+  getBudgetGuid,
+  getBudgetItems,
+  updateEntry,
+} from '../utils/api';
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
 import { Table } from './Table';
@@ -15,7 +28,8 @@ import { APP } from '../constants/app';
 export const Ledger = () => {
   const classes = useStyles();
   const history = useHistory();
-  const { budgetGuid, setBudgetGuid, budgetYear, setBudgetYear, ledgerData, setLedgerData } = useBudgetContext();
+  const { budgetGuid, setBudgetGuid, budgetYear, setBudgetYear, ledgerData, setLedgerData } =
+    useBudgetContext();
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
 
@@ -23,7 +37,7 @@ export const Ledger = () => {
   const [itemToDelete, setItemToDelete] = useState<LedgerDataItem>();
   const [dialogMessage, setDialogMessage] = useState<string>('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  
+
   useEffect(() => {
     async function checkBudgetGuid() {
       if (!budgetGuid) {
@@ -39,6 +53,7 @@ export const Ledger = () => {
     setLedgerData({ items: [] });
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     newLedgerData.items = updateItemBalances(newLedgerData);
+    console.log(newLedgerData);
     setLedgerData(newLedgerData);
     setIsLoading(false);
   }, [budgetGuid, budgetYear, setLedgerData]);
@@ -50,23 +65,29 @@ export const Ledger = () => {
     }
   }, [budgetGuid, budgetYear, reloadLedgerData, setLedgerData]);
 
-  const scrollToMonth = (target: string, event?: React.MouseEvent<HTMLElement, MouseEvent>): boolean => {
+  const scrollToMonth = (
+    target: string,
+    event?: React.MouseEvent<HTMLElement, MouseEvent>,
+  ): boolean => {
     event?.preventDefault();
     const el = document.getElementById(target);
 
     if (el) {
       el.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-        inline: "nearest"
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest',
       });
       return true;
     } else {
       return false;
     }
-  }
+  };
 
-  const confirmDeletion = (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => {
+  const confirmDeletion = (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    item: LedgerDataItem,
+  ) => {
     event.preventDefault();
     setItemToDelete(item);
     setDialogMessage(getMessage(MessageType.CONFIRM_DELETE, item));
@@ -86,7 +107,6 @@ export const Ledger = () => {
           icon: 'tick-circle',
         });
         setItemToDelete(undefined);
-        //await reloadLedgerData();
         setLedgerData(deleteLedgerDataItem(ledgerData, deletedItem));
       }
     }

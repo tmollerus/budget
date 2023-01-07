@@ -43,3 +43,11 @@ export const getFirstOfMonth = (month: number | string, year?: number | string):
 
   return year + "-" + month + "-01";
 };
+
+export const setToLocalTimezone = (date: string): string => {
+  let localDate = parseDate(date.includes('T') ? date : date + 'T00:00:00');
+  const localTzOffset = localDate.getTimezoneOffset();
+  localDate.setTime(localDate.getTime() + localTzOffset * 60000);
+
+  return localDate.toISOString().replace('Z', '');
+};

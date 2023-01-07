@@ -61,8 +61,8 @@ export const getEntryBalance = (previousEntryBalance: number, entry: ExtendedLed
   previousEntryBalance = Number(previousEntryBalance) || 0;
 
   if (entry.type_id === 1) {
-    return previousEntryBalance + entry.amount;
+    return previousEntryBalance + Number(entry.amount);
   } else {
-    return previousEntryBalance - entry.amount;
+    return previousEntryBalance - Number(entry.amount);
   }
 };

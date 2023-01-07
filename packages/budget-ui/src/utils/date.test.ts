@@ -1,4 +1,4 @@
-import { getDateFromDayOfYear, getDayOfYear, getDaysInYear, getFirstOfMonth, isLeapYear, parseDate } from "./date";
+import { getDateFromDayOfYear, getDayOfYear, getDaysInYear, getFirstOfMonth, isLeapYear, parseDate, setToLocalTimezone } from "./date";
 
 describe('Date functions', () => {
   test('parseDate', () => {
@@ -60,5 +60,10 @@ describe('Date functions', () => {
     expect(getFirstOfMonth(1, 2012)).toBe('2012-01-01');
     expect(getFirstOfMonth(10, 2014)).toBe('2014-10-01');
     expect(getFirstOfMonth('2018-1-22')).toBe('2018-01-01');
+  });
+
+  test('setToLocalTimezone', () => {
+    expect(setToLocalTimezone('2023-01-01T00:00:00.000Z')).toBe('2023-01-01T05:00:00.000');
+    expect(setToLocalTimezone('2023-01-03')).toBe('2023-01-03T05:00:00.000');
   });
 });

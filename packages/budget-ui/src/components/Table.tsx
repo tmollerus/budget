@@ -1,7 +1,13 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useBudgetContext } from '../context';
-import { LedgerData, ExtendedLedgerDataItem, LedgerTotals, PartialLedgerDataItem, LedgerDataItem } from '../types';
-import { parseDate } from '../utils/date';
+import {
+  LedgerData,
+  ExtendedLedgerDataItem,
+  LedgerTotals,
+  PartialLedgerDataItem,
+  LedgerDataItem,
+} from '../types';
+import { parseDate, setToLocalTimezone } from '../utils/date';
 import { dollarFormat, formatDate } from '../utils/format';
 import {
   getRowClassName,
@@ -78,7 +84,7 @@ export const Table = (props: Props) => {
 
   useEffect(() => {
     const newFilteredLedgerData: LedgerData = {
-      items: []
+      items: [],
     };
     newFilteredLedgerData.items = ledgerData.items.filter((item) => {
       return (
@@ -93,7 +99,7 @@ export const Table = (props: Props) => {
     setIsAdding(false);
     const editedEntry: PartialLedgerDataItem = {
       guid: editedItemGuid,
-      settledDate: editedSettledDate!.replace('Z', ''),
+      settledDate: setToLocalTimezone(editedSettledDate!),
       type_id: editedTypeId!,
       amount: editedAmount!,
       paid: !!editedPaid,
@@ -104,7 +110,8 @@ export const Table = (props: Props) => {
   };
 
   const handleRowClick = (e: React.MouseEvent<HTMLElement, MouseEvent>, index: number) => {
-    if (!String(e.target).includes('HTMLSpanElement')) { // Don't start the edit action if the delete icon was clicked
+    if (!String(e.target).includes('HTMLSpanElement')) {
+      // Don't start the edit action if the delete icon was clicked
       if (!itemToEdit || itemToEdit !== filteredLedgerData.items[index]) {
         setEditedItemGuid(filteredLedgerData.items[index].guid);
         setEditedSettledDate(filteredLedgerData.items[index].settledDate);
@@ -124,7 +131,7 @@ export const Table = (props: Props) => {
 
   const addItem = () => {
     const newEntry: PartialLedgerDataItem = {
-      settledDate: newSettledDate,
+      settledDate: setToLocalTimezone(newSettledDate),
       type_id: newTypeId,
       amount: Number(newAmount),
       paid: !!newPaid,
@@ -146,7 +153,7 @@ export const Table = (props: Props) => {
   const getLabelsDataList = (items: Array<LedgerDataItem>): Array<ReactNode> => {
     const result: Array<ReactNode> = [];
     const entryLabels: Array<string> = [];
-  
+
     items.forEach((item) => {
       if (!entryLabels.includes(item.label)) {
         entryLabels.push(item.label);
@@ -155,7 +162,7 @@ export const Table = (props: Props) => {
     });
 
     return result;
-  }
+  };
 
   const getRows = (items: Array<ExtendedLedgerDataItem>, year: number) => {
     const rows = items.map((item: ExtendedLedgerDataItem, index: number) => {
@@ -331,23 +338,27 @@ export const Table = (props: Props) => {
       );
     });
 
-    if (items.length && Number(items[0]?.next_year_item_count) === 0 && (new Date()).getFullYear() === parseDate(items[items.length - 1]?.settledDate).getFullYear()) {
+    if (
+      items.length &&
+      Number(items[0]?.next_year_item_count) === 0 &&
+      new Date().getFullYear() === parseDate(items[items.length - 1]?.settledDate).getFullYear()
+    ) {
       rows.push(
         <div className={[classes.tableRow, classes.tableRowCreate].join(' ')}>
           <div className={classes.tableRowItem}>
-            <button className={classes.createItems}
+            <button
+              className={classes.createItems}
               onClick={() => {
                 clearItemToEdit();
                 setIsAdding(false);
                 props.copyItems(year, year + 1);
-              }}>
+              }}
+            >
               Create budget items for {year + 1}
-              <span className="material-icons md-18">
-                add_circle
-              </span>
+              <span className="material-icons md-18">add_circle</span>
             </button>
           </div>
-        </div>
+        </div>,
       );
     }
 
@@ -471,7 +482,11 @@ export const Table = (props: Props) => {
         </div>
       )}
       <div className={classes.rowCollection}>
-        {props.isLoading ? <Loader message={`Loading ${budgetYear} budget`} /> : getRows(filteredLedgerData.items, budgetYear)}
+        {props.isLoading ? (
+          <Loader message={`Loading ${budgetYear} budget`} />
+        ) : (
+          getRows(filteredLedgerData.items, budgetYear)
+        )}
       </div>
       <div className={[classes.tableRow, classes.tableFooter].join(' ')}>
         <div className={classes.tableRowItem}>Totals:</div>
@@ -489,9 +504,7 @@ export const Table = (props: Props) => {
         <div className={classes.tableRowItem}></div>
         <div className={classes.tableRowItem}></div>
       </div>
-      <datalist id="labels">
-        {getLabelsDataList(ledgerData.items)}
-      </datalist>
+      <datalist id="labels">{getLabelsDataList(ledgerData.items)}</datalist>
     </div>
   );
 };

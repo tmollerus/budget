@@ -20,5 +20,7 @@ describe('Statistics functions', () => {
     expect(getEntryBalance(1, ledgerData.items[0])).toBe(1.06);
     expect(getEntryBalance(1, ledgerData.items[1])).toBe(-18.99);
     expect(getEntryBalance(1, ledgerData.items[2])).toBe(-799);
+    const item = Object.assign(ledgerData.items[2], { amount: "800", "type_id": 3 });
+    expect(getEntryBalance(1, item)).toBe(-799);
   });
 });

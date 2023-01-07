@@ -66,10 +66,10 @@ export const createEntry = async (budgetGuid: string, entry: any) => {
 };
 
 export const updateEntry = async (budgetGuid: string, entry: any) => {
-  const entryNoNulls = Object.fromEntries(Object.entries(entry).filter(([_, v]) => v != null));
+  const entryWithoutNulls = Object.fromEntries(Object.entries(entry).filter(([_, v]) => v != null));
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/${entry.guid}`, {
     method: 'PUT',
-    body: JSON.stringify(entryNoNulls),
+    body: JSON.stringify(entryWithoutNulls),
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },
