@@ -1,4 +1,3 @@
-import { Region, Regions } from "@blueprintjs/table";
 import { ExtendedLedgerDataItem, LedgerData, MessageType, PartialLedgerDataItem } from "../types";
 import { parseDate } from "./date";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
@@ -46,39 +45,6 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
       return ``;
   }
 };
-
-export const getRegions = (ledgerData: Array<ExtendedLedgerDataItem>): Array<Region> => {
-  const regions: Array<Region> = [];
-  let lowerBoundary: number | undefined;
-  let upperBoundary: number | undefined;
-  let currentMonth = 0;
-
-  ledgerData.forEach((item: ExtendedLedgerDataItem, index: number) => {
-    const month = parseDate(item.settledDate).getMonth() + 1;
-
-    if (month >= currentMonth) {
-      if (index > 0) {
-        upperBoundary = index - 1;
-      }
-
-      if (lowerBoundary && upperBoundary) {
-        regions.push(Regions.row(lowerBoundary === 1 ? 0 : lowerBoundary, upperBoundary));
-        lowerBoundary = undefined;
-        upperBoundary = undefined;
-      }
-
-      lowerBoundary = index;
-      currentMonth++;
-    }
-
-    return regions;
-  });
-
-  if (regions.length) {
-    regions.push(Regions.row(regions[regions.length - 1].rows?.[1]! + 1, ledgerData.length - 1));
-  }
-  return regions;
-}
 
 export const netValue = (amount: number, typeId: number): number => {
   return typeId === 1 ? amount : -amount;

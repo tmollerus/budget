@@ -1,7 +1,7 @@
 import { LedgerData, MessageType, PartialLedgerDataItem } from "../types";
 import { parseDate } from "./date";
 import { dollarFormat, formatDate, getEntryTypeName } from "./format";
-import { getMessage, getRegions, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
+import { getMessage, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
 
 const ledgerData: LedgerData = {
   "items": [
@@ -73,15 +73,6 @@ describe('Ledger functions', () => {
     expect(getMessage(MessageType.ITEM_EDITED, ledgerData.items[2])).toContain(formatDate(ledgerData.items[2].settledDate, 'MMM. D, YYYY'));
 
     expect(getMessage(MessageType.DEFAULT, ledgerData.items[2])).toBe('');
-  });
-
-  test('getRegions', () => {
-    const regions = getRegions(ledgerData.items);
-    regions.forEach((region) => {
-      expect(typeof region).toBe('object');
-      expect(region.cols).not.toBeDefined();
-      expect(region.rows).toBeDefined();
-    });
   });
 
   test('netValue', () => {
