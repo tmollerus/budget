@@ -13,6 +13,10 @@ export const isLeapYear = (year: number): boolean => {
   return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
 };
 
+export const getDaysInYear = (year: number): number => {
+  return isLeapYear(year) ? 366 : 365;
+};
+
 export const getDayOfYear = (date: Date): number => {
   let y = date.getFullYear();
   let m = date.getMonth();

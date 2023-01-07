@@ -1,4 +1,4 @@
-import { getDateFromDayOfYear, getDayOfYear, getFirstOfMonth, isLeapYear, parseDate } from "./date";
+import { getDateFromDayOfYear, getDayOfYear, getDaysInYear, getFirstOfMonth, isLeapYear, parseDate } from "./date";
 
 describe('Date functions', () => {
   test('parseDate', () => {
@@ -28,6 +28,15 @@ describe('Date functions', () => {
     expect(isLeapYear(2019)).toBe(false);
     expect(isLeapYear(2020)).toBe(true);
     expect(isLeapYear(2021)).toBe(false);
+  });
+
+  it('getDaysInYear', () => {
+    expect(getDaysInYear(2011)).toBe(365);
+    expect(getDaysInYear(2012)).toBe(366);
+    expect(getDaysInYear(2013)).toBe(365);
+    expect(getDaysInYear(2019)).toBe(365);
+    expect(getDaysInYear(2020)).toBe(366);
+    expect(getDaysInYear(2021)).toBe(365);
   });
 
   it('getDayOfYear', () => {

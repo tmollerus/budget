@@ -3,14 +3,14 @@ import { useEffect } from 'react';
 import { COLORS } from '../constants/theme';
 import { useBudgetContext } from '../context';
 import { ChartData, ChartTooltip, ExtendedLedgerDataItem } from '../types';
-import { getDateFromDayOfYear, getDayOfYear, parseDate } from '../utils/date';
+import { getDateFromDayOfYear, getDayOfYear, getDaysInYear, parseDate } from '../utils/date';
 import { formatDate, dollarFormat, getIncomeOrExpense } from '../utils/format';
 import { Loader } from './Loader';
 import { useStyles } from './StatTable.styles';
 
 export const BalanceChart = () => {
   const yAxisInterval = 5000;
-  const { ledgerData } = useBudgetContext();
+  const { ledgerData, budgetYear } = useBudgetContext();
   const classes = useStyles();
 
   const getLowestBalance = (entries: Array<ExtendedLedgerDataItem>) => {
@@ -49,7 +49,7 @@ export const BalanceChart = () => {
   };
 
   const getGraphData = (entries: Array<ExtendedLedgerDataItem>) => {
-    const data = [];
+    const graphData = [];
     let currentTotal = Number(ledgerData?.items[0].starting_balance || 0);
     let currentDay: number = 0;
 
@@ -58,16 +58,27 @@ export const BalanceChart = () => {
         let day = getDayOfYear(parseDate(entry.settledDate));
 
         if (currentDay && day > currentDay) {
-          data.push([currentDay, currentTotal]);
+          graphData.push([currentDay, currentTotal]);
         }
         currentDay = day;
         currentTotal += getIncomeOrExpense(entry);
       });
 
-      data.push([currentDay, currentTotal]);
+      graphData.push([currentDay, currentTotal]);
     }
 
-    return data;
+    if (graphData[0][0] !== 0) {
+      const firstDayData = [0, graphData[0][1]];
+      graphData.unshift(firstDayData);
+    }
+
+    const lastDayInYear = getDaysInYear(budgetYear) - 1;
+    if (graphData[graphData.length - 1][0] !== lastDayInYear) {
+      const lastDayData = [lastDayInYear, graphData[graphData.length - 1][1]];
+      graphData.push(lastDayData);
+    }
+
+    return graphData;
   };
 
   const getChartOptions = (entries: Array<ExtendedLedgerDataItem>) => {
@@ -178,7 +189,11 @@ export const BalanceChart = () => {
     <div id="BalanceChart" className={classes.balanceChart}>
       <span className={classes.statTableTitle}>Balances by month</span>
       <div style={{ width: '100%', height: '240px' }}>
-        {ledgerData.items.length ? <div id="chartContainer" style={{ width: '100%', height: '240px' }} /> : <Loader size={24} message={'Loading chart'} />}
+        {ledgerData.items.length ? (
+          <div id="chartContainer" style={{ width: '100%', height: '240px' }} />
+        ) : (
+          <Loader size={24} message={'Loading chart'} />
+        )}
       </div>
     </div>
   );
