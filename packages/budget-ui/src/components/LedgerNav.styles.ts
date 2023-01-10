@@ -2,6 +2,15 @@ import {createUseStyles} from 'react-jss';
 import { COLORS } from '../constants/theme';
 import { getDayOfYear } from '../utils/date';
 
+const background = `linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
+  linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 100%,
+  linear-gradient(to left, ${COLORS.monthBorder} 1px, transparent 1px) 100% 0,
+  linear-gradient(to left, ${COLORS.monthBorder} 1px, transparent 1px) 100% 100%,
+  linear-gradient(to bottom, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
+  linear-gradient(to bottom, ${COLORS.monthBorder} 1px, transparent 1px) 100% 0,
+  linear-gradient(to top, ${COLORS.monthBorder} 0px, transparent 0px) 0 100%,
+  linear-gradient(to top, ${COLORS.monthBorder} 0px, transparent 0px) 100% 100%`;
+
 export const useStyles = createUseStyles({
   ledgerNav: {
     display: 'flex',
@@ -41,18 +50,9 @@ export const useStyles = createUseStyles({
     },
     cursor: 'pointer',
     // borderTop: `.5px dotted ${COLORS.sidebar}`,
-    background:
-      `linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
-      linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 100%,
-      linear-gradient(to left, ${COLORS.monthBorder} 1px, transparent 1px) 100% 0,
-      linear-gradient(to left, ${COLORS.monthBorder} 1px, transparent 1px) 100% 100%,
-      linear-gradient(to bottom, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
-      linear-gradient(to bottom, ${COLORS.monthBorder} 1px, transparent 1px) 100% 0,
-      linear-gradient(to top, ${COLORS.monthBorder} 0px, transparent 0px) 0 100%,
-      linear-gradient(to top, ${COLORS.monthBorder} 0px, transparent 0px) 100% 100%`,
-
-  backgroundRepeat: 'no-repeat',
-  backgroundSize: '10px 2px',
+    background,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '10px 2px',
   },
   todayIndicator: {
     position: 'absolute',
@@ -64,5 +64,10 @@ export const useStyles = createUseStyles({
     '&:hover': {
       borderColor: COLORS.expense,
     },
+  },
+  last: {
+    background,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '10px 2px',
   }
 });
