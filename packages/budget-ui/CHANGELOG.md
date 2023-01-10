@@ -1,3 +1,10 @@
+# [budget-ui-v3.16.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.15.1...budget-ui-v3.16.0) (2023-01-10)
+
+
+### Features
+
+* moved bottom of month nav up ([d4055de](https://github.com/tmollerus/budget/commit/d4055de3079c2b65a0d0fc3c87c6550dc7a07ef1))
+
 # [budget-ui-v3.15.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.15.0...budget-ui-v3.15.1) (2023-01-07)
 
 
