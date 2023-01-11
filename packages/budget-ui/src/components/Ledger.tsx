@@ -118,7 +118,7 @@ export const Ledger = () => {
     setItemToDelete(undefined);
   };
 
-  const addItem = async (newItem: PartialLedgerDataItem) => {
+  const addItem = async (newItem: PartialLedgerDataItem): Promise<boolean> => {
     try {
       const addedItem = await createEntry(budgetGuid, newItem);
       setLedgerData(addLedgerDataItem(ledgerData, addedItem));
@@ -127,12 +127,14 @@ export const Ledger = () => {
         intent: Intent.SUCCESS,
         icon: 'tick-circle',
       });
+      return true;
     } catch (err) {
       Toaster.show({
         message: `An error occurred while trying to save the new item`,
         intent: Intent.DANGER,
         icon: 'error',
       });
+      return false;
     }
   };
 

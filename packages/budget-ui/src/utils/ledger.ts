@@ -1,5 +1,4 @@
 import { ExtendedLedgerDataItem, LedgerData, MessageType, PartialLedgerDataItem } from "../types";
-import { parseDate } from "./date";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 
 export const addLedgerDataItem = (ledgerData: LedgerData, addedItem: ExtendedLedgerDataItem): LedgerData => {

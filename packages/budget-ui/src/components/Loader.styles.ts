@@ -8,8 +8,12 @@ export const useStyles = createUseStyles({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: '4px',
   },
   spinner: {
+  },
+  hidden: {
+    display: 'none',
   },
   message: {
     display: 'block',

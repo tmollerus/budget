@@ -107,15 +107,15 @@ export const useStyles = createUseStyles({
     width: '60%',
     ...inputStyles,
   },
-
   button: {
     fontSize: '12px',
     marginLeft: '6px',
     height: '23px',
     width: 'max-content',
     whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
   },
-
   addIcon: {
     lineHeight: 1.5,
     ...iconStyles,
@@ -193,7 +193,7 @@ export const useStyles = createUseStyles({
       flexGrow: 9,
     },
     '&:nth-of-type(8)': { // Add/delete
-      flexBasis: '20px',
+      flexBasis: '8px',
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'end',
