@@ -1,3 +1,10 @@
+# [budget-ui-v3.17.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.16.0...budget-ui-v3.17.0) (2023-01-11)
+
+
+### Features
+
+* added spinner to add item form ([904d595](https://github.com/tmollerus/budget/commit/904d595feb57a0de9c50c97e3925a2e3c0a704ca))
+
 # [budget-ui-v3.16.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.15.1...budget-ui-v3.16.0) (2023-01-10)
 
 
