@@ -29,7 +29,7 @@ import { useStyles } from './Table.styles';
 
 interface Props {
   confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => void;
-  addItem: (newEntry: PartialLedgerDataItem) => void;
+  addItem: (newEntry: PartialLedgerDataItem) => Promise<boolean>;
   editItem: (editedEntry: PartialLedgerDataItem) => void;
   copyItems: (fromYear: number, toYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
@@ -48,7 +48,8 @@ export const Table = (props: Props) => {
   defaultDate.setFullYear(budgetYear);
   const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
 
-  const [isAdding, setIsAdding] = useState(false);
+  const [showAddItemForm, setShowAddItemForm] = useState(false);
+  const [isAddItemInProgress, setIsAddItemInProgress] = useState(false);
   const [newSettledDate, setNewSettledDate] = useState<string>(
     defaultDate.toISOString().split('T')[0],
   );
@@ -96,7 +97,7 @@ export const Table = (props: Props) => {
   }, [ledgerData.items, searchTerm]);
 
   const saveEditedItem = () => {
-    setIsAdding(false);
+    setShowAddItemForm(false);
     const editedEntry: PartialLedgerDataItem = {
       guid: editedItemGuid,
       settledDate: setToLocalTimezone(editedSettledDate!),
@@ -129,7 +130,8 @@ export const Table = (props: Props) => {
     setItemToEdit(undefined);
   };
 
-  const addItem = () => {
+  const addItem = async () => {
+    setIsAddItemInProgress(true);
     const newEntry: PartialLedgerDataItem = {
       settledDate: setToLocalTimezone(newSettledDate),
       type_id: newTypeId,
@@ -137,13 +139,16 @@ export const Table = (props: Props) => {
       paid: !!newPaid,
       label: newLabel,
     };
-    props.addItem(newEntry);
-    clearAddItem();
+    const isAddSuccessful = await props.addItem(newEntry);
+    if (isAddSuccessful) {
+      clearAddItem();
+    }
+    setIsAddItemInProgress(false);
   };
 
   const clearAddItem = () => {
     clearItemToEdit();
-    setIsAdding(!isAdding);
+    setShowAddItemForm(!showAddItemForm);
     setNewTypeId(2);
     setNewAmount(undefined);
     setNewPaid(false);
@@ -350,7 +355,7 @@ export const Table = (props: Props) => {
               className={classes.createItems}
               onClick={() => {
                 clearItemToEdit();
-                setIsAdding(false);
+                setShowAddItemForm(false);
                 props.copyItems(year, year + 1);
               }}
             >
@@ -404,7 +409,7 @@ export const Table = (props: Props) => {
                 title="Add a new item"
                 onClick={() => {
                   clearItemToEdit();
-                  setIsAdding(!isAdding);
+                  setShowAddItemForm(!showAddItemForm);
                 }}
               >
                 add_circle
@@ -413,7 +418,7 @@ export const Table = (props: Props) => {
           )}
         </div>
       </div>
-      {isAdding && (
+      {showAddItemForm && (
         <div className={[classes.tableRow, classes.tableHeader].join(' ')}>
           <div className={classes.tableRowItem}>
             <input
@@ -422,6 +427,7 @@ export const Table = (props: Props) => {
               name="settledDate"
               defaultValue={newSettledDate}
               onChange={(e) => setNewSettledDate(e.target.value)}
+              disabled={isAddItemInProgress}
             />
           </div>
           <div className={classes.tableRowItem}></div>
@@ -432,6 +438,7 @@ export const Table = (props: Props) => {
               name="type_id"
               defaultValue={newTypeId}
               onChange={(e) => setNewTypeId(Number(e.target.options[e.target.selectedIndex].value))}
+              disabled={isAddItemInProgress}
             >
               <option value="1">Income</option>
               <option value="2">Expense</option>
@@ -448,6 +455,7 @@ export const Table = (props: Props) => {
               value={newAmount}
               placeholder="0.00"
               onChange={(e) => setNewAmount(Number(e.target.value))}
+              disabled={isAddItemInProgress}
             />
           </div>
           <div className={classes.tableRowItem}>
@@ -458,6 +466,7 @@ export const Table = (props: Props) => {
               value="true"
               checked={newPaid}
               onChange={(e) => setNewPaid(!!e.target.checked)}
+              disabled={isAddItemInProgress}
             />
           </div>
           <div className={classes.tableRowItem}>
@@ -469,11 +478,16 @@ export const Table = (props: Props) => {
                 onChange={(e) => setNewLabel(e.target.value)}
                 placeholder="Description"
                 list="labels"
+                disabled={isAddItemInProgress}
               />
-              <button className={classes.button} onClick={addItem}>
-                Save
+              <button className={classes.button} onClick={addItem} disabled={isAddItemInProgress}>
+                Save <Loader size={12} hide={!isAddItemInProgress} />
               </button>
-              <button className={classes.button} onClick={clearAddItem}>
+              <button
+                className={classes.button}
+                onClick={clearAddItem}
+                disabled={isAddItemInProgress}
+              >
                 Cancel
               </button>
             </div>
