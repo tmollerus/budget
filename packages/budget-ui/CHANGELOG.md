@@ -1,3 +1,10 @@
+# [budget-ui-v3.18.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.17.0...budget-ui-v3.18.0) (2023-01-15)
+
+
+### Features
+
+* updated ledger after item edit or delete ([64d15a6](https://github.com/tmollerus/budget/commit/64d15a6b4abb2dcc0f12f467989652bf07c58c15))
+
 # [budget-ui-v3.17.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.16.0...budget-ui-v3.17.0) (2023-01-11)
 
 
