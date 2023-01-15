@@ -96,6 +96,7 @@ export const Ledger = () => {
   const deleteItem = async () => {
     setIsDeleteDialogOpen(false);
     if (itemToDelete) {
+      setLedgerData(deleteLedgerDataItem(ledgerData, itemToDelete));
       const success = await deleteEntry(budgetGuid, itemToDelete.guid);
       if (success) {
         const deletedItem: LedgerDataItem = itemToDelete;
@@ -106,7 +107,8 @@ export const Ledger = () => {
           icon: 'tick-circle',
         });
         setItemToDelete(undefined);
-        setLedgerData(deleteLedgerDataItem(ledgerData, deletedItem));
+      } else {
+        setLedgerData(ledgerData);
       }
     }
   };
@@ -138,16 +140,17 @@ export const Ledger = () => {
     }
   };
 
-  const editItem = async (editedItem: PartialLedgerDataItem) => {
+  const editItem = async (editedItem: PartialLedgerDataItem, originalItem?: LedgerDataItem) => {
     try {
+      setLedgerData(updateLedgerDataItem(ledgerData, editedItem));
       const savedItem = await updateEntry(budgetGuid, editedItem);
-      setLedgerData(updateLedgerDataItem(ledgerData, savedItem));
       Toaster.show({
         message: getMessage(MessageType.ITEM_EDITED, savedItem),
         intent: Intent.SUCCESS,
         icon: 'tick-circle',
       });
     } catch (err) {
+      originalItem && updateLedgerDataItem(ledgerData, originalItem);
       Toaster.show({
         message: `An error occurred while trying to save the new item`,
         intent: Intent.DANGER,
