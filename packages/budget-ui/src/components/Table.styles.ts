@@ -75,7 +75,7 @@ export const useStyles = createUseStyles({
     },
     '&:hover $deleteIcon': {
       visibility: 'visible',
-    }
+    },
   },
   tableRowCreate: {
     '& $tableRowItem': {

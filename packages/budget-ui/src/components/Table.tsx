@@ -25,12 +25,13 @@ import {
 } from '../utils/table';
 import { Loader } from './Loader';
 import { useStyles } from './Table.styles';
+import { getLedgerDataItemByGuid } from '../utils/ledger';
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
 interface Props {
   confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => void;
   addItem: (newEntry: PartialLedgerDataItem) => Promise<boolean>;
-  editItem: (editedEntry: PartialLedgerDataItem) => void;
+  editItem: (editedEntry: PartialLedgerDataItem, originalEntry?: LedgerDataItem) => void;
   copyItems: (fromYear: number, toYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
@@ -43,6 +44,7 @@ export const Table = (props: Props) => {
   const [filteredLedgerData, setFilteredLedgerData] = useState<LedgerData>(
     JSON.parse(JSON.stringify(ledgerData)),
   );
+
   const currentDate = new Date();
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
@@ -106,7 +108,7 @@ export const Table = (props: Props) => {
       paid: !!editedPaid,
       label: editedLabel!,
     };
-    props.editItem(editedEntry);
+    props.editItem(editedEntry, getLedgerDataItemByGuid(ledgerData, editedItemGuid!));
     clearItemToEdit();
   };
 

@@ -1,7 +1,7 @@
 import { LedgerData, MessageType, PartialLedgerDataItem } from "../types";
 import { parseDate } from "./date";
 import { dollarFormat, formatDate, getEntryTypeName } from "./format";
-import { getMessage, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
+import { getLedgerDataItemByGuid, getMessage, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
 
 const ledgerData: LedgerData = {
   "items": [
@@ -51,6 +51,14 @@ const ledgerData: LedgerData = {
 };
 
 describe('Ledger functions', () => {
+  test('getLedgerDataItemByGuid', () => {
+    ledgerData.items.forEach((item) => {
+      expect(getLedgerDataItemByGuid(ledgerData, item.guid)).toStrictEqual(item);
+    });
+
+    expect(getLedgerDataItemByGuid(ledgerData, 'foo')).toBeUndefined();
+  });
+
   test('getMessage', () => {
     expect(getMessage(MessageType.CONFIRM_DELETE, ledgerData.items[0])).toContain('delete');
     expect(getMessage(MessageType.CONFIRM_DELETE, ledgerData.items[0])).toContain(dollarFormat(ledgerData.items[0].amount));

@@ -1,4 +1,4 @@
-import { ExtendedLedgerDataItem, LedgerData, MessageType, PartialLedgerDataItem } from "../types";
+import { ExtendedLedgerDataItem, LedgerData, LedgerDataItem, MessageType, PartialLedgerDataItem } from "../types";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 
 export const addLedgerDataItem = (ledgerData: LedgerData, addedItem: ExtendedLedgerDataItem): LedgerData => {
@@ -25,6 +25,19 @@ export const deleteLedgerDataItem = (ledgerData: LedgerData, deletedItem: Partia
   }
 
   return updatedLedgerData;
+};
+
+export const getLedgerDataItemByGuid = (ledgerData: LedgerData, itemGuid: string): LedgerDataItem | undefined => {
+  const index = ledgerData.items.findIndex((item) => {
+    return item.guid === itemGuid;
+  });
+
+  if (index >= 0) {
+    return ledgerData.items[index];
+  } else {
+    console.error('No match was found for the item in the ledger data', itemGuid);
+    return undefined;
+  }
 };
 
 export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem) => {
