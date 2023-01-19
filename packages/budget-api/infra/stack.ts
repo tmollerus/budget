@@ -29,8 +29,9 @@ import { ManagedPolicy } from '@aws-cdk/aws-iam';
 export class BudgetApiStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-    const stackName = `${process.env.ENV_NAME}-${id}`;
-    const allowedOrigins = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
+    const STACK_NAME = `${process.env.ENV_NAME}-${id}`;
+    const ALLOWED_ORIGINS = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
+    const CERT_ARN = 'arn:aws:acm:us-east-1:360115878429:certificate/6432f08a-5ab8-442b-be1c-6ceaabe27f0a';
 
     const createLambdaAndRoute = (
       lambdaName: string,
@@ -41,10 +42,10 @@ export class BudgetApiStack extends Stack {
     ) => {
       const lambda = new NodejsFunction(
         this,
-        `${stackName}-${lambdaName}Lambda`,
+        `${STACK_NAME}-${lambdaName}Lambda`,
         {
           runtime: Runtime.NODEJS_16_X,
-          functionName: `${stackName}-${lambdaName}`,
+          functionName: `${STACK_NAME}-${lambdaName}`,
           handler: lambdaHandler,
           entry: lambdaEntry,
           timeout: Duration.seconds(60),
@@ -55,7 +56,7 @@ export class BudgetApiStack extends Stack {
             ],
           },
           environment: {
-            ALLOWED_ORIGINS: allowedOrigins.join(','),
+            ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
             REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
           },
           vpc,
@@ -67,7 +68,7 @@ export class BudgetApiStack extends Stack {
       );
       secret.grantRead(lambda);
       const integration = new HttpLambdaIntegration(
-        `${stackName}-${lambdaName}Integration`,
+        `${STACK_NAME}-${lambdaName}Integration`,
         lambda
       );
   
@@ -89,17 +90,17 @@ export class BudgetApiStack extends Stack {
       );
     };
 
-    const vpc = new Vpc(this, `${stackName}-Vpc`, {
+    const vpc = new Vpc(this, `${STACK_NAME}-Vpc`, {
       maxAzs: 2,
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: `${stackName}-Vpc-Subnet-PWN`,
+          name: `${STACK_NAME}-Vpc-Subnet-PWN`,
           subnetType: SubnetType.PRIVATE_WITH_NAT,
         },
         {
           cidrMask: 24,
-          name: `${stackName}-Vpc-Subnet-PUB`,
+          name: `${STACK_NAME}-Vpc-Subnet-PUB`,
           subnetType: SubnetType.PUBLIC,
         },
       ],
@@ -107,7 +108,7 @@ export class BudgetApiStack extends Stack {
 
     const dbSecurityGroup = new SecurityGroup(
       this,
-      `${stackName}-dbSecurityGroup`,
+      `${STACK_NAME}-dbSecurityGroup`,
       {
         vpc,
       }
@@ -115,7 +116,7 @@ export class BudgetApiStack extends Stack {
 
     const lambdaSecurityGroup = new SecurityGroup(
       this,
-      `${stackName}-lambdaSecurityGroup`,
+      `${STACK_NAME}-lambdaSecurityGroup`,
       {
         vpc,
       }
@@ -129,7 +130,7 @@ export class BudgetApiStack extends Stack {
 
     const redisSecurityGroup = new SecurityGroup(
       this,
-      `${stackName}-redisSecurityGroup`,
+      `${STACK_NAME}-redisSecurityGroup`,
       {
         vpc,
       }
@@ -143,22 +144,22 @@ export class BudgetApiStack extends Stack {
 
     const redisSubnetGroup = new CfnSubnetGroup(
       this,
-      `${stackName}-redisSubnetGroup`,
+      `${STACK_NAME}-redisSubnetGroup`,
       {
         description: "Subnet group for the redis cluster",
         subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
-        cacheSubnetGroupName: `${stackName}-redisSubnetGroup`,
+        cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroup`,
       }
     );
 
     const redisCache = new CfnCacheCluster(
       this,
-      `${stackName}-RedisCache`,
+      `${STACK_NAME}-RedisCache`,
       {
         engine: "redis",
         cacheNodeType: "cache.t3.micro",
         numCacheNodes: 1,
-        clusterName: `${stackName}-RedisCache`,
+        clusterName: `${STACK_NAME}-RedisCache`,
         vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
         cacheSubnetGroupName: redisSubnetGroup.ref,
         engineVersion: "6.2",
@@ -169,7 +170,7 @@ export class BudgetApiStack extends Stack {
     const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
     const db = new DatabaseInstance(
       this,
-      `${stackName}-Database`,
+      `${STACK_NAME}-Database`,
       {
         engine: DatabaseInstanceEngine.postgres({
           version: PostgresEngineVersion.VER_14_2,
@@ -193,10 +194,10 @@ export class BudgetApiStack extends Stack {
     db.connections.allowFromAnyIpv4(Port.tcp(5432))
 
     const secret = new Secret(this,
-      `${stackName}-Secret`,
+      `${STACK_NAME}-Secret`,
       {
         description: `Secret for Budget API`,
-        secretName: `${stackName}-Secret`,
+        secretName: `${STACK_NAME}-Secret`,
       }
     );
 
@@ -213,10 +214,10 @@ export class BudgetApiStack extends Stack {
 
     const authorizerLambda: IFunction = new NodejsFunction(
       this,
-      `${stackName}-AuthorizerLambda`,
+      `${STACK_NAME}-AuthorizerLambda`,
       {
         runtime: Runtime.NODEJS_16_X,
-        functionName: `${stackName}-AuthorizerLambda`,
+        functionName: `${STACK_NAME}-AuthorizerLambda`,
         handler: 'handler',
         entry: 'src/v1/authorizer/index.ts',
         bundling: {
@@ -248,7 +249,7 @@ export class BudgetApiStack extends Stack {
     );
 
     const authorizer = new HttpLambdaAuthorizer(
-      `${stackName}-HttpLambdaAuthorizer`,
+      `${STACK_NAME}-HttpLambdaAuthorizer`,
       authorizerLambda,
       {
         responseTypes: [HttpLambdaResponseType.IAM],
@@ -258,23 +259,23 @@ export class BudgetApiStack extends Stack {
 
     const domainName = new DomainName(
       this,
-      `${stackName}-DomainName`,
+      `${STACK_NAME}-DomainName`,
       {
         domainName: process.env.DOMAIN_NAME || '',
-        certificate: Certificate.fromCertificateArn(this, 'cert', 'arn:aws:acm:us-east-1:360115878429:certificate/9da4d61d-3c50-4685-a7e7-288e59b67720'),
+        certificate: Certificate.fromCertificateArn(this, 'cert', CERT_ARN),
       }
     );
 
     const budgetApi = new HttpApi(
       this,
-      `${stackName}-HttpApi`,
+      `${STACK_NAME}-HttpApi`,
       {
-        apiName: `${stackName}-HttpApi`,
+        apiName: `${STACK_NAME}-HttpApi`,
         corsPreflight: {
           allowHeaders: getAllowedPreflightHeaders(),
           allowMethods: getAllowedPreflightMethods(),
           allowCredentials: false,
-          allowOrigins: allowedOrigins,
+          allowOrigins: ALLOWED_ORIGINS,
         },
         defaultAuthorizer: authorizer,
         description: 'Rest API for the Budget application',
