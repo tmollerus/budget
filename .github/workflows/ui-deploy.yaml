@@ -3,14 +3,14 @@ name: Deploy UI
 on:
   push:
     branches:
-      - "master"
+      - 'master'
     paths:
-      - "packages/budget-ui/**"
+      - 'packages/budget-ui/**'
   pull_request:
     types:
       - labeled
     paths:
-      - "packages/budget-ui/**"
+      - 'packages/budget-ui/**'
 
 env:
   AWS_REGION: us-east-1
@@ -55,7 +55,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-duration-seconds: 900
           aws-region: ${{ env.AWS_REGION }}
-           
+
       - name: Update NPM
         run: sudo npm install -g npm@8.1.0
 
@@ -81,11 +81,7 @@ jobs:
 
       - name: Get current date
         id: date
-        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-
-      - name: Get current time
-        id: time
-        run: echo "time=$(date +'%I:%M%#p')" >> $GITHUB_OUTPUT
+        run: echo "date=$(date +'%Y-%m-%dT%H:%M:%S%z')" >> $GITHUB_OUTPUT
 
       - name: Setup package and build
         id: build
@@ -94,7 +90,6 @@ jobs:
           CI: false
           REACT_APP_API_HOST: ${{ secrets.API_HOST }}
           REACT_APP_DEPLOY_DATE: ${{ steps.date.outputs.date }}
-          REACT_APP_DEPLOY_TIME: ${{ steps.time.outputs.time }}
         run: |
           npm run build
 
