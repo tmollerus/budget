@@ -1,3 +1,10 @@
+# [budget-ui-v3.19.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.18.0...budget-ui-v3.19.0) (2023-01-25)
+
+
+### Features
+
+* localized deploy date ([745cf75](https://github.com/tmollerus/budget/commit/745cf75d5a31c6c2bb37bdac58d957143b46e8fd))
+
 # [budget-ui-v3.18.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.17.0...budget-ui-v3.18.0) (2023-01-15)
 
 
