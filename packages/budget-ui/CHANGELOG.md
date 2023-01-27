@@ -1,3 +1,15 @@
+# [budget-ui-v3.20.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.19.0...budget-ui-v3.20.0) (2023-01-27)
+
+
+### Bug Fixes
+
+* removed console logging statement ([65fe9d3](https://github.com/tmollerus/budget/commit/65fe9d33829a11f341800a71d28862b60238b2ea))
+
+
+### Features
+
+* prevented scrolling unless the budget year changes ([5004a09](https://github.com/tmollerus/budget/commit/5004a09b313d8230459e26c9ee45733bf1d84c00))
+
 # [budget-ui-v3.19.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.18.0...budget-ui-v3.19.0) (2023-01-25)
 
 
