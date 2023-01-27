@@ -49,6 +49,7 @@ export const Table = (props: Props) => {
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
   const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
+  const [hasScrolled, setHasScrolled] = useState<boolean>(false);
 
   const [showAddItemForm, setShowAddItemForm] = useState(false);
   const [isAddItemInProgress, setIsAddItemInProgress] = useState(false);
@@ -75,10 +76,18 @@ export const Table = (props: Props) => {
 
   useEffect(() => {
     try {
-      if (budgetYear === currentDate.getFullYear() && filteredLedgerData.items.length) {
+      if (budgetYear !== currentDate.getFullYear()) {
+        setHasScrolled(false);
+      }
+      if (
+        !hasScrolled &&
+        budgetYear === currentDate.getFullYear() &&
+        filteredLedgerData.items.length
+      ) {
         if (!props.scrollToMonth('today')) {
           props.scrollToMonth(`month-${currentDate.getMonth()}`);
         }
+        setHasScrolled(true);
       }
     } catch (err) {
       console.log(err);

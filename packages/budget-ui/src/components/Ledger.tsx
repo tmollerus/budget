@@ -69,6 +69,7 @@ export const Ledger = () => {
     event?: React.MouseEvent<HTMLElement, MouseEvent>,
   ): boolean => {
     event?.preventDefault();
+    console.log('Scrolling to', target);
     const el = document.getElementById(target);
 
     if (el) {
