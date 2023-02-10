@@ -1,3 +1,10 @@
+# [budget-ui-v3.21.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.20.0...budget-ui-v3.21.0) (2023-02-10)
+
+
+### Features
+
+* prevented wrapping ([64a39c6](https://github.com/tmollerus/budget/commit/64a39c61d15af9af00216d7a55343b8528b52a30))
+
 # [budget-ui-v3.20.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.19.0...budget-ui-v3.20.0) (2023-01-27)
 
 
