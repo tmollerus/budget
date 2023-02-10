@@ -156,6 +156,7 @@ export const useStyles = createUseStyles({
     wordWrap: 'break-word',
     overflowWrap: 'break-word',
     wordBreak: 'break-all',
+    whiteSpace: 'nowrap',
     padding: '1px 4px',
     borderTop: '1px dotted #cccccc !important',
     '&$firstOfDate': {
