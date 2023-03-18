@@ -9,9 +9,11 @@ import {
   OriginAccessIdentity,
 } from '@aws-cdk/aws-cloudfront';
 import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
-import { BlockPublicAccess, Bucket } from '@aws-cdk/aws-s3';
+import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import { Certificate } from '@aws-cdk/aws-certificatemanager';
+
+const ENV_NAME = (process.env.ENV_NAME === 'dev') ? 'dev' : 'prod';
 
 export class BudgetUiStack extends Stack {
   /**
@@ -22,25 +24,28 @@ export class BudgetUiStack extends Stack {
    */
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
+    const getHostName = (envName: string): string => {
+      return (envName === 'dev') ? 'dev-budget' : 'budget';
+    };
 
     const originAccessIdentity: OriginAccessIdentity = new OriginAccessIdentity(
       this,
-      'BudgetUiOriginAccessIdentity',
+      `BudgetUiOriginAccessIdentity-${ENV_NAME}`,
     );
 
     const logBucket = new Bucket(
       this,
-      'BudgetUiLogBucket',
+      `${ENV_NAME}-BudgetUiLogBucket`,
       {
-        bucketName: 'budget.mollerus.net-logs',
+        bucketName: `budget.mollerus.net-${ENV_NAME}-logs`,
       }
     );
 
     const sourceBucket = new Bucket(
       this,
-      'BudgetUiSourceBucket',
+      `BudgetUiSourceBucket-${ENV_NAME}`,
       {
-        bucketName: 'budget.mollerus.net-ui',
+        bucketName: `budget.mollerus.net-${ENV_NAME}-ui`,
       }
     );
     sourceBucket.grantRead(originAccessIdentity);
@@ -55,15 +60,15 @@ export class BudgetUiStack extends Stack {
 
     const distribution = new Distribution(
       this,
-      'BudgetUiDistribution',
+      `BudgetUiDistribution-${ENV_NAME}`,
       {
         enableLogging: true,
         logBucket,
         logFilePrefix: 'BudgetUi',
-        domainNames: ['budget.mollerus.net'],
+        domainNames: [`${getHostName(ENV_NAME)}.mollerus.net`],
         certificate: Certificate.fromCertificateArn(
           this,
-          'BudgetUiCertificate',
+          `BudgetUiCertificate-${ENV_NAME}`,
           'arn:aws:acm:us-east-1:360115878429:certificate/c0493e59-c808-443c-ab49-d96023a1e417'
         ),
         minimumProtocolVersion: SecurityPolicyProtocol.TLS_V1_2_2021,
@@ -74,7 +79,7 @@ export class BudgetUiStack extends Stack {
           viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
         priceClass: PriceClass.PRICE_CLASS_100,
-        comment: 'Budget UI',
+        comment: `Budget UI ${ENV_NAME}`,
         defaultRootObject: `index.html`,
         enabled: true,
         errorResponses: [
@@ -92,7 +97,7 @@ export class BudgetUiStack extends Stack {
       }
     );
 
-    new BucketDeployment(this, 'DeployWebsite', {
+    new BucketDeployment(this, `DeployWebsite-${ENV_NAME}`, {
       sources: [Source.asset('./build')],
       destinationBucket: sourceBucket,
       destinationKeyPrefix: '/',
@@ -103,4 +108,4 @@ export class BudgetUiStack extends Stack {
 }
 
 const app = new App();
-new BudgetUiStack(app, `budget-ui`);
+new BudgetUiStack(app, `budget-ui-${ENV_NAME}`);
