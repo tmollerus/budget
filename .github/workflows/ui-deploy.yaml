@@ -39,7 +39,7 @@ jobs:
         run: npm run test
 
   deploy:
-    if: ((github.event_name == 'pull_request') && (github.event.label.name == 'deploy ui')) || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    if: (github.event_name == 'pull_request' && github.event.label.name == 'deploy ui') || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
     needs: [test]
     permissions:
@@ -96,6 +96,8 @@ jobs:
       - name: Deploy
         id: deploy
         working-directory: packages/budget-ui
+        env:
+          ENV_NAME: "${{ github.event_name == 'pull_request' && github.event.label.name == 'deploy ui' && 'dev' || 'prod' }}"
         run: cdk deploy --require-approval=never
 
       - name: Create changeset if deploy failed
