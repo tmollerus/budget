@@ -61,7 +61,7 @@ export class BudgetApiStack extends Stack {
           },
           vpc,
           vpcSubnets: vpc.selectSubnets({
-            subnetType: SubnetType.PRIVATE_WITH_NAT,
+            subnetType: SubnetType.PUBLIC,
           }),
           securityGroups: [lambdaSecurityGroup],
         }
@@ -181,7 +181,7 @@ export class BudgetApiStack extends Stack {
         ),
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
+          subnetType: SubnetType.PUBLIC,
         }),
         databaseName,
         securityGroups: [dbSecurityGroup],
@@ -208,7 +208,7 @@ export class BudgetApiStack extends Stack {
       vpc,
       requireTLS: false,
       vpcSubnets: vpc.selectSubnets({
-        subnetType: SubnetType.PRIVATE_WITH_NAT,
+        subnetType: SubnetType.PUBLIC,
       }),
     });
 
@@ -228,7 +228,7 @@ export class BudgetApiStack extends Stack {
         },
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
+          subnetType: SubnetType.PUBLIC,
         }),
         securityGroups: [lambdaSecurityGroup],
         environment: {
