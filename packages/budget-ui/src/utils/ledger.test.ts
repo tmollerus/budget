@@ -1,5 +1,5 @@
 import { LedgerData, MessageType, PartialLedgerDataItem } from "../types";
-import { parseDate } from "./date";
+import { parseDate, setToUTC } from "./date";
 import { dollarFormat, formatDate, getEntryTypeName } from "./format";
 import { getLedgerDataItemByGuid, getMessage, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
 
@@ -116,7 +116,7 @@ describe('Ledger functions', () => {
       type_id: previousLedgerData.items[0].type_id + 1,
       amount: previousLedgerData.items[0].amount + 1.99,
       label: previousLedgerData.items[0].label + ' new',
-      settledDate: newSettledDate.toISOString(),
+      settledDate: setToUTC(newSettledDate.toISOString()),
       paid: !!previousLedgerData.items[0].paid,
     }
     let updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem);
