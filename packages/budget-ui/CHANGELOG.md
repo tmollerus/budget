@@ -1,3 +1,10 @@
+# [budget-ui-v3.21.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.0...budget-ui-v3.21.1) (2024-06-04)
+
+
+### Bug Fixes
+
+* standardized dates on save ([c3bae1c](https://github.com/tmollerus/budget/commit/c3bae1c5b8a3ab6dc1c58c00ec88fd8ef1e85dde))
+
 # [budget-ui-v3.21.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.20.0...budget-ui-v3.21.0) (2023-02-10)
 
 
