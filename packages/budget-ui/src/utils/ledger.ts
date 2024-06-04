@@ -1,5 +1,6 @@
 import { ExtendedLedgerDataItem, LedgerData, LedgerDataItem, MessageType, PartialLedgerDataItem } from "../types";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
+import { setToUTC } from './date';
 
 export const addLedgerDataItem = (ledgerData: LedgerData, addedItem: ExtendedLedgerDataItem): LedgerData => {
   let updatedLedgerData = JSON.parse(JSON.stringify(ledgerData));
@@ -107,7 +108,7 @@ export const updateLedgerDataItem = (ledgerData: LedgerData, updatedItem: Partia
   });
 
   if (index >= 0) {
-    updatedLedgerData.items[index].settledDate = updatedItem.settledDate;
+    updatedLedgerData.items[index].settledDate = setToUTC(updatedItem.settledDate);
     updatedLedgerData.items[index].type_id = updatedItem.type_id;
     updatedLedgerData.items[index].amount = updatedItem.amount;
     updatedLedgerData.items[index].paid = updatedItem.paid;
