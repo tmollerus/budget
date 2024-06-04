@@ -1,3 +1,14 @@
+# [budget-ui-v3.21.2](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.1...budget-ui-v3.21.2) (2024-06-04)
+
+
+### Bug Fixes
+
+* commented test ([bcf9c0c](https://github.com/tmollerus/budget/commit/bcf9c0c4176c030b459663995b696bfccc5b31b2))
+* removed import ([acd87d7](https://github.com/tmollerus/budget/commit/acd87d7d94c95d39f3fa2a1a14b1e8cc53c963db))
+* removed webvitals ([23f1c00](https://github.com/tmollerus/budget/commit/23f1c0003dbad85ab6c85a61d1385096eeaa230b))
+* updated aws-actions version ([9c9f6ca](https://github.com/tmollerus/budget/commit/9c9f6cab9c1a5f2c2316d81c0f959cfa1f3f1f8c))
+* updated okta-react version ([17fdd66](https://github.com/tmollerus/budget/commit/17fdd667ee5349811d14db948b4fc838e3bff61e))
+
 # [budget-ui-v3.21.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.0...budget-ui-v3.21.1) (2024-06-04)
 
 
