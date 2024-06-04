@@ -45,7 +45,7 @@ export const getRowId = (currentDate: string, previousDate: string): string => {
 };
 
 export const isFirstOfDate = (currentDate: string, previousDate: string): boolean => {
-  return !previousDate || currentDate !== previousDate;
+  return !previousDate || currentDate.split('T')[0] !== previousDate.split('T')[0];
 };
 
 export const getFirstOfDateClass = (currentDate: string, previousDate: string, firstOfDateClass: string, notFirstOfDateClass: string): string => {

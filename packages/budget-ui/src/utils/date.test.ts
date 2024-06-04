@@ -66,4 +66,9 @@ describe('Date functions', () => {
     expect(setToLocalTimezone('2023-01-01T00:00:00.000Z')).toContain('2023-01-01T');
     expect(setToLocalTimezone('2023-01-03')).toContain('2023-01-03T');
   });
+
+  test('setToUTC', () => {
+    expect(setToLocalTimezone('2023-01-01T00:00:00.000Z')).toContain('2023-01-01T');
+    expect(setToLocalTimezone('2023-01-03')).toContain('2023-01-03T');
+  });
 });

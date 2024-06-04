@@ -51,3 +51,11 @@ export const setToLocalTimezone = (date: string): string => {
 
   return localDate.toISOString().replace('Z', '');
 };
+
+export const setToUTC = (date: string): string => {
+  let utcDate = parseDate(date.split('T')[0] + 'T00:00:00');
+  const localTzOffset = utcDate.getTimezoneOffset();
+  utcDate.setTime(utcDate.getTime() + localTzOffset * 60000);
+
+  return utcDate.toISOString();
+};
