@@ -15,7 +15,7 @@
     "@okta/okta-react": "6.9.0",
     "crypto-js": "^4.2.0",
     "fecha": "^4.2.3",
-    "highcharts": "^6.2.0",
+    "highcharts": "^9.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-jss": "^10.9.2",
