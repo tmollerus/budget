@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@okta/okta-auth-js": "7.1.0",
-    "aws-sdk": "^2.1273.0",
+    "aws-sdk": "^2.1644.0",
     "node-fetch": "^3.3.0",
     "pg": "^8.8.0",
     "redis": "^4.5.1",
