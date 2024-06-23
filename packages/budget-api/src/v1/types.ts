@@ -27,6 +27,8 @@ export interface ItemRecord {
   type_id: number;
   label: string;
   guid: string;
+  category_guid?: string;
+  subcategory_guid?: string;
 }
 
 export interface OktaUser {
