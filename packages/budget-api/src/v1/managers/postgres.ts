@@ -4,6 +4,8 @@ import { migration001 } from '../schema/postgres/migrations/001-createBudgetsTab
 import { migration002 } from '../schema/postgres/migrations/002-createTypesTable.sql';
 import { migration003 } from '../schema/postgres/migrations/003-createUsersTable.sql';
 import { migration004 } from '../schema/postgres/migrations/004-createItemsTable.sql';
+import { migration005 } from '../schema/postgres/migrations/005-createCategoriesTable.sql';
+import { migration006 } from '../schema/postgres/migrations/006-createSubcategoriesTable.sql';
 import budget from '../schema/postgres/seeds/budget.seeds.json';
 import item from '../schema/postgres/seeds/item.seeds.json';
 import itemType from '../schema/postgres/seeds/type.seeds.json';
@@ -176,11 +178,11 @@ export const getClient = async (): Promise<any> => {
 
   try {
     const sql = `
-      INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, category_guid, subcategory_guid, "dateCreated", "dateModified")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
-    const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label, new Date(), new Date()];
+    const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label, budgetItem.category_guid, budgetItem.subcategory_guid, new Date(), new Date()];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
     console.log(result);
@@ -198,7 +200,7 @@ export const getClient = async (): Promise<any> => {
     const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
     if (existingItems) {
       let sql = `
-        INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, "dateCreated", "dateModified")
+        INSERT INTO items (budget_guid, guid, "settledDate", type_id, amount, paid, label, category_guid, subcategory_guid, "dateCreated", "dateModified")
         VALUES
       `;
       const params: Array<any> = [];
@@ -220,6 +222,8 @@ export const getClient = async (): Promise<any> => {
         params.push(item.amount);
         params.push(false);
         params.push(item.label);
+        params.push(item.category_guid);
+        params.push(item.subcategory_guid);
         params.push(new Date());
         params.push(new Date());
       });
@@ -284,7 +288,9 @@ export const getClient = async (): Promise<any> => {
       await client.query(migration001),
       await client.query(migration002),
       await client.query(migration003),
-      await client.query(migration004)
+      await client.query(migration004),
+      await client.query(migration005),
+      await client.query(migration006)
     ])
     .then((results) => {
       return results;
