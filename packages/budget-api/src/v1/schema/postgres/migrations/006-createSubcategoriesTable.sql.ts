@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS subcategories (
 );
 
 ALTER TABLE items
-    ADD subcategory_guid character varying(36) REFERENCES subcategory(guid);
+    ADD subcategory_guid character varying(36) REFERENCES subcategories(guid);
 
 -- Indices -------------------------------------------------------
 

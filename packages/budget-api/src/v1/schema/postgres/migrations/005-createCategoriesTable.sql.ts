@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 ALTER TABLE items
-    ADD category_guid character varying(36) REFERENCES category(guid);
+    ADD category_guid character varying(36) REFERENCES categories(guid);
 
 -- Indices -------------------------------------------------------
 
