@@ -173,7 +173,7 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
- export const getCategoriesByBudget = async (budgetGuid: string): Promise<CategoryRecord | void> => {
+ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<CategoryRecord> | void> => {
   const client = await getClient();
 
   try {
@@ -186,7 +186,7 @@ export const getClient = async (): Promise<any> => {
     console.log('Executing sql', sql, params);
     const result: QueryResult<CategoryRecord> = await client.query(sql, params);
     console.log('Result returned', result);
-    return result.rows[0];
+    return result.rows;
   } catch (err) {
     console.log(err);
   } finally {
@@ -194,7 +194,7 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
- export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<CategoryRecord | void> => {
+ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Array<SubcategoryRecord> | void> => {
   const client = await getClient();
 
   try {
@@ -205,9 +205,9 @@ export const getClient = async (): Promise<any> => {
     `;
     const params = [budgetGuid];
     console.log('Executing sql', sql, params);
-    const result: QueryResult<CategoryRecord> = await client.query(sql, params);
+    const result: QueryResult<SubcategoryRecord> = await client.query(sql, params);
     console.log('Result returned', result);
-    return result.rows[0];
+    return result.rows;
   } catch (err) {
     console.log(err);
   } finally {
