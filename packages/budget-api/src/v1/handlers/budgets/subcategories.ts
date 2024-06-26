@@ -7,11 +7,11 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
   const budgetGuid = event.pathParameters?.budgetGuid || '';
 
   try {
-    const subcategories = await getSubcategoriesByBudget(budgetGuid);
+    const items = await getSubcategoriesByBudget(budgetGuid);
     
     return {
       statusCode: 200,
-      body: JSON.stringify({subcategories}),
+      body: JSON.stringify({items}),
     };
   } catch (err) {
     console.log(err);
