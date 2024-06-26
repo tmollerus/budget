@@ -10,7 +10,7 @@ import budget from '../schema/postgres/seeds/budget.seeds.json';
 import item from '../schema/postgres/seeds/item.seeds.json';
 import itemType from '../schema/postgres/seeds/type.seeds.json';
 import user from '../schema/postgres/seeds/user.seeds.json';
-import { BudgetRecord, ItemRecord, QueryResult } from '../types';
+import { BudgetRecord, CategoryRecord, ItemRecord, QueryResult, SubcategoryRecord } from '../types';
 import { getInsertColumnNames, getInsertValues, getSetStatementAndParams } from '../utils/db';
 import { logElapsedTime } from '../utils/event';
 import { getSecret } from './secrets';
@@ -173,6 +173,48 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
+ export const getCategoriesByBudget = async (budgetGuid: string): Promise<CategoryRecord | void> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      SELECT *
+      FROM categories
+      WHERE budget_guid = $1;
+    `;
+    const params = [budgetGuid];
+    console.log('Executing sql', sql, params);
+    const result: QueryResult<CategoryRecord> = await client.query(sql, params);
+    console.log('Result returned', result);
+    return result.rows[0];
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.end();
+  }
+ };
+
+ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<CategoryRecord | void> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      SELECT subcategories.*
+      FROM subcategories INNER JOIN categories ON subcategories.category_guid = categories.guid
+      WHERE categories.budget_guid = $1;
+    `;
+    const params = [budgetGuid];
+    console.log('Executing sql', sql, params);
+    const result: QueryResult<CategoryRecord> = await client.query(sql, params);
+    console.log('Result returned', result);
+    return result.rows[0];
+  } catch (err) {
+    console.log(err);
+  } finally {
+    client.end();
+  }
+ };
+
  export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<any> => {
   const client = await getClient();
 
@@ -183,6 +225,44 @@ export const getClient = async (): Promise<any> => {
       RETURNING *
     `;
     const params = [budgetGuid, uuidv4(), budgetItem.settledDate, budgetItem.type_id, budgetItem.amount, budgetItem.paid, budgetItem.label, budgetItem.category_guid, budgetItem.subcategory_guid, new Date(), new Date()];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result.rows[0];
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const createCategoryRecord = async (budgetGuid: string, category: CategoryRecord): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      INSERT INTO categories (budget_guid, guid, label, "dateCreated", "dateModified")
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    const params = [budgetGuid, uuidv4(), category.label, new Date(), new Date()];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result.rows[0];
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const createSubcategoryRecord = async (categoryGuid: string, subcategory: SubcategoryRecord): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      INSERT INTO subcategories (category_guid, guid, label, "dateCreated", "dateModified")
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+    const params = [categoryGuid, uuidv4(), subcategory.label, new Date(), new Date()];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
     console.log(result);
@@ -237,6 +317,45 @@ export const getClient = async (): Promise<any> => {
   }
 
   return false;
+ };
+
+ export const deleteCategory = async (budgetGuid: string, categoryGuid: string): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      DELETE
+      FROM categories
+      WHERE budget_guid = $1
+        AND guid = $2
+    `;
+    const params = [budgetGuid, categoryGuid];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+ };
+
+ export const deleteSubcategory = async (budgetGuid: string, subcategoryGuid: string): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const sql = `
+      DELETE subcategories
+      FROM subcategories JOIN categories ON subcategories.category_guid = categories.guid AND categories.budget_guid = $1
+      WHERE subcategories.guid = $2
+    `;
+    const params = [budgetGuid, subcategoryGuid];
+    console.log('Executing sql', sql, params);
+    const result = await client.query(sql, params);
+    console.log(result);
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
  };
 
  export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string): Promise<any> => {
