@@ -383,7 +383,7 @@ export class BudgetApiStack extends Stack {
       'CreateSubcategory',
       'postHandler',
       'src/v1/handlers/budgets/subcategory.ts',
-      '/v1/budgets/{budgetGuid}/category/{categoryGuid}/subcategories',
+      '/v1/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
       [ HttpMethod.POST ]
     );
   }

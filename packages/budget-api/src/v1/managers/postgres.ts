@@ -253,7 +253,7 @@ export const getClient = async (): Promise<any> => {
   }
  };
 
- export const createSubcategoryRecord = async (categoryGuid: string, subcategory: SubcategoryRecord): Promise<any> => {
+ export const createSubcategoryRecord = async (subcategory: SubcategoryRecord): Promise<any> => {
   const client = await getClient();
 
   try {
@@ -262,7 +262,7 @@ export const getClient = async (): Promise<any> => {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    const params = [categoryGuid, uuidv4(), subcategory.label, new Date(), new Date()];
+    const params = [subcategory.category_guid, uuidv4(), subcategory.label, new Date(), new Date()];
     console.log('Executing sql', sql, params);
     const result = await client.query(sql, params);
     console.log(result);

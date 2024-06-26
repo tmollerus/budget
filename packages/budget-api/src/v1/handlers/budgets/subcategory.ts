@@ -6,11 +6,11 @@ export const postHandler = async (event: APIGatewayEvent, context: Context): Pro
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
   // const budgetGuid = event.pathParameters?.budgetGuid || '';
-  const categoryGuid = event.pathParameters?.categoryGuid || '';
+  // const categoryGuid = event.pathParameters?.categoryGuid || '';
   const subcategory: SubcategoryRecord = JSON.parse(event.body || '{}');
 
   try {
-    const createdItem = await createSubcategoryRecord(categoryGuid, subcategory);
+    const createdItem = await createSubcategoryRecord(subcategory);
 
     return {
       statusCode: 200,
