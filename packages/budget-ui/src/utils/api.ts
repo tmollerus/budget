@@ -112,3 +112,71 @@ export const copyBudget = async (budgetGuid: string, sourceYear: number, destina
     return Promise.reject(err);
   });
 };
+
+export const getBudgetCategories = async (budgetGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    data.items.push({ guid: null, budget_guid: budgetGuid, label: 'Uncategorized'});
+    return data.items;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+export const createCategoryRecord = async (budgetGuid: string, category: any) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories`, {
+    method: 'POST',
+    body: JSON.stringify(Object.assign(category, {budget_guid: budgetGuid})),
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+export const getBudgetSubcategories = async (budgetGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/subcategories`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    data.items.push({ guid: null, category_guid: null, label: 'Uncategorized'});
+    return data.items;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+export const createSubcategoryRecord = async (budgetGuid: string, subcategory: any, categoryGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories/${categoryGuid}/subcategories`, {
+    method: 'POST',
+    body: JSON.stringify(Object.assign(subcategory, {budget_guid: budgetGuid})),
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};

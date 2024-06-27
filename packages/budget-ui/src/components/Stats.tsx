@@ -1,4 +1,5 @@
 import { BalanceChart } from './BalanceChart';
+import { PieChart } from './PieChart';
 import { useStyles } from './Stats.styles';
 import { StatTable } from './StatTable';
 
@@ -9,6 +10,7 @@ export const Stats = (props: any) => {
     <div className={classes.stats}>
       <StatTable />
       <BalanceChart />
+      <PieChart />
     </div>
   );
 };

@@ -3,39 +3,66 @@ import { Intent } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
 import { useStyles } from './Ledger.styles';
 import { useBudgetContext } from '../context';
-import { BudgetAuthResponse, LedgerDataItem, MessageType, PartialLedgerDataItem } from '../types';
+import {
+  BudgetAuthResponse,
+  Category,
+  LedgerDataItem,
+  MessageType,
+  PartialLedgerDataItem,
+  Subcategory,
+} from '../types';
 import { LedgerNav } from './LedgerNav';
 import {
   addLedgerDataItem,
   deleteLedgerDataItem,
   getMessage,
   updateItemBalances,
+  updateItemCategories,
   updateLedgerDataItem,
 } from '../utils/ledger';
 import {
   copyBudget,
+  createCategoryRecord,
   createEntry,
+  createSubcategoryRecord,
   deleteEntry,
+  getBudgetCategories,
   getBudgetGuid,
   getBudgetItems,
+  getBudgetSubcategories,
   updateEntry,
 } from '../utils/api';
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
 import { Table } from './Table';
 import { APP } from '../constants/app';
+import Categories from './Categories';
 
 export const Ledger = () => {
   const classes = useStyles();
   const history = useHistory();
-  const { budgetGuid, setBudgetGuid, budgetYear, setBudgetYear, ledgerData, setLedgerData } =
-    useBudgetContext();
+  const {
+    budgetGuid,
+    setBudgetGuid,
+    budgetYear,
+    setBudgetYear,
+    ledgerData,
+    setLedgerData,
+    categories,
+    setCategories,
+    subcategories,
+    setSubcategories,
+  } = useBudgetContext();
   const defaultDate = new Date();
   defaultDate.setFullYear(budgetYear);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [categoryToCreate, setCategoryToCreate] = useState<Category>();
+  const [subcategoryToCreate, setSubcategoryToCreate] = useState<Subcategory>();
+  const [itemToCategorize, setItemToCategorize] = useState<LedgerDataItem>();
   const [itemToDelete, setItemToDelete] = useState<LedgerDataItem>();
   const [dialogMessage, setDialogMessage] = useState<string>('');
+  const [isCategorizeDialogOpen, setIsCategorizeDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -43,6 +70,16 @@ export const Ledger = () => {
       if (!budgetGuid) {
         const budgetAuthResponse: BudgetAuthResponse = await getBudgetGuid();
         setBudgetGuid(budgetAuthResponse.budgetGuid);
+        const categories: Array<Category> = await getBudgetCategories(
+          budgetAuthResponse.budgetGuid,
+        );
+
+        setCategories(categories);
+        const subcategories: Array<Subcategory> = await getBudgetSubcategories(
+          budgetAuthResponse.budgetGuid,
+        );
+
+        setSubcategories(subcategories);
       }
     }
     checkBudgetGuid();
@@ -53,6 +90,8 @@ export const Ledger = () => {
     setLedgerData({ items: [] });
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     newLedgerData.items = updateItemBalances(newLedgerData);
+    newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
+    console.log(newLedgerData);
     setLedgerData(newLedgerData);
     setIsLoading(false);
   }, [budgetGuid, budgetYear, setLedgerData]);
@@ -81,6 +120,63 @@ export const Ledger = () => {
     } else {
       return false;
     }
+  };
+
+  const categorize = (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => {
+    event.preventDefault();
+    setItemToCategorize(item);
+    setDialogMessage(getMessage(MessageType.CONFIRM_CATEGORIZATION, item));
+    openCategorizeDialog();
+  };
+
+  const categorizeItem = async (
+    categorizedItem?: PartialLedgerDataItem,
+    originalItem?: LedgerDataItem,
+  ) => {
+    setIsCategorizeDialogOpen(false);
+    try {
+      if (itemToCategorize) {
+        if (categoryToCreate) {
+          const newCategory = await createCategoryRecord(budgetGuid, categoryToCreate);
+          itemToCategorize.category_guid = newCategory.guid;
+          categories.push(newCategory);
+          setCategories(categories);
+          setCategoryToCreate(undefined);
+        }
+        if (subcategoryToCreate) {
+          const newSubcategory = await createSubcategoryRecord(
+            budgetGuid,
+            subcategoryToCreate,
+            itemToCategorize.category_guid!,
+          );
+          itemToCategorize.subcategory_guid = newSubcategory.guid;
+          subcategories.push(newSubcategory);
+          setSubcategories(subcategories);
+          setSubcategoryToCreate(undefined);
+        }
+        setLedgerData(updateLedgerDataItem(ledgerData, itemToCategorize!));
+        await updateEntry(budgetGuid, itemToCategorize);
+        Toaster.show({
+          message: getMessage(MessageType.ITEM_CATEGORIZED, itemToCategorize!),
+          intent: Intent.SUCCESS,
+          icon: 'tick-circle',
+        });
+      }
+    } catch (err) {
+      // originalItem && updateLedgerDataItem(ledgerData, originalItem);
+      Toaster.show({
+        message: `An error occurred while trying to categorize the item`,
+        intent: Intent.DANGER,
+        icon: 'error',
+      });
+    }
+  };
+
+  const openCategorizeDialog = () => setIsCategorizeDialogOpen(true);
+
+  const closeCategorizeDialog = () => {
+    setIsCategorizeDialogOpen(false);
+    setItemToDelete(undefined);
   };
 
   const confirmDeletion = (
@@ -188,6 +284,7 @@ export const Ledger = () => {
       </div>
       <div className={classes.ledgerRight}>
         <Table
+          categorize={categorize}
           confirmDeletion={confirmDeletion}
           addItem={addItem}
           editItem={editItem}
@@ -196,6 +293,25 @@ export const Ledger = () => {
           isLoading={isLoading}
         />
       </div>
+      <Dialog
+        isOpen={isCategorizeDialogOpen && !!itemToCategorize}
+        title="Assign Categories"
+        onClose={closeCategorizeDialog}
+        message={dialogMessage}
+        cancelLabel="Cancel"
+        cancelIntent={Intent.NONE}
+        onCancel={closeCategorizeDialog}
+        actionLabel="Save"
+        actionIntent={Intent.PRIMARY}
+        actionIcon="saved"
+        onAction={async () => await categorizeItem()}
+      >
+        <Categories
+          itemToCategorize={itemToCategorize}
+          setCategoryToCreate={setCategoryToCreate}
+          setSubcategoryToCreate={setSubcategoryToCreate}
+        />
+      </Dialog>
       <Dialog
         isOpen={isDeleteDialogOpen && !!itemToDelete}
         title="Confirm deletion"

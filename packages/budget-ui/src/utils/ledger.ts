@@ -1,4 +1,4 @@
-import { ExtendedLedgerDataItem, LedgerData, LedgerDataItem, MessageType, PartialLedgerDataItem } from "../types";
+import { Category, ExtendedLedgerDataItem, LedgerData, LedgerDataItem, MessageType, PartialLedgerDataItem, Subcategory } from "../types";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 import { setToUTC } from './date';
 
@@ -28,6 +28,14 @@ export const deleteLedgerDataItem = (ledgerData: LedgerData, deletedItem: Partia
   return updatedLedgerData;
 };
 
+export const getCategoryNameByGuid = (guid: string, categories: Array<Category>): string => {
+  return categories.find((category: Category) => { return category.guid === guid; })?.label || '';
+};
+
+export const getSubcategoryNameByGuid = (guid: string, subcategories: Array<Subcategory>): string => {
+  return subcategories.find((subcategory: Subcategory) => { return subcategory.guid === guid; })?.label || '';
+};
+
 export const getLedgerDataItemByGuid = (ledgerData: LedgerData, itemGuid: string): LedgerDataItem | undefined => {
   const index = ledgerData.items.findIndex((item) => {
     return item.guid === itemGuid;
@@ -46,8 +54,12 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
   const itemType = getEntryTypeName(item.type_id).toLowerCase();
 
   switch(messageType) {
+    case MessageType.CONFIRM_CATEGORIZATION:
+      return `Please select categories for '${item.label}' for ${dollarFormat(item.amount)} on ${itemDate}.`;
     case MessageType.CONFIRM_DELETE:
       return `Are you sure you would like to delete the ${itemDate}, transaction '${item.label}' for ${dollarFormat(item.amount)}? This action cannot be undone.`;
+    case MessageType.ITEM_CATEGORIZED:
+      return `Successfully categorized ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.ITEM_DELETED:
       return `Successfully deleted ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.ITEM_ADDED:
@@ -101,6 +113,14 @@ export const updateItemBalances = (ledgerData: LedgerData): Array<ExtendedLedger
   });
 };
 
+export const updateItemCategories = (ledgerData: LedgerData, categories: Array<Category>, subcategories: Array<Subcategory>): Array<ExtendedLedgerDataItem> => {
+  return ledgerData.items.map((item: ExtendedLedgerDataItem) => {
+    const categoryName: string = getCategoryNameByGuid(item.category_guid!, categories);
+    const subcategoryName: string = getSubcategoryNameByGuid(item.subcategory_guid!, subcategories);
+    return Object.assign(item, { categoryName, subcategoryName });
+  });
+};
+
 export const updateLedgerDataItem = (ledgerData: LedgerData, updatedItem: PartialLedgerDataItem): LedgerData => {
   let updatedLedgerData = JSON.parse(JSON.stringify(ledgerData));
   const index = ledgerData.items.findIndex((item) => {
@@ -113,6 +133,8 @@ export const updateLedgerDataItem = (ledgerData: LedgerData, updatedItem: Partia
     updatedLedgerData.items[index].amount = updatedItem.amount;
     updatedLedgerData.items[index].paid = updatedItem.paid;
     updatedLedgerData.items[index].label = updatedItem.label;
+    updatedLedgerData.items[index].category_guid = updatedItem.category_guid;
+    updatedLedgerData.items[index].subcategory_guid = updatedItem.subcategory_guid;
     updatedLedgerData.items = sortLedgerData(updatedLedgerData);
     updatedLedgerData.items = updateItemBalances(updatedLedgerData);
   } else {

@@ -1,6 +1,7 @@
 import { Breakpoints } from "../types";
 
 export enum COLORS {
+  categories = '#395895',
   white = '#ffffff',
   sidebar = '#f2f2f2',
   silver = '#aaaaaa',

@@ -25,10 +25,15 @@ import {
 } from '../utils/table';
 import { Loader } from './Loader';
 import { useStyles } from './Table.styles';
-import { getLedgerDataItemByGuid } from '../utils/ledger';
+import {
+  getCategoryNameByGuid,
+  getLedgerDataItemByGuid,
+  getSubcategoryNameByGuid,
+} from '../utils/ledger';
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
 interface Props {
+  categorize: (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => void;
   confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => void;
   addItem: (newEntry: PartialLedgerDataItem) => Promise<boolean>;
   editItem: (editedEntry: PartialLedgerDataItem, originalEntry?: LedgerDataItem) => void;
@@ -39,7 +44,7 @@ interface Props {
 
 export const Table = (props: Props) => {
   const classes = useStyles();
-  const { budgetYear, ledgerData } = useBudgetContext();
+  const { budgetYear, ledgerData, categories, subcategories } = useBudgetContext();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredLedgerData, setFilteredLedgerData] = useState<LedgerData>(
     JSON.parse(JSON.stringify(ledgerData)),
@@ -100,7 +105,10 @@ export const Table = (props: Props) => {
     };
     newFilteredLedgerData.items = ledgerData.items.filter((item) => {
       return (
-        searchTerm.trim() === '' || item.label.toLowerCase().includes(searchTerm.toLowerCase())
+        searchTerm.trim() === '' ||
+        item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.categoryName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.subcategoryName?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
     setFilteredLedgerData(newFilteredLedgerData);
@@ -308,6 +316,7 @@ export const Table = (props: Props) => {
             className={getCellClassName(item, ColumnType.LABEL, [
               dateClassName,
               classes.tableRowItem,
+              classes.label,
             ])}
             data-header="Label"
           >
@@ -330,7 +339,13 @@ export const Table = (props: Props) => {
                 </button>
               </span>
             ) : (
-              item.label
+              <span className={classes.label}>
+                {item.label}{' '}
+                <span className={classes.categoryLabel}>
+                  / {getCategoryNameByGuid(item.category_guid!, categories)} /{' '}
+                  {getSubcategoryNameByGuid(item.subcategory_guid!, subcategories)}
+                </span>
+              </span>
             )}
           </div>
           <div
@@ -340,6 +355,15 @@ export const Table = (props: Props) => {
             ])}
             data-header="Delete"
           >
+            <span className={classes.categoryIcon}>
+              <span
+                className="material-icons md-18"
+                title="Categorize this item"
+                onClick={(e) => props.categorize(e, item)}
+              >
+                pie_chart_outline
+              </span>
+            </span>
             <span className={classes.deleteIcon}>
               <span
                 className="material-icons md-18"
