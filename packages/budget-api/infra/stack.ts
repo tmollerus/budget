@@ -354,6 +354,38 @@ export class BudgetApiStack extends Stack {
       '/v1/budgets/{budgetGuid}/items/{itemGuid}',
       [ HttpMethod.DELETE ]
     );
+
+    createLambdaAndRoute(
+      'GetCategories',
+      'getHandler',
+      'src/v1/handlers/budgets/categories.ts',
+      '/v1/budgets/{budgetGuid}/categories',
+      [ HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'CreateCategory',
+      'postHandler',
+      'src/v1/handlers/budgets/category.ts',
+      '/v1/budgets/{budgetGuid}/categories',
+      [ HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
+      'GetSubcategories',
+      'getHandler',
+      'src/v1/handlers/budgets/subcategories.ts',
+      '/v1/budgets/{budgetGuid}/subcategories',
+      [ HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'CreateSubcategory',
+      'postHandler',
+      'src/v1/handlers/budgets/subcategory.ts',
+      '/v1/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
+      [ HttpMethod.POST ]
+    );
   }
 }
 

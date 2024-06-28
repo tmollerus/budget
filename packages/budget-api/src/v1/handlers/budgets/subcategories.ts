@@ -1,0 +1,24 @@
+import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
+import { getCategoriesByBudget, getSubcategoriesByBudget } from '../../managers/postgres';
+
+export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  console.log(`Event: ${JSON.stringify(event, null, 2)}`);
+
+  const budgetGuid = event.pathParameters?.budgetGuid || '';
+
+  try {
+    const items = await getSubcategoriesByBudget(budgetGuid);
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({items}),
+    };
+  } catch (err) {
+    console.log(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({err}),
+    };
+  }
+};

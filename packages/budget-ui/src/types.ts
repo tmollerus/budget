@@ -1,5 +1,16 @@
 import { Dispatch, ReactNode, SetStateAction } from "react";
 
+export interface Category {
+  guid: string | null;
+  label: string;
+}
+
+export interface Subcategory {
+  guid: string | null;
+  category_guid: string | null;
+  label: string;
+}
+
 export interface BreakpointRange {
   top: number;
   bottom: number;
@@ -20,6 +31,10 @@ export type BudgetContextType = {
   setBudgetGuid: Dispatch<SetStateAction<string>>;
   ledgerData: LedgerData;
   setLedgerData: Dispatch<SetStateAction<LedgerData>>;
+  categories: Array<Category>;
+  setCategories: Dispatch<SetStateAction<Array<Category>>>;
+  subcategories: Array<Subcategory>;
+  setSubcategories: Dispatch<SetStateAction<Array<Subcategory>>>;
 }
 
 export type BudgetProviderProps = {
@@ -56,6 +71,8 @@ export interface PartialLedgerDataItem {
   amount: number;
   paid: boolean;
   label: string;
+  category_guid?: string;
+  subcategory_guid?: string;
 };
 
 export interface LedgerDataItem {
@@ -70,6 +87,10 @@ export interface LedgerDataItem {
   type_id: number;
   label: string;
   guid: string;
+  category_guid?: string;
+  categoryName?: string;
+  subcategory_guid?: string;
+  subcategoryName?: string;
 }
 
 export interface ExtendedLedgerDataItem extends LedgerDataItem {
@@ -83,7 +104,9 @@ export interface LedgerData {
 }
 
 export enum MessageType {
+  CONFIRM_CATEGORIZATION,
   CONFIRM_DELETE,
+  ITEM_CATEGORIZED,
   ITEM_DELETED,
   ITEM_ADDED,
   ITEM_EDITED,

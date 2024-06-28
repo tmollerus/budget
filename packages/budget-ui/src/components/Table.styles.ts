@@ -76,6 +76,12 @@ export const useStyles = createUseStyles({
     '&:hover $deleteIcon': {
       visibility: 'visible',
     },
+    '&:hover $categoryIcon': {
+      visibility: 'visible',
+    },
+    '&:hover $categoryLabel': {
+      visibility: 'visible',
+    },
   },
   tableRowCreate: {
     '& $tableRowItem': {
@@ -131,6 +137,21 @@ export const useStyles = createUseStyles({
       color: COLORS.expense,
     }
   },
+  categoryIcon: {
+    lineHeight: 1,
+    visibility: 'hidden',
+    marginRight: '4px',
+    ...iconStyles,
+    '&:hover': {
+      color: COLORS.categories,
+    }
+  },
+  categoryLabel: {
+    lineHeight: 1,
+    visibility: 'hidden',
+    marginleft: '4px',
+    color: COLORS.categories,
+  },
   firstOfDate: {
     color: 'inherit',
   },
@@ -143,6 +164,12 @@ export const useStyles = createUseStyles({
   expense: {
     textAlign: 'right',
     color: COLORS.expense,
+  },
+  label: {
+    display: 'block',
+    // textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
   },
   tableRowItem: {
     display: 'flex',

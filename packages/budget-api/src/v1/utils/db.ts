@@ -44,6 +44,14 @@ export const getSetStatementAndParams = (budgetGuid: string, budgetItem: ItemRec
     setStatement += `, "settledDate" = $${paramIndex++}`;
     setParameters.push(budgetItem.settledDate);
   }
+  if (budgetItem.category_guid) {
+    setStatement += `, category_guid = $${paramIndex++}`;
+    setParameters.push(budgetItem.category_guid);
+  }
+  if (budgetItem.subcategory_guid) {
+    setStatement += `, subcategory_guid = $${paramIndex++}`;
+    setParameters.push(budgetItem.subcategory_guid);
+  }
 
   return { setStatement, setParameters };
 };

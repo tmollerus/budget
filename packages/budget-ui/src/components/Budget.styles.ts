@@ -34,6 +34,8 @@ export const useStyles = createUseStyles({
     width: `${sidebarDimensions.statsWidth + sidebarDimensions.handleWidth}px`,
     flexBasis: 'auto',
     minHeight: '100vh',
+    overflowY: 'scroll',
+    maxHeight: '100vh',
     backgroundColor: 'transparent',
     alignSelf: 'flex-end',
     transition: 'margin-right .7s ease-out 0s',

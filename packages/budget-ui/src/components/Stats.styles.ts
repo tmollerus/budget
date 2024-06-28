@@ -9,6 +9,6 @@ export const useStyles = createUseStyles({
     borderLeft: '1px solid #cccccc',
     boxShadow: '0px 5px 5px rgb(0 0 0 / 10%)',
     padding: '1.6em',
-    width: '440px',
+    width: '100%',
   },
 });

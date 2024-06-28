@@ -27,6 +27,16 @@ export interface ItemRecord {
   type_id: number;
   label: string;
   guid: string;
+  category_guid?: string;
+  subcategory_guid?: string;
+}
+
+export interface CategoryRecord {
+  guid: string;
+  budget_guid: string;
+  label: string;
+  dateModified?: string;
+  dateCreated?: string;
 }
 
 export interface OktaUser {
@@ -64,4 +74,12 @@ export interface QueryResult<RecordType> {
 
 export interface Seeds {
   seeds: Array<Array<string | boolean | number>>;
+}
+
+export interface SubcategoryRecord {
+  guid: string;
+  category_guid: string;
+  label: string;
+  dateModified?: string;
+  dateCreated?: string;
 }

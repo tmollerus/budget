@@ -8,6 +8,7 @@ export const useStyles = createUseStyles({
   footer: {
     flex: '0 0 auto',
     margin: '0 20px',
+    paddingBottom: '20px',
   },
   footerActions: {
     display: 'flex',
