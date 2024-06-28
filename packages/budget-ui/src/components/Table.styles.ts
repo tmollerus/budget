@@ -150,6 +150,7 @@ export const useStyles = createUseStyles({
     lineHeight: 1,
     visibility: 'hidden',
     marginleft: '4px',
+    color: COLORS.categories,
   },
   firstOfDate: {
     color: 'inherit',

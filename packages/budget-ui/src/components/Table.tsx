@@ -342,8 +342,8 @@ export const Table = (props: Props) => {
               <span className={classes.label}>
                 {item.label}{' '}
                 <span className={classes.categoryLabel}>
-                  / {getCategoryNameByGuid(item.category_guid!, categories)} /{' '}
-                  {getSubcategoryNameByGuid(item.subcategory_guid!, subcategories)}
+                  [ {getCategoryNameByGuid(item.category_guid!, categories)} /{' '}
+                  {getSubcategoryNameByGuid(item.subcategory_guid!, subcategories)} ]
                 </span>
               </span>
             )}

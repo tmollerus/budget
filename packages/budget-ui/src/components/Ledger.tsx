@@ -139,6 +139,9 @@ export const Ledger = () => {
         if (categoryToCreate) {
           const newCategory = await createCategoryRecord(budgetGuid, categoryToCreate);
           itemToCategorize.category_guid = newCategory.guid;
+          if (subcategoryToCreate) {
+            subcategoryToCreate.category_guid = newCategory.guid;
+          }
           categories.push(newCategory);
           setCategories(categories);
           setCategoryToCreate(undefined);

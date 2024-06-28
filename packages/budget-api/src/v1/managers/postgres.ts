@@ -180,7 +180,8 @@ export const getClient = async (): Promise<any> => {
     const sql = `
       SELECT *
       FROM categories
-      WHERE budget_guid = $1;
+      WHERE budget_guid = $1
+      ORDER BY label DESC;
     `;
     const params = [budgetGuid];
     console.log('Executing sql', sql, params);
@@ -201,7 +202,8 @@ export const getClient = async (): Promise<any> => {
     const sql = `
       SELECT subcategories.*
       FROM subcategories INNER JOIN categories ON subcategories.category_guid = categories.guid
-      WHERE categories.budget_guid = $1;
+      WHERE categories.budget_guid = $1
+      ORDER BY subcategories.label DESC;
     `;
     const params = [budgetGuid];
     console.log('Executing sql', sql, params);

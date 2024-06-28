@@ -14,6 +14,14 @@ interface Props {
 const Categories = (props: Props) => {
   const classes = useStyles();
   const { categories, subcategories } = useBudgetContext();
+  const [filteredSubcategories, setFilteredSubcategories] = useState<Array<Subcategory>>(
+    subcategories.filter((subcategory) => {
+      return (
+        subcategory.category_guid === props.itemToCategorize?.category_guid ||
+        subcategory.guid === undefined
+      );
+    }),
+  );
   const [selectedCategory, setSelectedCategory] = useState<Category | undefined>(
     categories?.find((element) => element.guid === props.itemToCategorize?.category_guid) ||
       categories[0],
@@ -82,6 +90,11 @@ const Categories = (props: Props) => {
       props.setCategoryToCreate(category);
     }
     setSelectedCategory(category);
+    setFilteredSubcategories(
+      subcategories.filter((subcategory: Subcategory) => {
+        return subcategory.category_guid === category.guid || subcategory.guid === undefined;
+      }),
+    );
   };
 
   const saveItemSubcategory = (subcategory: Subcategory) => {
@@ -111,12 +124,18 @@ const Categories = (props: Props) => {
     );
   };
 
-  const filterCategory: ItemPredicate<Category | Subcategory> = (
-    query,
-    category,
-    _index,
-    exactMatch,
-  ) => {
+  const filterCategory: ItemPredicate<Category> = (query, category, _index, exactMatch) => {
+    const normalizedTitle = category.label.toLowerCase();
+    const normalizedQuery = query.toLowerCase();
+
+    if (exactMatch) {
+      return normalizedTitle === normalizedQuery;
+    } else {
+      return category.label.indexOf(normalizedQuery) >= 0;
+    }
+  };
+
+  const filterSubcategory: ItemPredicate<Subcategory> = (query, category, _index, exactMatch) => {
     const normalizedTitle = category.label.toLowerCase();
     const normalizedQuery = query.toLowerCase();
 
@@ -129,7 +148,7 @@ const Categories = (props: Props) => {
 
   return (
     <div>
-      <div>
+      <div className={classes.row}>
         Category:{' '}
         <Select2<Category>
           className={classes.select2}
@@ -152,8 +171,8 @@ const Categories = (props: Props) => {
         Subcategory:{' '}
         <Select2<Subcategory>
           className={classes.select2}
-          items={subcategories}
-          itemPredicate={filterCategory}
+          items={filteredSubcategories}
+          itemPredicate={filterSubcategory}
           itemRenderer={renderCategory}
           onItemSelect={saveItemSubcategory}
           activeItem={selectedSubcategory}

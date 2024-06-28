@@ -43,7 +43,10 @@ export const StatTable = () => {
   };
 
   const outlook = getOutlook();
-  const spendingDiff = (statistics?.incomeTotal || 0) - (statistics?.transferTotal || 0) - (statistics?.expenseTotal || 0);
+  const spendingDiff =
+    (statistics?.incomeTotal || 0) -
+    (statistics?.transferTotal || 0) -
+    (statistics?.expenseTotal || 0);
 
   return (
     <div className={classes.statTable}>
@@ -62,18 +65,18 @@ export const StatTable = () => {
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.today || 0))}
               </td>
             </tr>
-            <tr>
+            {/* <tr>
               <td>Expenses left this month</td>
               <td className={getIncomeClass(statistics?.expensesLeft || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.expensesLeft || 0))}
               </td>
-            </tr>
-            <tr>
+            </tr> */}
+            {/* <tr>
               <td>Outlook</td>
               <td className={getIncomeClass(outlook.indexOf('Deficit') > -1 ? -1 : 1, !ledgerData.items)}>
                 {showDataOrPlaceholder(outlook)}
               </td>
-            </tr>
+            </tr> */}
             <tr>
               <td>Projected year-end</td>
               <td className={getIncomeClass(statistics?.yearEnd || 0, !ledgerData.items)}>
@@ -94,7 +97,9 @@ export const StatTable = () => {
             <tr>
               <td>Income</td>
               <td className={getIncomeClass(statistics?.incomeTotal || 0, !ledgerData.items)}>
-                {showDataOrPlaceholder(getFormattedAmount((statistics?.incomeTotal || 0) / 12, '/mo.'))}
+                {showDataOrPlaceholder(
+                  getFormattedAmount((statistics?.incomeTotal || 0) / 12, '/mo.'),
+                )}
               </td>
               <td className={getIncomeClass(statistics?.incomeTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.incomeTotal || 0))}
@@ -103,16 +108,20 @@ export const StatTable = () => {
             <tr>
               <td>Operating Expenses</td>
               <td className={getIncomeClass(statistics?.expenseTotal || 0, !ledgerData.items)}>
-                {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0) / 12, '/mo.'))}
+                {showDataOrPlaceholder(
+                  getFormattedAmount((statistics?.expenseTotal || 0) / 12, '/mo.'),
+                )}
               </td>
               <td className={getIncomeClass(statistics?.expenseTotal || 0, !ledgerData.items)}>
-                {showDataOrPlaceholder(getFormattedAmount((statistics?.expenseTotal || 0)))}
+                {showDataOrPlaceholder(getFormattedAmount(statistics?.expenseTotal || 0))}
               </td>
             </tr>
             <tr>
               <td>Discretionary Spending</td>
               <td className={getIncomeClass(statistics?.transferTotal || 0, !ledgerData.items)}>
-                {showDataOrPlaceholder(getFormattedAmount((statistics?.transferTotal || 0) / 12, '/mo.'))}
+                {showDataOrPlaceholder(
+                  getFormattedAmount((statistics?.transferTotal || 0) / 12, '/mo.'),
+                )}
               </td>
               <td className={getIncomeClass(statistics?.transferTotal || 0, !ledgerData.items)}>
                 {showDataOrPlaceholder(getFormattedAmount(statistics?.transferTotal || 0))}
