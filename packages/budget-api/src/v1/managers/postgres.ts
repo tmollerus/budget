@@ -293,7 +293,7 @@ export const getClient = async (): Promise<any> => {
         if (index > 0) {
           sql += ', ';
         }
-        sql += ` ($${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++})`;
+        sql += ` ($${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++}, $${paramCounter++})`;
         // Append to the params array
         let newSettledDate = new Date(item.settledDate);
         newSettledDate.setFullYear(Number(fromYear) + 1);
