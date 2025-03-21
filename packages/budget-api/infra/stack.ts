@@ -61,8 +61,9 @@ export class BudgetApiStack extends Stack {
           },
           vpc,
           vpcSubnets: vpc.selectSubnets({
-            subnetType: SubnetType.PRIVATE_WITH_NAT,
+            subnetType: SubnetType.PUBLIC,
           }),
+          allowPublicSubnet: true,
           securityGroups: [lambdaSecurityGroup],
         }
       );
@@ -181,7 +182,7 @@ export class BudgetApiStack extends Stack {
         ),
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
+          subnetType: SubnetType.PUBLIC,
         }),
         databaseName,
         securityGroups: [dbSecurityGroup],
@@ -208,7 +209,7 @@ export class BudgetApiStack extends Stack {
       vpc,
       requireTLS: false,
       vpcSubnets: vpc.selectSubnets({
-        subnetType: SubnetType.PRIVATE_WITH_NAT,
+        subnetType: SubnetType.PUBLIC,
       }),
     });
 
@@ -228,8 +229,9 @@ export class BudgetApiStack extends Stack {
         },
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
+          subnetType: SubnetType.PUBLIC,
         }),
+        allowPublicSubnet: true,
         securityGroups: [lambdaSecurityGroup],
         environment: {
           REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
