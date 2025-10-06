@@ -1,5 +1,5 @@
 export const OKTA = {
-  CLIENT_ID: '0oadta7owi7ILYmIA0h7',
-  ORG_URL: 'https://dev-374496.oktapreview.com',
+  CLIENT_ID: '0oaw5tenfspyruAuJ697',
+  ORG_DOMAIN: 'integrator-7909563.okta.com',
   TOKEN_STORAGE_KEY: 'okta-token-storage',
 };
