@@ -1,3 +1,10 @@
+# [budget-ui-v3.21.3](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.2...budget-ui-v3.21.3) (2025-10-06)
+
+
+### Bug Fixes
+
+* Updated Okta developer account ([#87](https://github.com/tmollerus/budget/issues/87)) ([b410e01](https://github.com/tmollerus/budget/commit/b410e0171f6d8665482a63f82eab471902507df7))
+
 # [budget-ui-v3.21.2](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.1...budget-ui-v3.21.2) (2024-06-04)
 
 
