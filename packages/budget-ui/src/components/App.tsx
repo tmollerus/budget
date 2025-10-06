@@ -13,10 +13,10 @@ import Logout from './Logout';
   const currentYear = (new Date()).getFullYear();
 
   const oktaAuth = new OktaAuth({
-    issuer: `${OKTA.ORG_URL}/oauth2/default`,
+    issuer: `https://${OKTA.ORG_DOMAIN}/oauth2/default`,
     clientId: OKTA.CLIENT_ID,
     redirectUri: window.location.origin + '/implicit/callback',
-    pkce: false,
+    pkce: true,
   });
 
   const customAuthHandler = (oktaAuth: OktaAuth) => {
