@@ -12,6 +12,9 @@ on:
     paths:
       - 'packages/budget-api/**'
 
+concurrency:
+  group: budget-api
+
 env:
   AWS_REGION: us-east-1
 
