@@ -91,7 +91,6 @@ export const Ledger = () => {
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     newLedgerData.items = updateItemBalances(newLedgerData);
     newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
-    console.log(newLedgerData);
     setLedgerData(newLedgerData);
     setIsLoading(false);
   }, [budgetGuid, budgetYear, setLedgerData]);

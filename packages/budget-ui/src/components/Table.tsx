@@ -29,6 +29,7 @@ import {
   getCategoryNameByGuid,
   getLedgerDataItemByGuid,
   getSubcategoryNameByGuid,
+  updateItemCategories,
 } from '../utils/ledger';
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
@@ -103,7 +104,10 @@ export const Table = (props: Props) => {
     const newFilteredLedgerData: LedgerData = {
       items: [],
     };
-    newFilteredLedgerData.items = ledgerData.items.filter((item) => {
+    newFilteredLedgerData.items = updateItemCategories(ledgerData, categories, subcategories).filter((item) => {
+      if(!item.categoryName) {
+        console.log(item);
+      }
       return (
         searchTerm.trim() === '' ||
         item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
