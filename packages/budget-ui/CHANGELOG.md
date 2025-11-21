@@ -1,3 +1,15 @@
+# [budget-ui-v3.22.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.3...budget-ui-v3.22.0) (2025-11-21)
+
+
+### Bug Fixes
+
+* cleaned up semrelease-monorepo deps ([#95](https://github.com/tmollerus/budget/issues/95)) ([0daae50](https://github.com/tmollerus/budget/commit/0daae50d8450adee7bd9f60c3397ec997b8f7cb0))
+
+
+### Features
+
+* enabled filtering by cat & subcat ([#94](https://github.com/tmollerus/budget/issues/94)) ([1971fb5](https://github.com/tmollerus/budget/commit/1971fb5ff2ea09a372a81e2714626e75c341f77c))
+
 # [budget-ui-v3.21.3](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.2...budget-ui-v3.21.3) (2025-10-06)
 
 
