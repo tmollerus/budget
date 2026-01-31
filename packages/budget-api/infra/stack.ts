@@ -88,17 +88,17 @@ export class BudgetApiStack extends Stack {
       natGateways: 1,
       subnetConfiguration: [
         {
-          cidrMask: 24,
+          cidrMask: 16,
           name: `${STACK_NAME}-Vpc-Subnet-PUB`,
           subnetType: aws_ec2.SubnetType.PUBLIC,
         },
         {
-          cidrMask: 26,
-          name: `${STACK_NAME}-Vpc-Subnet-Private`,
+          cidrMask: 18,
+          name: `${STACK_NAME}-Vpc-Subnet-PrivateWithEgress`,
           subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
         {
-          cidrMask: 28,
+          cidrMask: 20,
           name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
           subnetType: SUBNET_TYPE,
         },
