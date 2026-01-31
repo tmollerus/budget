@@ -1,4 +1,4 @@
-import { CorsHttpMethod } from '@aws-cdk/aws-apigatewayv2';
+import { aws_apigatewayv2 } from 'aws-cdk-lib';
 import { LOCAL_DOMAIN } from "../constants/environment";
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from "./cdk";
 
@@ -22,10 +22,10 @@ describe('CDK utility', () => {
   test('getAllowedPreflightMethods', () => {
     expect(getAllowedPreflightMethods()).toBeInstanceOf(Array);
     expect(getAllowedPreflightMethods().length).toBeGreaterThan(0);
-    expect(getAllowedPreflightMethods().includes(CorsHttpMethod.GET)).toBeTruthy();
-    expect(getAllowedPreflightMethods().includes(CorsHttpMethod.HEAD)).toBeTruthy();
-    expect(getAllowedPreflightMethods().includes(CorsHttpMethod.OPTIONS)).toBeTruthy();
-    expect(getAllowedPreflightMethods().includes(CorsHttpMethod.POST)).toBeTruthy();
-    expect(getAllowedPreflightMethods().includes(CorsHttpMethod.PUT)).toBeTruthy();
+    expect(getAllowedPreflightMethods().includes(aws_apigatewayv2.CorsHttpMethod.GET)).toBeTruthy();
+    expect(getAllowedPreflightMethods().includes(aws_apigatewayv2.CorsHttpMethod.HEAD)).toBeTruthy();
+    expect(getAllowedPreflightMethods().includes(aws_apigatewayv2.CorsHttpMethod.OPTIONS)).toBeTruthy();
+    expect(getAllowedPreflightMethods().includes(aws_apigatewayv2.CorsHttpMethod.POST)).toBeTruthy();
+    expect(getAllowedPreflightMethods().includes(aws_apigatewayv2.CorsHttpMethod.PUT)).toBeTruthy();
   });
 });

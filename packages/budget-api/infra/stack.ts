@@ -1,17 +1,7 @@
-import { App, Construct, Duration, Stack, StackProps } from '@aws-cdk/core';
-import { DomainName, HttpApi, HttpMethod } from '@aws-cdk/aws-apigatewayv2';
-import { HttpLambdaAuthorizer, HttpLambdaResponseType } from '@aws-cdk/aws-apigatewayv2-authorizers';
-import { Certificate } from '@aws-cdk/aws-certificatemanager';
-import { CfnCacheCluster, CfnSubnetGroup } from '@aws-cdk/aws-elasticache';
-import { Secret } from '@aws-cdk/aws-secretsmanager';
-import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations';
-import { InstanceClass, InstanceSize, InstanceType, Port, SecurityGroup, SubnetType, Vpc } from '@aws-cdk/aws-ec2';
-import { IFunction, Runtime } from '@aws-cdk/aws-lambda';
-import { NodejsFunction } from '@aws-cdk/aws-lambda-nodejs';
-import { Credentials, DatabaseInstance, DatabaseInstanceEngine, DatabaseProxy, PostgresEngineVersion, ProxyTarget } from '@aws-cdk/aws-rds';
+import { App, Duration, Stack, StackProps, aws_lambda, aws_apigatewayv2, aws_apigatewayv2_authorizers, aws_apigatewayv2_integrations, aws_certificatemanager, aws_elasticache, aws_iam, aws_ec2, aws_rds, aws_secretsmanager } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
-import { ManagedPolicy } from '@aws-cdk/aws-iam';
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
 // and https://sewb.dev/posts/cdk-series:-creating-an-elasticache-cluster-bc1zupe
@@ -32,42 +22,44 @@ export class BudgetApiStack extends Stack {
     const STACK_NAME = `${process.env.ENV_NAME}-${id}`;
     const ALLOWED_ORIGINS = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
     const CERT_ARN = 'arn:aws:acm:us-east-1:360115878429:certificate/6432f08a-5ab8-442b-be1c-6ceaabe27f0a';
+    const SUBNET_TYPE = aws_ec2.SubnetType.PRIVATE_ISOLATED;
 
     const createLambdaAndRoute = (
       lambdaName: string,
       lambdaHandler: string,
       lambdaEntry: string,
       route: string,
-      httpMethods: Array<HttpMethod>,
+      httpMethods: Array<aws_apigatewayv2.HttpMethod>,
     ) => {
-      const lambda = new NodejsFunction(
+      const lambda: aws_lambda.IFunction = new aws_lambda.Function(
         this,
         `${STACK_NAME}-${lambdaName}Lambda`,
         {
-          runtime: Runtime.NODEJS_16_X,
+          runtime: aws_lambda.Runtime.NODEJS_24_X,
           functionName: `${STACK_NAME}-${lambdaName}`,
           handler: lambdaHandler,
-          entry: lambdaEntry,
+          // entry: lambdaEntry,
+          code: aws_lambda.Code.fromAsset(lambdaEntry),
           timeout: Duration.seconds(60),
-          bundling: {
-            externalModules: [
-              'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-              'pg-native',
-            ],
-          },
+          // bundling: {
+          //   externalModules: [
+          //     'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+          //     'pg-native',
+          //   ],
+          // },
           environment: {
             ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
             REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
           },
           vpc,
           vpcSubnets: vpc.selectSubnets({
-            subnetType: SubnetType.PRIVATE_WITH_NAT,
+            subnetType: SUBNET_TYPE,
           }),
           securityGroups: [lambdaSecurityGroup],
         }
       );
       secret.grantRead(lambda);
-      const integration = new HttpLambdaIntegration(
+      const integration = new aws_apigatewayv2_integrations.HttpLambdaIntegration(
         `${STACK_NAME}-${lambdaName}Integration`,
         lambda
       );
@@ -79,34 +71,37 @@ export class BudgetApiStack extends Stack {
       });
 
       lambda.role?.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName(
+        aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
           'AmazonElastiCacheFullAccess',
         ),
       );
       lambda.role?.addManagedPolicy(
-        ManagedPolicy.fromAwsManagedPolicyName(
+        aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
           'service-role/AWSLambdaENIManagementAccess',
         ),
       );
     };
 
-    const vpc = new Vpc(this, `${STACK_NAME}-Vpc`, {
+    const vpc = new aws_ec2.Vpc(
+      this,
+      `${STACK_NAME}-Vpc`,
+      {
       maxAzs: 2,
       subnetConfiguration: [
         {
           cidrMask: 24,
           name: `${STACK_NAME}-Vpc-Subnet-PWN`,
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
-        },
-        {
-          cidrMask: 24,
-          name: `${STACK_NAME}-Vpc-Subnet-PUB`,
-          subnetType: SubnetType.PUBLIC,
-        },
+          subnetType: SUBNET_TYPE,
+        }
+        // {
+        //   cidrMask: 24,
+        //   name: `${STACK_NAME}-Vpc-Subnet-PUB`,
+        //   subnetType: aws_ec2.SubnetType.PUBLIC,
+        // },
       ],
     });
 
-    const dbSecurityGroup = new SecurityGroup(
+    const dbSecurityGroup = new aws_ec2.SecurityGroup(
       this,
       `${STACK_NAME}-dbSecurityGroup`,
       {
@@ -114,7 +109,7 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const lambdaSecurityGroup = new SecurityGroup(
+    const lambdaSecurityGroup = new aws_ec2.SecurityGroup(
       this,
       `${STACK_NAME}-lambdaSecurityGroup`,
       {
@@ -124,11 +119,11 @@ export class BudgetApiStack extends Stack {
 
     dbSecurityGroup.addIngressRule(
       lambdaSecurityGroup,
-      Port.tcp(5432),
+      aws_ec2.Port.tcp(5432),
       'Allow lambdas to access budget postgres database'
     );
 
-    const redisSecurityGroup = new SecurityGroup(
+    const redisSecurityGroup = new aws_ec2.SecurityGroup(
       this,
       `${STACK_NAME}-redisSecurityGroup`,
       {
@@ -138,11 +133,11 @@ export class BudgetApiStack extends Stack {
 
     lambdaSecurityGroup.connections.allowTo(
       redisSecurityGroup,
-      Port.tcp(6379),
+      aws_ec2.Port.tcp(6379),
       "Allow this lambda function connect to the redis cache"
     );
 
-    const redisSubnetGroup = new CfnSubnetGroup(
+    const redisSubnetGroup = new aws_elasticache.CfnSubnetGroup(
       this,
       `${STACK_NAME}-redisSubnetGroup`,
       {
@@ -152,7 +147,7 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const redisCache = new CfnCacheCluster(
+    const redisCache = new aws_elasticache.CfnCacheCluster(
       this,
       `${STACK_NAME}-RedisCache`,
       {
@@ -168,32 +163,33 @@ export class BudgetApiStack extends Stack {
     );
     
     const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
-    const db = new DatabaseInstance(
+    const db = new aws_rds.DatabaseInstance(
       this,
       `${STACK_NAME}-Database`,
       {
-        engine: DatabaseInstanceEngine.postgres({
-          version: PostgresEngineVersion.VER_14_2,
+        engine: aws_rds.DatabaseInstanceEngine.postgres({
+          version: aws_rds.PostgresEngineVersion.VER_14_20,
         }),
-        instanceType: InstanceType.of(
-          InstanceClass.BURSTABLE3,
-          InstanceSize.MICRO
+        instanceType: aws_ec2.InstanceType.of(
+          aws_ec2.InstanceClass.BURSTABLE3,
+          aws_ec2.InstanceSize.MICRO
         ),
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
+          subnetType: SUBNET_TYPE,
         }),
         databaseName,
         securityGroups: [dbSecurityGroup],
-        credentials: Credentials.fromGeneratedSecret('postgres'),
+        credentials: aws_rds.Credentials.fromGeneratedSecret('postgres'),
         allocatedStorage: 10,
         maxAllocatedStorage: 200,
         allowMajorVersionUpgrade: true,
       }
     );
-    db.connections.allowFromAnyIpv4(Port.tcp(5432))
+    db.connections.allowFromAnyIpv4(aws_ec2.Port.tcp(5432))
 
-    const secret = new Secret(this,
+    const secret = new aws_secretsmanager.Secret(
+      this,
       `${STACK_NAME}-Secret`,
       {
         description: `Secret for Budget API`,
@@ -201,34 +197,38 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const dbProxy = new DatabaseProxy(this, 'Proxy', {
-      proxyTarget: ProxyTarget.fromInstance(db),
-      secrets: [db.secret!],
-      securityGroups: [dbSecurityGroup],
-      vpc,
-      requireTLS: false,
-      vpcSubnets: vpc.selectSubnets({
-        subnetType: SubnetType.PRIVATE_WITH_NAT,
-      }),
-    });
+    const dbProxy = new aws_rds.DatabaseProxy(
+      this,
+      'Proxy',
+      {
+        proxyTarget: aws_rds.ProxyTarget.fromInstance(db),
+        secrets: [db.secret!],
+        securityGroups: [dbSecurityGroup],
+        vpc,
+        requireTLS: false,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SUBNET_TYPE,
+        }),
+      }
+    );
 
-    const authorizerLambda: IFunction = new NodejsFunction(
+    const authorizerLambda: aws_lambda.IFunction = new aws_lambda.Function(
       this,
       `${STACK_NAME}-AuthorizerLambda`,
       {
-        runtime: Runtime.NODEJS_16_X,
+        runtime: aws_lambda.Runtime.NODEJS_24_X,
         functionName: `${STACK_NAME}-AuthorizerLambda`,
         handler: 'handler',
-        entry: 'src/v1/authorizer/index.ts',
-        bundling: {
-          externalModules: [
-            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-            'pg-native',
-          ],
-        },
+        code: aws_lambda.Code.fromAsset('src/v1/authorizer/index.ts'),
+        // bundling: {
+        //   externalModules: [
+        //     'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+        //     'pg-native',
+        //   ],
+        // },
         vpc,
         vpcSubnets: vpc.selectSubnets({
-          subnetType: SubnetType.PRIVATE_WITH_NAT,
+          subnetType: SUBNET_TYPE,
         }),
         securityGroups: [lambdaSecurityGroup],
         environment: {
@@ -238,35 +238,35 @@ export class BudgetApiStack extends Stack {
     );
     secret.grantRead(authorizerLambda);
     authorizerLambda.role?.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
         'AmazonElastiCacheFullAccess',
       ),
     );
     authorizerLambda.role?.addManagedPolicy(
-      ManagedPolicy.fromAwsManagedPolicyName(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
         'service-role/AWSLambdaENIManagementAccess',
       ),
     );
 
-    const authorizer = new HttpLambdaAuthorizer(
+    const authorizer = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
       `${STACK_NAME}-HttpLambdaAuthorizer`,
       authorizerLambda,
       {
-        responseTypes: [HttpLambdaResponseType.IAM],
+        responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
         resultsCacheTtl: Duration.seconds(0),
       }
     );
 
-    const domainName = new DomainName(
+    const domainName = new aws_apigatewayv2.DomainName(
       this,
       `${STACK_NAME}-DomainName`,
       {
         domainName: process.env.DOMAIN_NAME || '',
-        certificate: Certificate.fromCertificateArn(this, 'cert', CERT_ARN),
+        certificate: aws_certificatemanager.Certificate.fromCertificateArn(this, 'cert', CERT_ARN),
       }
     );
 
-    const budgetApi = new HttpApi(
+    const budgetApi = new aws_apigatewayv2.HttpApi(
       this,
       `${STACK_NAME}-HttpApi`,
       {
@@ -288,7 +288,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/auth/login/item.ts',
       '/v1/auth/login',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -296,7 +296,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/db/migrations/item.ts',
       '/v1/db/migrations',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -304,7 +304,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/db/seeds/item.ts',
       '/v1/db/seeds',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -312,7 +312,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/db/describe/item.ts',
       '/v1/db/describe',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -320,7 +320,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/budgets/items.ts',
       '/v1/budgets/{budgetGuid}/items',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -328,7 +328,7 @@ export class BudgetApiStack extends Stack {
       'postHandler',
       'src/v1/handlers/budgets/items.ts',
       '/v1/budgets/{budgetGuid}/items/copy',
-      [ HttpMethod.POST ]
+      [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
@@ -336,7 +336,7 @@ export class BudgetApiStack extends Stack {
       'postHandler',
       'src/v1/handlers/budgets/item.ts',
       '/v1/budgets/{budgetGuid}/items',
-      [ HttpMethod.POST ]
+      [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
@@ -344,7 +344,7 @@ export class BudgetApiStack extends Stack {
       'putHandler',
       'src/v1/handlers/budgets/item.ts',
       '/v1/budgets/{budgetGuid}/items/{itemGuid}',
-      [ HttpMethod.PUT ]
+      [ aws_apigatewayv2.HttpMethod.PUT ]
     );
 
     createLambdaAndRoute(
@@ -352,7 +352,7 @@ export class BudgetApiStack extends Stack {
       'deleteHandler',
       'src/v1/handlers/budgets/item.ts',
       '/v1/budgets/{budgetGuid}/items/{itemGuid}',
-      [ HttpMethod.DELETE ]
+      [ aws_apigatewayv2.HttpMethod.DELETE ]
     );
 
     createLambdaAndRoute(
@@ -360,7 +360,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/budgets/categories.ts',
       '/v1/budgets/{budgetGuid}/categories',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -368,7 +368,7 @@ export class BudgetApiStack extends Stack {
       'postHandler',
       'src/v1/handlers/budgets/category.ts',
       '/v1/budgets/{budgetGuid}/categories',
-      [ HttpMethod.POST ]
+      [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
@@ -376,7 +376,7 @@ export class BudgetApiStack extends Stack {
       'getHandler',
       'src/v1/handlers/budgets/subcategories.ts',
       '/v1/budgets/{budgetGuid}/subcategories',
-      [ HttpMethod.GET ]
+      [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
@@ -384,7 +384,7 @@ export class BudgetApiStack extends Stack {
       'postHandler',
       'src/v1/handlers/budgets/subcategory.ts',
       '/v1/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
-      [ HttpMethod.POST ]
+      [ aws_apigatewayv2.HttpMethod.POST ]
     );
   }
 }
