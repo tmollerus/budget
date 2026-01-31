@@ -1,7 +1,9 @@
 import { App, Duration, Stack, StackProps, aws_lambda, aws_apigatewayv2, aws_apigatewayv2_authorizers, aws_apigatewayv2_integrations, aws_certificatemanager, aws_elasticache, aws_iam, aws_ec2, aws_rds, aws_secretsmanager } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
+import path = require('path');
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
 // and https://sewb.dev/posts/cdk-series:-creating-an-elasticache-cluster-bc1zupe
@@ -31,33 +33,28 @@ export class BudgetApiStack extends Stack {
       route: string,
       httpMethods: Array<aws_apigatewayv2.HttpMethod>,
     ) => {
-      const lambda: aws_lambda.IFunction = new aws_lambda.Function(
-        this,
-        `${STACK_NAME}-${lambdaName}Lambda`,
-        {
-          runtime: aws_lambda.Runtime.NODEJS_24_X,
-          functionName: `${STACK_NAME}-${lambdaName}`,
-          handler: lambdaHandler,
-          // entry: lambdaEntry,
-          code: aws_lambda.Code.fromAsset(lambdaEntry),
-          timeout: Duration.seconds(60),
-          // bundling: {
-          //   externalModules: [
-          //     'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-          //     'pg-native',
-          //   ],
-          // },
-          environment: {
-            ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
-            REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
-          },
-          vpc,
-          vpcSubnets: vpc.selectSubnets({
-            subnetType: SUBNET_TYPE,
-          }),
-          securityGroups: [lambdaSecurityGroup],
-        }
-      );
+      const lambda: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-${lambdaName}Lambda`, {
+        runtime: aws_lambda.Runtime.NODEJS_24_X,
+        functionName: `${STACK_NAME}-${lambdaName}`,
+        handler: lambdaHandler,
+        entry: path.join(__dirname, '..', lambdaEntry),
+        timeout: Duration.seconds(60),
+        bundling: {
+          externalModules: [
+            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
+            'pg-native',
+          ],
+        },
+        environment: {
+          ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
+          REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
+        },
+        vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SUBNET_TYPE,
+        }),
+        securityGroups: [lambdaSecurityGroup],
+      });
       secret.grantRead(lambda);
       const integration = new aws_apigatewayv2_integrations.HttpLambdaIntegration(
         `${STACK_NAME}-${lambdaName}Integration`,
@@ -212,30 +209,26 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const authorizerLambda: aws_lambda.IFunction = new aws_lambda.Function(
-      this,
-      `${STACK_NAME}-AuthorizerLambda`,
-      {
-        runtime: aws_lambda.Runtime.NODEJS_24_X,
-        functionName: `${STACK_NAME}-AuthorizerLambda`,
-        handler: 'handler',
-        code: aws_lambda.Code.fromAsset('src/v1/authorizer/index.ts'),
-        // bundling: {
-        //   externalModules: [
-        //     'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
-        //     'pg-native',
-        //   ],
-        // },
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SUBNET_TYPE,
-        }),
-        securityGroups: [lambdaSecurityGroup],
-        environment: {
-          REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
-        }
+    const authorizerLambda: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
+      runtime: aws_lambda.Runtime.NODEJS_24_X,
+      functionName: `${STACK_NAME}-AuthorizerLambda`,
+      handler: 'handler',
+      entry: path.join(__dirname, '..', 'src', 'v1', 'authorizer', 'index.ts'),
+      bundling: {
+        externalModules: [
+          'aws-sdk',
+          'pg-native',
+        ],
+      },
+      vpc,
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: SUBNET_TYPE,
+      }),
+      securityGroups: [lambdaSecurityGroup],
+      environment: {
+        REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
       }
-    );
+    });
     secret.grantRead(authorizerLambda);
     authorizerLambda.role?.addManagedPolicy(
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName(

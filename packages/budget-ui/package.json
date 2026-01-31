@@ -26,10 +26,8 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "@aws-cdk/aws-cloudfront": "^1.181.0",
-    "@aws-cdk/aws-cloudfront-origins": "^1.181.0",
-    "@aws-cdk/aws-s3-deployment": "^1.181.0",
-    "@aws-cdk/core": "^1.181.0",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0",
     "@semantic-release/changelog": "^6.0.0",
     "@semantic-release/commit-analyzer": "^9.0.1",
     "@semantic-release/git": "^10.0.0",

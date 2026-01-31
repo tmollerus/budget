@@ -28,9 +28,9 @@ jobs:
           fetch-depth: 0
 
       - name: Use Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: 20.14.0
+          node-version: 24
 
       - name: Install
         shell: bash
