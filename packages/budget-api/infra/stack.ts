@@ -24,7 +24,7 @@ export class BudgetApiStack extends Stack {
     const STACK_NAME = `${process.env.ENV_NAME}-${id}`;
     const ALLOWED_ORIGINS = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
     const CERT_ARN = 'arn:aws:acm:us-east-1:360115878429:certificate/6432f08a-5ab8-442b-be1c-6ceaabe27f0a';
-    const SUBNET_TYPE = aws_ec2.SubnetType.PRIVATE_ISOLATED;
+    const SUBNET_TYPE = aws_ec2.SubnetType.PRIVATE_WITH_NAT;
 
     const createLambdaAndRoute = (
       lambdaName: string,
@@ -84,19 +84,21 @@ export class BudgetApiStack extends Stack {
       this,
       `${STACK_NAME}-Vpc`,
       {
-        ipAddresses: aws_ec2.IpAddresses.cidr("10.0.0.0/20"),
         maxAzs: 2,
         natGateways: 1,
         subnetConfiguration: [
           {
+            cidrMask: 24,
             name: `${STACK_NAME}-Vpc-Subnet-PUB`,
             subnetType: aws_ec2.SubnetType.PUBLIC,
           },
           {
+            cidrMask: 24,
             name: `${STACK_NAME}-Vpc-Subnet-PrivateWithEgress`,
             subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
           },
           {
+            cidrMask: 24,
             name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
             subnetType: SUBNET_TYPE,
           },
