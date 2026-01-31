@@ -47,6 +47,7 @@ export class BudgetApiStack extends Stack {
         },
         environment: {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
+          DATABASE_URL: dbProxy.endpoint,
           REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
         },
         vpc,
@@ -84,17 +85,23 @@ export class BudgetApiStack extends Stack {
       `${STACK_NAME}-Vpc`,
       {
       maxAzs: 2,
+      natGateways: 1,
       subnetConfiguration: [
         {
           cidrMask: 24,
-          name: `${STACK_NAME}-Vpc-Subnet-PWN`,
+          name: `${STACK_NAME}-Vpc-Subnet-PUB`,
+          subnetType: aws_ec2.SubnetType.PUBLIC,
+        },
+        {
+          cidrMask: 24,
+          name: `${STACK_NAME}-Vpc-Subnet-Private`,
+          subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+        {
+          cidrMask: 24,
+          name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
           subnetType: SUBNET_TYPE,
-        }
-        // {
-        //   cidrMask: 24,
-        //   name: `${STACK_NAME}-Vpc-Subnet-PUB`,
-        //   subnetType: aws_ec2.SubnetType.PUBLIC,
-        // },
+        },
       ],
     });
 
@@ -139,7 +146,9 @@ export class BudgetApiStack extends Stack {
       `${STACK_NAME}-redisSubnetGroup`,
       {
         description: "Subnet group for the redis cluster",
-        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
+        subnetIds: vpc.selectSubnets({
+          subnetType: SUBNET_TYPE,
+        }).subnetIds,
         cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroup`,
       }
     );
@@ -183,7 +192,6 @@ export class BudgetApiStack extends Stack {
         allowMajorVersionUpgrade: true,
       }
     );
-    db.connections.allowFromAnyIpv4(aws_ec2.Port.tcp(5432))
 
     const secret = new aws_secretsmanager.Secret(
       this,
@@ -194,13 +202,34 @@ export class BudgetApiStack extends Stack {
       }
     );
 
+    const proxySecurityGroup = new aws_ec2.SecurityGroup(
+      this,
+      `${STACK_NAME}-proxySecurityGroup`,
+      {
+        vpc,
+        description: 'Security group for RDS Proxy',
+      }
+    );
+
+    proxySecurityGroup.addIngressRule(
+      lambdaSecurityGroup,
+      aws_ec2.Port.tcp(5432),
+      'Allow lambdas to access RDS proxy'
+    );
+
+    dbSecurityGroup.addIngressRule(
+      proxySecurityGroup,
+      aws_ec2.Port.tcp(5432),
+      'Allow proxy to access database'
+    );
+
     const dbProxy = new aws_rds.DatabaseProxy(
       this,
       'Proxy',
       {
         proxyTarget: aws_rds.ProxyTarget.fromInstance(db),
         secrets: [db.secret!],
-        securityGroups: [dbSecurityGroup],
+        securityGroups: [proxySecurityGroup],
         vpc,
         requireTLS: false,
         vpcSubnets: vpc.selectSubnets({
@@ -222,10 +251,11 @@ export class BudgetApiStack extends Stack {
       },
       vpc,
       vpcSubnets: vpc.selectSubnets({
-        subnetType: SUBNET_TYPE,
+        subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
       }),
       securityGroups: [lambdaSecurityGroup],
       environment: {
+        DATABASE_URL: dbProxy.endpoint,
         REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
       }
     });
