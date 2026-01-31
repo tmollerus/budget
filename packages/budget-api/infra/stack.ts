@@ -93,12 +93,12 @@ export class BudgetApiStack extends Stack {
           subnetType: aws_ec2.SubnetType.PUBLIC,
         },
         {
-          cidrMask: 24,
+          cidrMask: 26,
           name: `${STACK_NAME}-Vpc-Subnet-Private`,
           subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
         },
         {
-          cidrMask: 24,
+          cidrMask: 28,
           name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
           subnetType: SUBNET_TYPE,
         },
