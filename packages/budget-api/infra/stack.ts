@@ -84,26 +84,25 @@ export class BudgetApiStack extends Stack {
       this,
       `${STACK_NAME}-Vpc`,
       {
-      maxAzs: 2,
-      natGateways: 1,
-      subnetConfiguration: [
-        {
-          cidrMask: 25,
-          name: `${STACK_NAME}-Vpc-Subnet-PUB`,
-          subnetType: aws_ec2.SubnetType.PUBLIC,
-        },
-        {
-          cidrMask: 26,
-          name: `${STACK_NAME}-Vpc-Subnet-PrivateWithEgress`,
-          subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-        {
-          cidrMask: 28,
-          name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
-          subnetType: SUBNET_TYPE,
-        },
-      ],
-    });
+        ipAddresses: aws_ec2.IpAddresses.cidr("10.0.0.0/20"),
+        maxAzs: 2,
+        natGateways: 1,
+        subnetConfiguration: [
+          {
+            name: `${STACK_NAME}-Vpc-Subnet-PUB`,
+            subnetType: aws_ec2.SubnetType.PUBLIC,
+          },
+          {
+            name: `${STACK_NAME}-Vpc-Subnet-PrivateWithEgress`,
+            subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
+          },
+          {
+            name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
+            subnetType: SUBNET_TYPE,
+          },
+        ],
+      }
+    );
 
     const dbSecurityGroup = new aws_ec2.SecurityGroup(
       this,
