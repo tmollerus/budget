@@ -142,10 +142,8 @@ export class BudgetApiStack extends Stack {
       `${STACK_NAME}-redisSubnetGroup`,
       {
         description: "Subnet group for the redis cluster",
-        subnetIds: vpc.selectSubnets({
-          subnetType: SUBNET_TYPE,
-        }).subnetIds,
-        cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroupName`,
+        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
+        cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroup`,
       }
     );
 
