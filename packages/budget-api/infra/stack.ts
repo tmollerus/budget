@@ -89,18 +89,13 @@ export class BudgetApiStack extends Stack {
         subnetConfiguration: [
           {
             cidrMask: 24,
+            name: `${STACK_NAME}-Vpc-Subnet-PWN`,
+            subnetType: aws_ec2.SubnetType.PRIVATE_WITH_NAT,
+          },
+          {
+            cidrMask: 24,
             name: `${STACK_NAME}-Vpc-Subnet-PUB`,
             subnetType: aws_ec2.SubnetType.PUBLIC,
-          },
-          {
-            cidrMask: 24,
-            name: `${STACK_NAME}-Vpc-Subnet-PrivateWithEgress`,
-            subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
-          },
-          {
-            cidrMask: 24,
-            name: `${STACK_NAME}-Vpc-Subnet-Isolated`,
-            subnetType: SUBNET_TYPE,
           },
         ],
       }
@@ -252,7 +247,7 @@ export class BudgetApiStack extends Stack {
       },
       vpc,
       vpcSubnets: vpc.selectSubnets({
-        subnetType: aws_ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        subnetType: SUBNET_TYPE,
       }),
       securityGroups: [lambdaSecurityGroup],
       environment: {
