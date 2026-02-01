@@ -330,6 +330,16 @@ export class BudgetApiStack extends Stack {
     if (cfnStage) {
       cfnStage.accessLogSettings = {
         destinationArn: accessLogGroup.logGroupArn,
+        format: JSON.stringify({
+          requestId: '$context.requestId',
+          ip: '$context.identity.sourceIp',
+          requestTime: '$context.requestTime',
+          httpMethod: '$context.httpMethod',
+          resourcePath: '$context.resourcePath',
+          status: '$context.status',
+          protocol: '$context.protocol',
+          responseLength: '$context.responseLength',
+        }),
       };
     }
 
