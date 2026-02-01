@@ -1,9 +1,26 @@
-import { App, Duration, Stack, StackProps, aws_lambda, aws_apigatewayv2, aws_apigatewayv2_authorizers, aws_apigatewayv2_integrations, aws_certificatemanager, aws_elasticache, aws_iam, aws_ec2, aws_rds, aws_secretsmanager } from 'aws-cdk-lib';
+import { 
+  App, 
+  Duration, 
+  Stack, 
+  StackProps, 
+  aws_lambda, 
+  aws_apigatewayv2, 
+  aws_apigatewayv2_authorizers, 
+  aws_apigatewayv2_integrations, 
+  aws_certificatemanager, 
+  aws_elasticache, 
+  aws_iam, 
+  aws_ec2, 
+  aws_logs, 
+  aws_rds, 
+  aws_secretsmanager
+} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 import path = require('path');
+import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
 // and https://sewb.dev/posts/cdk-series:-creating-an-elasticache-cluster-bc1zupe
@@ -297,6 +314,24 @@ export class BudgetApiStack extends Stack {
         defaultDomainMapping: { domainName },
       }
     );
+
+    const accessLogGroup = new aws_logs.LogGroup(
+      this,
+      `${STACK_NAME}-HttpApiAccessLogs`,
+      {
+        retention: aws_logs.RetentionDays.TWO_WEEKS,
+      }
+    );
+
+    // Configure the default stage's access logging using escape hatches if direct properties aren't available
+    // The apigatewayv2 module is evolving, so direct properties might become available later.
+    // The current way is via the CfnStage L1 construct:
+    const cfnStage = budgetApi.defaultStage?.node.defaultChild as aws_apigatewayv2.CfnStage;
+    if (cfnStage) {
+      cfnStage.accessLogSettings = {
+        destinationArn: accessLogGroup.logGroupArn,
+      };
+    }
 
     createLambdaAndRoute(
       'GetAuth',
