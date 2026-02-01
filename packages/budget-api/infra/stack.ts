@@ -145,7 +145,7 @@ export class BudgetApiStack extends Stack {
         subnetIds: vpc.selectSubnets({
           subnetType: SUBNET_TYPE,
         }).subnetIds,
-        cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroup`,
+        cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroupName`,
       }
     );
 
