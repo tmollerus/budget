@@ -41,7 +41,6 @@ export class BudgetApiStack extends Stack {
         timeout: Duration.seconds(60),
         bundling: {
           externalModules: [
-            'aws-sdk', // Use the 'aws-sdk' available in the Lambda runtime
             'pg-native',
           ],
         },
@@ -239,7 +238,6 @@ export class BudgetApiStack extends Stack {
       entry: path.join(__dirname, '..', 'src', 'v1', 'authorizer', 'index.ts'),
       bundling: {
         externalModules: [
-          'aws-sdk',
           'pg-native',
         ],
       },
