@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { App, Construct, Stack, StackProps } from '@aws-cdk/core';
+import { App, Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import {
   PriceClass,
   ViewerProtocolPolicy,
@@ -7,11 +8,11 @@ import {
   SecurityPolicyProtocol,
   SSLMethod,
   OriginAccessIdentity,
-} from '@aws-cdk/aws-cloudfront';
-import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
-import { BlockPublicAccess, Bucket } from '@aws-cdk/aws-s3';
-import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
-import { Certificate } from '@aws-cdk/aws-certificatemanager';
+} from 'aws-cdk-lib/aws-cloudfront';
+import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 
 export class BudgetUiStack extends Stack {
   /**
@@ -45,7 +46,7 @@ export class BudgetUiStack extends Stack {
     );
     sourceBucket.grantRead(originAccessIdentity);
 
-    const s3Origin = new S3Origin(
+    const s3Origin = S3BucketOrigin.withOriginAccessIdentity(
       sourceBucket,
       { 
         originPath: '/',
