@@ -36,7 +36,7 @@ export const dollarFormat = (amount: number, separators?: boolean, decimals?: bo
   }
 
   if (allowNegative && originalAmount < 0) {
-    result = "-" + result;
+    result = `(${result})`;
   }
 
   return result;

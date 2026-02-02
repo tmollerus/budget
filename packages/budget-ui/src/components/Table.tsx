@@ -254,7 +254,8 @@ export const Table = (props: Props) => {
               dateClassName,
               classes.income,
               classes.tableRowItem,
-            ])}
+            ],
+            classes)}
             data-header="Balance"
           >
             {itemToEdit === item ? (

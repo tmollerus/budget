@@ -1,3 +1,4 @@
+import { Classes } from "jss";
 import { PAID_SYMBOL } from "../constants/theme";
 import { LedgerDataItem, LedgerTotals } from "../types";
 import { parseDate } from "./date";
@@ -23,9 +24,12 @@ export const getRowClassName = (index: number, evenClass: string, existingClasse
 
   return allClasses.join(' ');
 };
-export const getCellClassName = (item: LedgerDataItem, columnType: ColumnType, existingClasses?: Array<string>) => {
+export const getCellClassName = (item: LedgerDataItem, columnType: ColumnType, existingClasses?: Array<string>, classes?: Classes<string>) => {
   const allClasses = existingClasses || [];
 
+  if (columnType === ColumnType.BALANCE && Number(item.balance) < 0) {
+    allClasses.push(classes?.negativeBalance || '');
+  }
   // switch (columnType) {
   //   case ColumnType.DATE:
   //     allClasses.push(getFirstOfDateClass(item.settledDate.split('T')[0], previousItem.settledDate.split('T')[0], ));
