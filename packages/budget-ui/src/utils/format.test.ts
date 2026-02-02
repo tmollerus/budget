@@ -26,7 +26,7 @@ describe('Formatting functions', () => {
     expect(dollarFormat(1800.35)).toBe('$1,800.35');
     expect(dollarFormat(1800.35, false, true)).toBe('$1800.35');
     expect(dollarFormat(1800.35, false, false)).toBe('$1800');
-    expect(dollarFormat(-1800.35, false, true, true)).toBe('-$1800.35');
+    expect(dollarFormat(-1800.35, false, true, true)).toBe('($1800.35)');
     expect(dollarFormat(-1800.35, false, true, false)).toBe('$1800.35');
   });
 

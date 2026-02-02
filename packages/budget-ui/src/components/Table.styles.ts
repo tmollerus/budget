@@ -171,6 +171,10 @@ export const useStyles = createUseStyles({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
   },
+  negativeBalance: {
+    color: COLORS.expense,
+    opacity: 0.7,
+  },
   tableRowItem: {
     display: 'flex',
     flexFlow: 'row nowrap',

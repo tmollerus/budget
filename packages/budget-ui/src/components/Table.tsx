@@ -105,9 +105,9 @@ export const Table = (props: Props) => {
       items: [],
     };
     newFilteredLedgerData.items = updateItemCategories(ledgerData, categories, subcategories).filter((item) => {
-      if(!item.categoryName) {
-        console.log(item);
-      }
+      // if(!item.categoryName) {
+      //   console.log(item);
+      // }
       return (
         searchTerm.trim() === '' ||
         item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -254,7 +254,8 @@ export const Table = (props: Props) => {
               dateClassName,
               classes.income,
               classes.tableRowItem,
-            ])}
+            ],
+            classes)}
             data-header="Balance"
           >
             {itemToEdit === item ? (
