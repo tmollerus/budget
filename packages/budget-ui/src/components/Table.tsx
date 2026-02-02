@@ -105,9 +105,9 @@ export const Table = (props: Props) => {
       items: [],
     };
     newFilteredLedgerData.items = updateItemCategories(ledgerData, categories, subcategories).filter((item) => {
-      if(!item.categoryName) {
-        console.log(item);
-      }
+      // if(!item.categoryName) {
+      //   console.log(item);
+      // }
       return (
         searchTerm.trim() === '' ||
         item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
