@@ -6,6 +6,8 @@ import { BudgetRecord, Effect, OktaUser } from '../types';
 import { getPolicyResponse } from '../utils/authorizer';
 import { logElapsedTime } from '../utils/event';
 
+const memoryCache: Record<string, { user: OktaUser; budgetGuid: string }> = {};
+
 export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: Context): Promise<APIGatewayAuthorizerResult> => {
   const startTime = new Date();
   let elapsedTime = new Date();
@@ -18,40 +20,31 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: 
     return getPolicyResponse('user', Effect.DENY, event.methodArn);
   }
 
-  const redisClient = await getRedisClient(process.env.REDIS_URL || '');
-
   try {
     if (!event?.headers?.authorization) {
       throw new Error('Missing auth token!');
     }
 
-    const userKey = `budget-api-OktaUser-${authorizationToken}`;
-    console.log('Checking for Okta user in cache');
-    const cachedUser = redisClient && await redisClient.get(userKey);
-    if (cachedUser) {
-      user = JSON.parse(cachedUser);
-      console.log('Found Okta user in cache', user.username);
-    } else {
-      elapsedTime = logElapsedTime('About to get Okta user', startTime);
-      user = await getOktaUser(authorizationToken);
-      elapsedTime = logElapsedTime('Got Okta user', elapsedTime);
-      redisClient && await redisClient.set(userKey, JSON.stringify(user), { EX: 60 * 55, NX: true });
+    if (memoryCache[authorizationToken]) {
+      return getPolicyResponse('user', Effect.ALLOW, event.methodArn, {
+        user: JSON.stringify(memoryCache[authorizationToken].user) || '',
+        budgetGuid: memoryCache[authorizationToken].budgetGuid || '',
+      });
     }
 
-    const budgetKey = `budget-api-Budget-${user.username}`;
-    console.log('Checking for budget in cache');
-    const cachedBudget = redisClient && await redisClient.get(budgetKey);
-    if (cachedBudget) {
-      budget = JSON.parse(cachedBudget);
-      console.log('Found budget in cache', budget?.guid);
-    } else {
-      elapsedTime = logElapsedTime('About to retrieve budget', elapsedTime);
-      budget = await getBudgetByEmail(user.username!);
-      elapsedTime = logElapsedTime('Retrieved budget', elapsedTime);
-      redisClient && await redisClient.set(budgetKey, JSON.stringify(budget), { EX: 60 * 60 });
-    }
+    elapsedTime = logElapsedTime('About to get Okta user', startTime);
+    user = await getOktaUser(authorizationToken);
+    elapsedTime = logElapsedTime('Got Okta user', elapsedTime);
+
+    elapsedTime = logElapsedTime('About to retrieve budget', elapsedTime);
+    budget = await getBudgetByEmail(user.username!);
+    elapsedTime = logElapsedTime('Retrieved budget', elapsedTime);
 
     if (budget?.guid) {
+      memoryCache[authorizationToken] = {
+        user,
+        budgetGuid: budget.guid,
+      };
       return getPolicyResponse('user', Effect.ALLOW, event.methodArn, {
         user: JSON.stringify(user) || '',
         budgetGuid: budget.guid || '',
@@ -59,8 +52,6 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: 
     }
   } catch (err) {
     console.log(err);
-  } finally {
-    redisClient && await redisClient.disconnect();
   }
 
   logElapsedTime('About to return response', elapsedTime);
