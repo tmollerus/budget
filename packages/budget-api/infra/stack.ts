@@ -1,18 +1,17 @@
 import { 
-  App, 
-  Duration, 
-  Stack, 
-  StackProps, 
-  aws_lambda, 
-  aws_apigatewayv2, 
-  aws_apigatewayv2_authorizers, 
-  aws_apigatewayv2_integrations, 
-  aws_certificatemanager, 
-  aws_elasticache, 
-  aws_iam, 
-  aws_ec2, 
-  aws_logs, 
-  aws_rds, 
+  App,
+  Duration,
+  Stack,
+  StackProps,
+  aws_lambda,
+  aws_apigatewayv2,
+  aws_apigatewayv2_authorizers,
+  aws_apigatewayv2_integrations,
+  aws_certificatemanager,
+  aws_iam,
+  aws_ec2,
+  aws_logs,
+  aws_rds,
   aws_secretsmanager
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
@@ -20,7 +19,6 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
 import path = require('path');
-import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
 // and https://sewb.dev/posts/cdk-series:-creating-an-elasticache-cluster-bc1zupe
@@ -64,7 +62,6 @@ export class BudgetApiStack extends Stack {
         environment: {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
           DATABASE_URL: dbProxy.endpoint,
-          REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
         },
         vpc,
         vpcSubnets: vpc.selectSubnets({
@@ -84,11 +81,6 @@ export class BudgetApiStack extends Stack {
         integration: integration,
       });
 
-      lambda.role?.addManagedPolicy(
-        aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
-          'AmazonElastiCacheFullAccess',
-        ),
-      );
       lambda.role?.addManagedPolicy(
         aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
           'service-role/AWSLambdaENIManagementAccess',
@@ -137,45 +129,6 @@ export class BudgetApiStack extends Stack {
       lambdaSecurityGroup,
       aws_ec2.Port.tcp(5432),
       'Allow lambdas to access budget postgres database'
-    );
-
-    const redisSecurityGroup = new aws_ec2.SecurityGroup(
-      this,
-      `${STACK_NAME}-redisSecurityGroup`,
-      {
-        vpc,
-      }
-    );
-
-    lambdaSecurityGroup.connections.allowTo(
-      redisSecurityGroup,
-      aws_ec2.Port.tcp(6379),
-      "Allow this lambda function connect to the redis cache"
-    );
-
-    const redisSubnetGroup = new aws_elasticache.CfnSubnetGroup(
-      this,
-      `${STACK_NAME}-redisSubnetGroup`,
-      {
-        description: "Subnet group for the redis cluster",
-        subnetIds: vpc.publicSubnets.map((ps) => ps.subnetId),
-        cacheSubnetGroupName: `${STACK_NAME}-redisSubnetGroup`,
-      }
-    );
-
-    const redisCache = new aws_elasticache.CfnCacheCluster(
-      this,
-      `${STACK_NAME}-RedisCache`,
-      {
-        engine: "redis",
-        cacheNodeType: "cache.t3.micro",
-        numCacheNodes: 1,
-        clusterName: `${STACK_NAME}-RedisCache`,
-        vpcSecurityGroupIds: [redisSecurityGroup.securityGroupId],
-        cacheSubnetGroupName: redisSubnetGroup.ref,
-        engineVersion: "6.2",
-        preferredMaintenanceWindow: "fri:00:30-fri:01:30",
-      }
     );
     
     const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
@@ -265,15 +218,9 @@ export class BudgetApiStack extends Stack {
       securityGroups: [lambdaSecurityGroup],
       environment: {
         DATABASE_URL: dbProxy.endpoint,
-        REDIS_URL: `redis://${redisCache.attrRedisEndpointAddress}:${redisCache.attrRedisEndpointPort}`,
       }
     });
     secret.grantRead(authorizerLambda);
-    authorizerLambda.role?.addManagedPolicy(
-      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
-        'AmazonElastiCacheFullAccess',
-      ),
-    );
     authorizerLambda.role?.addManagedPolicy(
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
         'service-role/AWSLambdaENIManagementAccess',
