@@ -304,4 +304,9 @@ export const useStyles = createUseStyles({
       paddingLeft: '4px',
     },
   },
+
+  uncategorized: {
+    visibility: 'visible',
+    color: COLORS.expense,
+  },
 });
