@@ -105,9 +105,6 @@ export const Table = (props: Props) => {
       items: [],
     };
     newFilteredLedgerData.items = updateItemCategories(ledgerData, categories, subcategories).filter((item) => {
-      // if(!item.categoryName) {
-      //   console.log(item);
-      // }
       return (
         searchTerm.trim() === '' ||
         item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -360,7 +357,7 @@ export const Table = (props: Props) => {
             ])}
             data-header="Delete"
           >
-            <span className={classes.categoryIcon}>
+            <span className={!item.category_guid || !item.subcategory_guid ? [classes.categoryIcon, classes.uncategorized].join(' ') : classes.categoryIcon}>
               <span
                 className="material-icons md-18"
                 title="Categorize this item"
