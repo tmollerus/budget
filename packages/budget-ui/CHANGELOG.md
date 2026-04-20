@@ -1,3 +1,10 @@
+# [budget-ui-v3.23.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.22.0...budget-ui-v3.23.0) (2026-04-20)
+
+
+### Features
+
+* added a category report ([#105](https://github.com/tmollerus/budget/issues/105)) ([bf78527](https://github.com/tmollerus/budget/commit/bf7852723ea644b79cf1048eb195858e809a3a59))
+
 # [budget-ui-v3.22.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.21.3...budget-ui-v3.22.0) (2025-11-21)
 
 
