@@ -1,10 +1,12 @@
 import Highcharts from 'highcharts';
 import drilldown from 'highcharts/modules/drilldown';
-import { useEffect } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Button } from '@blueprintjs/core';
 import { COLORS } from '../constants/theme';
 import { useBudgetContext } from '../context';
 import { ExtendedLedgerDataItem } from '../types';
 import { Loader } from './Loader';
+import { BudgetTotalsDialog } from './BudgetTotalsDialog';
 import { useStyles } from './StatTable.styles';
 import { getCategoryNameByGuid, getSubcategoryNameByGuid } from '../utils/ledger';
 drilldown(Highcharts);
@@ -23,7 +25,7 @@ interface GraphDrilldownDatum {
 }
 
 export const PieChart = () => {
-  const { ledgerData, categories, subcategories } = useBudgetContext();
+  const { ledgerData, categories, subcategories, budgetYear } = useBudgetContext();
   const classes = useStyles();
 
   const getGraphData = (entries: Array<ExtendedLedgerDataItem>) => {
@@ -101,6 +103,62 @@ export const PieChart = () => {
     return seriesData;
   };
 
+  const [isTotalsDialogOpen, setIsTotalsDialogOpen] = useState(false);
+
+  const totalsByCategory = useMemo(() => {
+    const rawData: {
+      [category: string]: {
+        total: number;
+        subcategories: { [subcategory: string]: number };
+      };
+    } = {};
+    const uncategorized = 'Uncategorized';
+
+    ledgerData.items.forEach((entry) => {
+      if (entry.type_id !== 1) {
+        const categoryName =
+          getCategoryNameByGuid(entry.category_guid!, categories) || uncategorized;
+        const subcategoryName =
+          getSubcategoryNameByGuid(entry.subcategory_guid!, subcategories) || uncategorized;
+
+        if (!rawData[categoryName]) {
+          rawData[categoryName] = {
+            total: 0,
+            subcategories: {},
+          };
+        }
+
+        rawData[categoryName].total += entry.amount;
+        rawData[categoryName].subcategories[subcategoryName] =
+          (rawData[categoryName].subcategories[subcategoryName] || 0) + entry.amount;
+      }
+    });
+
+    return Object.keys(rawData).map((category) => ({
+      category,
+      total: rawData[category].total,
+      subcategories: Object.keys(rawData[category].subcategories).map((name) => ({
+        name,
+        total: rawData[category].subcategories[name],
+      })),
+    }));
+  }, [ledgerData.items, categories, subcategories]);
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  const totalBudget = totalsByCategory.reduce((sum, category) => sum + category.total, 0);
+
+  const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
+
+  const openTotalsDialog = () => setIsTotalsDialogOpen(true);
+  const closeTotalsDialog = () => setIsTotalsDialogOpen(false);
+
   const getChartOptions = (entries: Array<ExtendedLedgerDataItem>) => {
     const options = {
       chart: {
@@ -109,7 +167,7 @@ export const PieChart = () => {
       },
       title: { text: null },
       subtitle: {
-        text: 'Click the slices to view versions.',
+        text: 'Click the slices to view subcategory breakdowns.',
         align: 'left',
       },
       plotOptions: {
@@ -182,6 +240,18 @@ export const PieChart = () => {
           <Loader size={24} message={'Loading chart'} />
         )}
       </div>
+      <div className={classes.chartButtonRow}>
+        <Button text="Show totals by category" intent="primary" onClick={openTotalsDialog} />
+      </div>
+      <BudgetTotalsDialog
+        isOpen={isTotalsDialogOpen}
+        onClose={closeTotalsDialog}
+        totalsByCategory={totalsByCategory}
+        totalBudget={totalBudget}
+        budgetYear={budgetYear}
+        formatCurrency={formatCurrency}
+        formatPercent={formatPercent}
+      />
     </div>
   );
 };

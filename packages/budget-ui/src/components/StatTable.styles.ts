@@ -65,5 +65,10 @@ export const useStyles = createUseStyles({
   },
   balanceChart: {
     marginTop: '24px',
-  }
+  },
+  chartButtonRow: {
+    marginTop: '12px',
+    display: 'flex',
+    justifyContent: 'center',
+  },
 });
