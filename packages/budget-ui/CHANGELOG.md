@@ -1,3 +1,10 @@
+# [budget-ui-v3.24.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.23.0...budget-ui-v3.24.0) (2026-04-20)
+
+
+### Features
+
+* highlighted uncategorizeditems ([#106](https://github.com/tmollerus/budget/issues/106)) ([94e2142](https://github.com/tmollerus/budget/commit/94e21426ea06c53b79b1b1ae32a5c62e811aac50))
+
 # [budget-ui-v3.23.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.22.0...budget-ui-v3.23.0) (2026-04-20)
 
 
