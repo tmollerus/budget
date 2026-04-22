@@ -125,6 +125,8 @@ export const Table = (props: Props) => {
       amount: editedAmount!,
       paid: !!editedPaid,
       label: editedLabel!,
+      category_guid: itemToEdit?.category_guid,
+      subcategory_guid: itemToEdit?.subcategory_guid,
     };
     props.editItem(editedEntry, getLedgerDataItemByGuid(ledgerData, editedItemGuid!));
     clearItemToEdit();
