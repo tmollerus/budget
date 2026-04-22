@@ -1,3 +1,10 @@
+# [budget-ui-v3.24.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.0...budget-ui-v3.24.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* preserved categories after item edit ([#107](https://github.com/tmollerus/budget/issues/107)) ([b1179a4](https://github.com/tmollerus/budget/commit/b1179a49d1015f8dc6796b8658fd920c895603b0))
+
 # [budget-ui-v3.24.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.23.0...budget-ui-v3.24.0) (2026-04-20)
 
 
