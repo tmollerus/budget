@@ -1,3 +1,10 @@
+# [budget-ui-v3.24.2](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.1...budget-ui-v3.24.2) (2026-04-22)
+
+
+### Bug Fixes
+
+* made category table scrollable ([#108](https://github.com/tmollerus/budget/issues/108)) ([0aa3398](https://github.com/tmollerus/budget/commit/0aa3398305f0f849ae0a32724d8363eb1a2c8197))
+
 # [budget-ui-v3.24.1](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.0...budget-ui-v3.24.1) (2026-04-22)
 
 
