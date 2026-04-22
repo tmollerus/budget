@@ -2,6 +2,8 @@ import {createUseStyles} from 'react-jss';
 
 export const useStyles = createUseStyles({
   totalsDialogBody: {
+    maxHeight: 'calc(100vh - 200px)',
+    overflowY: 'auto',
     marginBottom: '16px',
     '& p': {
       marginTop: 0,
