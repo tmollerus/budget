@@ -2,6 +2,7 @@ import {createUseStyles} from 'react-jss';
 
 export const useStyles = createUseStyles({
   totalsDialogBody: {
+    fontSize: '12px',
     maxHeight: 'calc(100vh - 200px)',
     overflowY: 'auto',
     marginBottom: '16px',
@@ -14,6 +15,9 @@ export const useStyles = createUseStyles({
   totalsTable: {
     width: '100%',
     borderCollapse: 'collapse',
+    '& th': {
+      fontSize: '14px',
+    },
     '& th, & td': {
       textAlign: 'left',
       padding: '8px 15px',
@@ -21,6 +25,7 @@ export const useStyles = createUseStyles({
     },
   },
   categoryRow: {
+    fontSize: '14px',
     fontWeight: 'bold',
     backgroundColor: '#f5f8fa',
   },
@@ -32,6 +37,7 @@ export const useStyles = createUseStyles({
     textAlign: 'right',
   },
   totalRow: {
+    fontSize: '14px',
     fontWeight: 'bold',
     borderTop: '2px solid #cdd7e0',
     backgroundColor: '#eef2f6',
