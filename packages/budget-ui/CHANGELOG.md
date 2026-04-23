@@ -1,3 +1,10 @@
+# [budget-ui-v3.24.3](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.2...budget-ui-v3.24.3) (2026-04-23)
+
+
+### Bug Fixes
+
+* made subcategory font size smaller ([#109](https://github.com/tmollerus/budget/issues/109)) ([c7b5b90](https://github.com/tmollerus/budget/commit/c7b5b901b3945f509e17d8b5ac4a8ea597d07309))
+
 # [budget-ui-v3.24.2](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.1...budget-ui-v3.24.2) (2026-04-22)
 
 
