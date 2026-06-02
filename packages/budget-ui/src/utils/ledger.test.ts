@@ -65,6 +65,10 @@ describe('Ledger functions', () => {
     expect(getMessage(MessageType.CONFIRM_DELETE, ledgerData.items[0])).toContain(ledgerData.items[0].label);
     expect(getMessage(MessageType.CONFIRM_DELETE, ledgerData.items[0])).toContain(formatDate(ledgerData.items[0].settledDate, 'MMM. D, YYYY'));
 
+    expect(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, ledgerData.items[0])).toContain('update all');
+    expect(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, ledgerData.items[0])).toContain(dollarFormat(ledgerData.items[0].amount));
+    expect(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, ledgerData.items[0])).toContain(ledgerData.items[0].label);
+
     expect(getMessage(MessageType.ITEM_DELETED, ledgerData.items[0])).toContain('deleted');
     expect(getMessage(MessageType.ITEM_DELETED, ledgerData.items[0])).toContain(getEntryTypeName(ledgerData.items[0].type_id).toLowerCase());
     expect(getMessage(MessageType.ITEM_DELETED, ledgerData.items[0])).toContain(ledgerData.items[0].label);

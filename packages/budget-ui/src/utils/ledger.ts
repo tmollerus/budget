@@ -66,6 +66,8 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
       return `Successfully added ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.ITEM_EDITED:
       return `Successfully updated ${itemType} '${item.label}' from ${itemDate}`;
+    case MessageType.CONFIRM_MULTIPLE_EDIT:
+      return `Are you sure you would like to update all unpaid, visible transactions to '${item.label}' for ${dollarFormat(item.amount)}? This action cannot be undone.`;
     default:
       return ``;
   }
