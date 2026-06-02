@@ -32,6 +32,7 @@ import {
   getBudgetSubcategories,
   updateEntry,
 } from '../utils/api';
+import { formatDate, dollarFormat } from "../utils/format";
 import { Dialog } from './Dialog';
 import { Toaster } from './Toaster';
 import { Table } from './Table';
@@ -257,6 +258,39 @@ export const Ledger = () => {
     }
   };
 
+  const editMultipleItems = async (editedItem: PartialLedgerDataItem, originalItems: Array<LedgerDataItem>) => {
+    try {
+      let itemSuccessMessage: string = '';
+      const updatedItems = await Promise.all(
+        originalItems.filter((originalItem) => !originalItem.paid || originalItem.guid === editedItem.guid)
+        .map(async (originalItem) => {
+          originalItem.label = editedItem.label || originalItem.label;
+          originalItem.amount = editedItem.amount || originalItem.amount;
+          if (originalItem.guid === editedItem.guid) {
+            originalItem.paid = editedItem.paid;
+          }
+          setLedgerData(updateLedgerDataItem(ledgerData, originalItem));
+          await updateEntry(budgetGuid, originalItem);
+          return originalItem as LedgerDataItem;
+        }),
+      );
+      updatedItems.forEach((item) => {
+        itemSuccessMessage += `${formatDate(item.settledDate)}\n`;
+      });
+      Toaster.show({
+        message: `Successfully updated all unpaid, visible transactions to '${editedItem.label}' for ${dollarFormat(editedItem.amount)} on the following dates:\n${itemSuccessMessage}`,
+        intent: Intent.SUCCESS,
+        icon: 'tick-circle',
+      });
+    } catch (err) {
+      Toaster.show({
+        message: `An error occurred while trying to save the changes`,
+        intent: Intent.DANGER,
+        icon: 'error',
+      });
+    }
+  };
+
   const copyItems = async (fromYear: number, toYear: number) => {
     try {
       const isCopySuccessful = await copyBudget(budgetGuid, fromYear, toYear);
@@ -290,6 +324,7 @@ export const Ledger = () => {
           confirmDeletion={confirmDeletion}
           addItem={addItem}
           editItem={editItem}
+          editMultipleItems={editMultipleItems}
           copyItems={copyItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}

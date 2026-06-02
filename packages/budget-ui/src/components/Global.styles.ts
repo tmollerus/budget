@@ -38,8 +38,12 @@ export const useGlobalStyles = createUseStyles({
     padding: '8px 32px',
     whiteSpace: 'nowrap',
     // borderRadius: '4px',
-    // '&.bp4-button.bp4-intent-primary': {
-    //   backgroundColor: COLORS.income,
-    // },
+  },
+  toastMessage: {
+    '&.bp4-toast': {
+      '&.bp4-toast-message': {
+        whiteSpace: 'pre-line',
+      },
+    },
   },
 });

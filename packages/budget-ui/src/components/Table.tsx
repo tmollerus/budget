@@ -1,9 +1,11 @@
 import { ReactNode, useEffect, useState } from 'react';
+import { Intent } from '@blueprintjs/core';
 import { useBudgetContext } from '../context';
 import {
   LedgerData,
   ExtendedLedgerDataItem,
   LedgerTotals,
+  MessageType,
   PartialLedgerDataItem,
   LedgerDataItem,
 } from '../types';
@@ -23,14 +25,17 @@ import {
   getRowId,
   getLedgerTotals,
 } from '../utils/table';
+import { Dialog } from './Dialog';
 import { Loader } from './Loader';
 import { useStyles } from './Table.styles';
 import {
   getCategoryNameByGuid,
   getLedgerDataItemByGuid,
+  getMessage,
   getSubcategoryNameByGuid,
   updateItemCategories,
 } from '../utils/ledger';
+
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
 interface Props {
@@ -38,6 +43,7 @@ interface Props {
   confirmDeletion: (event: React.MouseEvent<HTMLElement, MouseEvent>, item: LedgerDataItem) => void;
   addItem: (newEntry: PartialLedgerDataItem) => Promise<boolean>;
   editItem: (editedEntry: PartialLedgerDataItem, originalEntry?: LedgerDataItem) => void;
+  editMultipleItems: (editedItem: PartialLedgerDataItem, originalItems: Array<LedgerDataItem>) => void;
   copyItems: (fromYear: number, toYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
@@ -56,6 +62,8 @@ export const Table = (props: Props) => {
   defaultDate.setFullYear(budgetYear);
   const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
+  const [isMultipleEditDialogOpen, setIsMultipleEditDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState<string>('');
 
   const [showAddItemForm, setShowAddItemForm] = useState(false);
   const [isAddItemInProgress, setIsAddItemInProgress] = useState(false);
@@ -116,9 +124,17 @@ export const Table = (props: Props) => {
     setLedgerTotals(getLedgerTotals(ledgerData.items));
   }, [ledgerData.items, searchTerm]);
 
-  const saveEditedItem = () => {
-    setShowAddItemForm(false);
-    const editedEntry: PartialLedgerDataItem = {
+  const openMultipleEditDialog = () => {
+    setDialogMessage(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, getEditedEntry()));
+    setIsMultipleEditDialogOpen(true);
+  };
+
+  const closeMultipleEditDialog = () => {
+    setIsMultipleEditDialogOpen(false);
+  };
+
+  const getEditedEntry = (): PartialLedgerDataItem => {
+    return {
       guid: editedItemGuid,
       settledDate: setToLocalTimezone(editedSettledDate!),
       type_id: editedTypeId!,
@@ -128,7 +144,17 @@ export const Table = (props: Props) => {
       category_guid: itemToEdit?.category_guid,
       subcategory_guid: itemToEdit?.subcategory_guid,
     };
-    props.editItem(editedEntry, getLedgerDataItemByGuid(ledgerData, editedItemGuid!));
+  };
+
+  const saveEditedItem = () => {
+    setShowAddItemForm(false);
+    props.editItem(getEditedEntry(), getLedgerDataItemByGuid(ledgerData, editedItemGuid!));
+    clearItemToEdit();
+  };
+
+  const saveAllItems = () => {
+    setIsMultipleEditDialogOpen(false);
+    props.editMultipleItems(getEditedEntry(), filteredLedgerData.items);
     clearItemToEdit();
   };
 
@@ -338,6 +364,9 @@ export const Table = (props: Props) => {
                 <button className={classes.button} onClick={() => saveEditedItem()}>
                   Save
                 </button>
+                {filteredLedgerData.items.length < ledgerData.items.length && (<button className={classes.button} onClick={() => openMultipleEditDialog()}>
+                  Save all
+                </button>)}
                 <button className={classes.button} onClick={clearItemToEdit}>
                   Cancel
                 </button>
@@ -558,6 +587,19 @@ export const Table = (props: Props) => {
         <div className={classes.tableRowItem}></div>
       </div>
       <datalist id="labels">{getLabelsDataList(ledgerData.items)}</datalist>
+      <Dialog
+        isOpen={isMultipleEditDialogOpen}
+        title="Confirm bulk edit"
+        onClose={closeMultipleEditDialog}
+        message={dialogMessage}
+        cancelLabel="Cancel"
+        cancelIntent={Intent.NONE}
+        onCancel={closeMultipleEditDialog}
+        actionLabel="Save all"
+        actionIntent={Intent.DANGER}
+        actionIcon="saved"
+        onAction={async () => await saveAllItems()}
+      />
     </div>
   );
 };
