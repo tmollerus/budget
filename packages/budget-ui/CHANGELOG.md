@@ -1,3 +1,10 @@
+# [budget-ui-v3.25.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.3...budget-ui-v3.25.0) (2026-06-02)
+
+
+### Features
+
+* Added bulk editing ([#110](https://github.com/tmollerus/budget/issues/110)) ([e14a399](https://github.com/tmollerus/budget/commit/e14a39958ffd6bd3c32e391c8e1f276d1ac94f5d))
+
 # [budget-ui-v3.24.3](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.2...budget-ui-v3.24.3) (2026-04-23)
 
 
