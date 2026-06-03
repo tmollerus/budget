@@ -327,7 +327,7 @@ export const getClient = async (): Promise<any> => {
   try {
     const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
     // If all items from the source year are paid
-    if (existingItems?.every((item) => { return !!item.paid })) {
+    if (existingItems?.every((item) => { return !item.paid })) {
       console.log(`All items from ${fromYear} are paid. Deleting items from ${fromYear}...`);
       // Delete all items from the source year
       let sql = `
