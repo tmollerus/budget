@@ -164,7 +164,7 @@ export const getClient = async (): Promise<any> => {
     result.rows.forEach((row, index) => {
       result.rows[index].amount = Number(row.amount);
     });
-    logElapsedTime(`Transformed amounts in records from ${year}`, elapsedTime);
+    logElapsedTime(`Elapsed time to query for records from ${year}`, elapsedTime);
     return result.rows;
   } catch (err) {
     console.log(err);
@@ -328,6 +328,7 @@ export const getClient = async (): Promise<any> => {
     const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
     // If all items from the source year are paid
     if (existingItems?.every((item) => { return !!item.paid })) {
+      console.log(`All items from ${fromYear} are paid. Deleting items from ${fromYear}...`);
       // Delete all items from the source year
       let sql = `
         DELETE FROM items
@@ -340,6 +341,8 @@ export const getClient = async (): Promise<any> => {
       const result = await client.query(sql, params);
       console.log(result);
       return true;
+    } else {
+      console.log(`Not deleting items from ${fromYear} since not all items are paid.`);
     }
   } catch (err) {
     console.log(err);
