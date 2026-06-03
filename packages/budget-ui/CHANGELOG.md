@@ -1,3 +1,10 @@
+# [budget-ui-v3.26.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.25.0...budget-ui-v3.26.0) (2026-06-03)
+
+
+### Features
+
+* allow deletion of a full year's items ([#111](https://github.com/tmollerus/budget/issues/111)) ([20fb581](https://github.com/tmollerus/budget/commit/20fb581b94a888d80a7850c19c45ab3555a81b2e))
+
 # [budget-ui-v3.25.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.24.3...budget-ui-v3.25.0) (2026-06-02)
 
 
