@@ -321,6 +321,33 @@ export const getClient = async (): Promise<any> => {
   return false;
  };
 
+ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Promise<boolean> => {
+  const client = await getClient();
+
+  try {
+    const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
+    // If all items from the source year are paid
+    if (existingItems?.every((item) => { return !!item.paid })) {
+      // Delete all items from the source year
+      let sql = `
+        DELETE FROM items
+        WHERE budget_guid = $1
+          AND EXTRACT(YEAR FROM "settledDate") = $2
+          AND paid = false
+      `;
+      const params = [budgetGuid, fromYear];
+      console.log('Executing sql', sql, params);
+      const result = await client.query(sql, params);
+      console.log(result);
+      return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  return false;
+ };
+
  export const deleteCategory = async (budgetGuid: string, categoryGuid: string): Promise<any> => {
   const client = await getClient();
 

@@ -98,9 +98,24 @@ export const deleteEntry = async (budgetGuid: string, itemGuid: string): Promise
   });
 };
 
-export const copyBudget = async (budgetGuid: string, sourceYear: number, destinationYear: number) => {
+export const copyYear = async (budgetGuid: string, sourceYear: number, destinationYear: number) => {
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/copy?from=${sourceYear}&to=${destinationYear}`, {
     method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => {
+    return response.ok;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+export const deleteYear = async (budgetGuid: string, sourceYear: number) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/delete?from=${sourceYear}`, {
+    method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
     },
