@@ -21,10 +21,11 @@ import {
   updateLedgerDataItem,
 } from '../utils/ledger';
 import {
-  copyBudget,
+  copyYear,
   createCategoryRecord,
   createEntry,
   createSubcategoryRecord,
+  deleteYear,
   deleteEntry,
   getBudgetCategories,
   getBudgetGuid,
@@ -293,7 +294,7 @@ export const Ledger = () => {
 
   const copyItems = async (fromYear: number, toYear: number) => {
     try {
-      const isCopySuccessful = await copyBudget(budgetGuid, fromYear, toYear);
+      const isCopySuccessful = await copyYear(budgetGuid, fromYear, toYear);
       if (isCopySuccessful) {
         Toaster.show({
           message: `Successfully copied items from ${fromYear} to ${toYear}`,
@@ -313,6 +314,28 @@ export const Ledger = () => {
     }
   };
 
+  const deleteItems = async (fromYear: number) => {
+    try {
+      const isDeleteSuccessful = await deleteYear(budgetGuid, fromYear);
+      if (isDeleteSuccessful) {
+        Toaster.show({
+          message: `Successfully deleted all items from ${fromYear}`,
+          intent: Intent.SUCCESS,
+          icon: 'tick-circle',
+        });
+        setBudgetYear(fromYear - 1);
+        history.push(`${APP.ROUTES.LEDGER}/${fromYear - 1}`);
+      }
+    } catch (err) {
+      console.log(err);
+      Toaster.show({
+        message: `An error occurred while trying to delete items for ${fromYear}`,
+        intent: Intent.DANGER,
+        icon: 'error',
+      });
+    }
+  };
+
   return (
     <div className={classes.ledger}>
       <div className={classes.ledgerLeft}>
@@ -326,6 +349,7 @@ export const Ledger = () => {
           editItem={editItem}
           editMultipleItems={editMultipleItems}
           copyItems={copyItems}
+          deleteItems={deleteItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}
         />

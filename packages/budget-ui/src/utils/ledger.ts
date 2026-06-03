@@ -68,9 +68,19 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
       return `Successfully updated ${itemType} '${item.label}' from ${itemDate}`;
     case MessageType.CONFIRM_MULTIPLE_EDIT:
       return `Are you sure you would like to update all unpaid, visible transactions to '${item.label}' for ${dollarFormat(item.amount)}? This action cannot be undone.`;
+    case MessageType.CONFIRM_DELETE_ITEMS:
+      return `Are you sure you would like to delete all items from ${formatDate(item.settledDate, 'YYYY')}? This action cannot be undone.`;
     default:
       return ``;
   }
+};
+
+export const allLedgerItemsArePaid = (items: Array<ExtendedLedgerDataItem>): boolean => {
+  return items.every((item: ExtendedLedgerDataItem) => { return !!item.paid });
+};
+
+export const noLedgerItemsArePaid = (items: Array<ExtendedLedgerDataItem>): boolean => {
+  return items.every((item: ExtendedLedgerDataItem) => { return !item.paid });
 };
 
 export const netValue = (amount: number, typeId: number): number => {

@@ -305,6 +305,24 @@ export const useStyles = createUseStyles({
     },
   },
 
+  deleteItems: {
+    border: 'none',
+    backgroundColor: 'transparent',
+    padding: '4px',
+    display: 'flex',
+    color: COLORS.icon_default,
+    cursor: 'pointer',
+    alignItems: 'center',
+    fontStyle: 'italic',
+    '&:hover': {
+      color: COLORS.expense,
+    },
+    '& .material-icons': {
+      fontSize: '15px',
+      paddingLeft: '4px',
+    },
+  },
+
   uncategorized: {
     visibility: 'visible',
     color: COLORS.expense,

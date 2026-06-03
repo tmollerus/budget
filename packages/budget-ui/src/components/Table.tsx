@@ -35,6 +35,7 @@ import {
   getSubcategoryNameByGuid,
   updateItemCategories,
 } from '../utils/ledger';
+import { deleteYear } from '../utils/api';
 
 // From https://codepen.io/kijanmaharjan/pen/aOQVXv
 
@@ -45,6 +46,7 @@ interface Props {
   editItem: (editedEntry: PartialLedgerDataItem, originalEntry?: LedgerDataItem) => void;
   editMultipleItems: (editedItem: PartialLedgerDataItem, originalItems: Array<LedgerDataItem>) => void;
   copyItems: (fromYear: number, toYear: number) => void;
+  deleteItems: (fromYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
 }
@@ -63,6 +65,7 @@ export const Table = (props: Props) => {
   const [ledgerTotals, setLedgerTotals] = useState<LedgerTotals>();
   const [hasScrolled, setHasScrolled] = useState<boolean>(false);
   const [isMultipleEditDialogOpen, setIsMultipleEditDialogOpen] = useState(false);
+  const [isDeleteItemsDialogOpen, setIsDeleteItemsDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<string>('');
 
   const [showAddItemForm, setShowAddItemForm] = useState(false);
@@ -131,6 +134,22 @@ export const Table = (props: Props) => {
 
   const closeMultipleEditDialog = () => {
     setIsMultipleEditDialogOpen(false);
+  };
+
+  const openDeleteItemsDialog = () => {
+    setDialogMessage(getMessage(MessageType.CONFIRM_DELETE_ITEMS, ledgerData.items[0]));
+    setIsDeleteItemsDialogOpen(true);
+  };
+
+  const closeDeleteItemsDialog = () => {
+    setIsDeleteItemsDialogOpen(false);
+  };
+
+  const deleteItems = async (year: number) => {
+    clearItemToEdit();
+    setShowAddItemForm(false);
+    props.deleteItems(year);
+    closeDeleteItemsDialog();
   };
 
   const getEditedEntry = (): PartialLedgerDataItem => {
@@ -435,6 +454,28 @@ export const Table = (props: Props) => {
       );
     }
 
+    if (
+      items.length &&
+      items.every((item: ExtendedLedgerDataItem) => { return !item.paid }) &&
+      new Date().getFullYear() <= parseDate(items[items.length - 1]?.settledDate).getFullYear()
+    ) {
+      rows.push(
+        <div className={[classes.tableRow, classes.tableRowCreate].join(' ')}>
+          <div className={classes.tableRowItem}>
+            <button
+              className={classes.deleteItems}
+              onClick={() => {
+                openDeleteItemsDialog();
+              }}
+            >
+              Delete all budget items from {year}
+              <span className="material-icons md-18">cancel</span>
+            </button>
+          </div>
+        </div>,
+      );
+    }
+
     return rows;
   };
 
@@ -599,6 +640,19 @@ export const Table = (props: Props) => {
         actionIntent={Intent.DANGER}
         actionIcon="saved"
         onAction={async () => await saveAllItems()}
+      />
+      <Dialog
+        isOpen={isDeleteItemsDialogOpen}
+        title="Confirm deletion of all items from this year"
+        onClose={closeDeleteItemsDialog}
+        message={dialogMessage}
+        cancelLabel="Cancel"
+        cancelIntent={Intent.NONE}
+        onCancel={closeDeleteItemsDialog}
+        actionLabel="Delete all"
+        actionIntent={Intent.DANGER}
+        actionIcon="saved"
+        onAction={async () => await deleteItems(budgetYear)}
       />
     </div>
   );

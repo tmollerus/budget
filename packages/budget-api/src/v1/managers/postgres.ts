@@ -164,7 +164,7 @@ export const getClient = async (): Promise<any> => {
     result.rows.forEach((row, index) => {
       result.rows[index].amount = Number(row.amount);
     });
-    logElapsedTime(`Transformed amounts in records from ${year}`, elapsedTime);
+    logElapsedTime(`Elapsed time to query for records from ${year}`, elapsedTime);
     return result.rows;
   } catch (err) {
     console.log(err);
@@ -313,6 +313,36 @@ export const getClient = async (): Promise<any> => {
       const result = await client.query(sql, params);
       console.log(result);
       return true;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  return false;
+ };
+
+ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Promise<boolean> => {
+  const client = await getClient();
+
+  try {
+    const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
+    // If all items from the source year are paid
+    if (existingItems?.every((item) => { return !item.paid })) {
+      console.log(`All items from ${fromYear} are unpaid. Deleting items from ${fromYear}...`);
+      // Delete all items from the source year
+      let sql = `
+        DELETE FROM items
+        WHERE budget_guid = $1
+          AND EXTRACT(YEAR FROM "settledDate") = $2
+          AND paid = false
+      `;
+      const params = [budgetGuid, fromYear];
+      console.log('Executing sql', sql, params);
+      const result = await client.query(sql, params);
+      console.log(result);
+      return true;
+    } else {
+      console.log(`Not deleting items from ${fromYear} since some items are paid.`);
     }
   } catch (err) {
     console.log(err);

@@ -1,7 +1,7 @@
 import { LedgerData, MessageType, PartialLedgerDataItem } from "../types";
 import { parseDate, setToUTC } from "./date";
 import { dollarFormat, formatDate, getEntryTypeName } from "./format";
-import { getLedgerDataItemByGuid, getMessage, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
+import { getLedgerDataItemByGuid, getMessage, allLedgerItemsArePaid, noLedgerItemsArePaid, netValue, updateItemBalances, updateLedgerDataItem } from "./ledger";
 
 const ledgerData: LedgerData = {
   "items": [
@@ -69,6 +69,9 @@ describe('Ledger functions', () => {
     expect(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, ledgerData.items[0])).toContain(dollarFormat(ledgerData.items[0].amount));
     expect(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, ledgerData.items[0])).toContain(ledgerData.items[0].label);
 
+    expect(getMessage(MessageType.CONFIRM_DELETE_ITEMS, ledgerData.items[0])).toContain('delete all');
+    expect(getMessage(MessageType.CONFIRM_DELETE_ITEMS, ledgerData.items[0])).toContain(ledgerData.items[0].settledDate.substring(0, 4));
+
     expect(getMessage(MessageType.ITEM_DELETED, ledgerData.items[0])).toContain('deleted');
     expect(getMessage(MessageType.ITEM_DELETED, ledgerData.items[0])).toContain(getEntryTypeName(ledgerData.items[0].type_id).toLowerCase());
     expect(getMessage(MessageType.ITEM_DELETED, ledgerData.items[0])).toContain(ledgerData.items[0].label);
@@ -85,6 +88,19 @@ describe('Ledger functions', () => {
     expect(getMessage(MessageType.ITEM_EDITED, ledgerData.items[2])).toContain(formatDate(ledgerData.items[2].settledDate, 'MMM. D, YYYY'));
 
     expect(getMessage(MessageType.DEFAULT, ledgerData.items[2])).toBe('');
+  });
+
+  test('allLedgerItemsArePaid', () => {
+    expect(allLedgerItemsArePaid(ledgerData.items)).toBe(true);
+    const withUnpaidItem = JSON.parse(JSON.stringify(ledgerData)) as LedgerData;
+    withUnpaidItem.items[0].paid = false;
+    expect(allLedgerItemsArePaid(withUnpaidItem.items)).toBe(false);
+  });
+
+  test('noLedgerItemsArePaid', () => {
+    expect(noLedgerItemsArePaid(ledgerData.items)).toBe(false);
+    const withUnpaidItems = ledgerData.items.map((item) => { return Object.assign({}, item, {paid: false}) });
+    expect(noLedgerItemsArePaid(withUnpaidItems)).toBe(true);
   });
 
   test('netValue', () => {

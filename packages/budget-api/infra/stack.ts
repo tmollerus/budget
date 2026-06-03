@@ -339,6 +339,14 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'DeleteBudgetItemsFromYear',
+      'deleteHandler',
+      'src/v1/handlers/budgets/items.ts',
+      '/v1/budgets/{budgetGuid}/items/delete',
+      [ aws_apigatewayv2.HttpMethod.DELETE ]
+    );
+
+    createLambdaAndRoute(
       'CreateBudgetItem',
       'postHandler',
       'src/v1/handlers/budgets/item.ts',

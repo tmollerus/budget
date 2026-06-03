@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { copyFromYear, getBudgetItemsByYear } from '../../managers/postgres';
+import { copyFromYear, deleteFromYear, getBudgetItemsByYear } from '../../managers/postgres';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -42,6 +42,36 @@ export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayPro
       return {
         statusCode: 500,
         body: '{"error": "Copy failed"}',
+      };
+    }
+  } catch (err) {
+    console.log(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({err}),
+    };
+  }
+};
+
+export const deleteHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  console.log(`Event: ${JSON.stringify(event, null, 2)}`);
+
+  const budgetGuid = event.pathParameters?.budgetGuid || '';
+  const fromYear = event.queryStringParameters?.from || '';
+
+  try {
+    const isDeleteSuccessful = await deleteFromYear(budgetGuid, fromYear);
+    
+    if (isDeleteSuccessful) {
+      return {
+        statusCode: 200,
+        body: '{}',
+      };
+    } else {
+      return {
+        statusCode: 500,
+        body: '{"error": "Delete failed"}',
       };
     }
   } catch (err) {
