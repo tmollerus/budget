@@ -1,5 +1,5 @@
 import {createUseStyles} from 'react-jss';
-import { COLORS } from '../constants/theme';
+import { COLORS, MONTH_HEIGHT } from '../constants/theme';
 import { getDayOfYear } from '../utils/date';
 
 const background = `linear-gradient(to right, ${COLORS.monthBorder} 1px, transparent 1px) 0 0,
@@ -64,10 +64,21 @@ export const useStyles = createUseStyles({
     '&:hover': {
       borderColor: COLORS.expense,
     },
+    zIndex: 1,
   },
   last: {
     background,
     backgroundRepeat: 'no-repeat',
     backgroundSize: '10px 2px',
+  },
+  highlightedNav: {
+    position: 'absolute',
+    width: '100%',
+    height: `${MONTH_HEIGHT * 100}%`,
+    backgroundColor: COLORS.monthBorder,
+    cursor: 'pointer',
+    opacity: 0.4,
+    border: `1px dashed ${COLORS.mediumGrey}`,
+    top: 0,
   }
 });

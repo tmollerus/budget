@@ -66,6 +66,7 @@ export const Ledger = () => {
   const [dialogMessage, setDialogMessage] = useState<string>('');
   const [isCategorizeDialogOpen, setIsCategorizeDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [percentScrolled, setPercentScrolled] = useState(0);
 
   useEffect(() => {
     async function checkBudgetGuid() {
@@ -339,7 +340,7 @@ export const Ledger = () => {
   return (
     <div className={classes.ledger}>
       <div className={classes.ledgerLeft}>
-        <LedgerNav scrollToMonth={scrollToMonth} />
+        <LedgerNav scrollToMonth={scrollToMonth} percentScrolled={percentScrolled} />
       </div>
       <div className={classes.ledgerRight}>
         <Table
@@ -352,6 +353,7 @@ export const Ledger = () => {
           deleteItems={deleteItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}
+          setPercentScrolled={setPercentScrolled}
         />
       </div>
       <Dialog

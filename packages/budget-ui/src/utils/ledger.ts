@@ -1,6 +1,7 @@
 import { Category, ExtendedLedgerDataItem, LedgerData, LedgerDataItem, MessageType, PartialLedgerDataItem, Subcategory } from "../types";
 import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 import { setToUTC } from './date';
+import { MONTH_HEIGHT } from "../constants/theme";
 
 export const addLedgerDataItem = (ledgerData: LedgerData, addedItem: ExtendedLedgerDataItem): LedgerData => {
   let updatedLedgerData = JSON.parse(JSON.stringify(ledgerData));
@@ -77,6 +78,10 @@ export const getMessage = (messageType: MessageType, item: PartialLedgerDataItem
 
 export const allLedgerItemsArePaid = (items: Array<ExtendedLedgerDataItem>): boolean => {
   return items.every((item: ExtendedLedgerDataItem) => { return !!item.paid });
+};
+
+export const getHighlightedNavPosition = (percentScrolled: number, navHeight: number): number => {
+  return Math.min((percentScrolled / 100) * navHeight, navHeight - (navHeight * MONTH_HEIGHT));
 };
 
 export const noLedgerItemsArePaid = (items: Array<ExtendedLedgerDataItem>): boolean => {

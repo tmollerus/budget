@@ -7,7 +7,7 @@ describe("<LedgerNav />", () => {
   test("should render navigation between years", async () => {
     const year = (new Date()).getFullYear();
     const scrollToMonth = jest.fn();
-    render(<LedgerNav scrollToMonth={scrollToMonth} />);
+    render(<LedgerNav scrollToMonth={scrollToMonth} percentScrolled={0} />);
 
     const yearNav = await screen.findByTestId('yearNav');
     expect(yearNav.innerHTML).toContain(String(year));
@@ -15,7 +15,7 @@ describe("<LedgerNav />", () => {
 
   test("should render navigation between months", async () => {
     const scrollToMonth = jest.fn();
-    render(<LedgerNav scrollToMonth={scrollToMonth} />);
+    render(<LedgerNav scrollToMonth={scrollToMonth} percentScrolled={0} />);
 
     [0,1,2,3,4,5,6,7,8,9,10,11].forEach(async (index) => {
       const month = await screen.findByTestId(`monthNav${index}`);
