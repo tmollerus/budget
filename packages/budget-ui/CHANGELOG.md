@@ -1,3 +1,10 @@
+# [budget-ui-v3.27.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.26.0...budget-ui-v3.27.0) (2026-06-12)
+
+
+### Features
+
+* added scroll indicator in months nav ([#112](https://github.com/tmollerus/budget/issues/112)) ([79298c4](https://github.com/tmollerus/budget/commit/79298c44f8c6ad209bc2dbf4ceb3382244710008))
+
 # [budget-ui-v3.26.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.25.0...budget-ui-v3.26.0) (2026-06-03)
 
 
