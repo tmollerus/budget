@@ -29,3 +29,4 @@ export const BREAKPOINTS: Breakpoints = {
 
 export const PAID_SYMBOL = 10003;
 export const STAT_PLACEHOLDER = '&mdash;';
+export const MONTH_HEIGHT = 0.08333;

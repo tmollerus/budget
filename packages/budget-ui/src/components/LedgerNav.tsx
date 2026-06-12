@@ -1,13 +1,15 @@
 import { useStyles } from './LedgerNav.styles';
 import { useBudgetContext } from '../context';
 import { getMonthAsName } from '../utils/format';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
 import { APP } from '../constants/app';
+import { getHighlightedNavPosition } from '../utils/ledger';
 
 interface Props {
   scrollToMonth: (target: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
+  percentScrolled: number;
 }
 
 export const LedgerNav = (props: Props) => {
@@ -16,11 +18,21 @@ export const LedgerNav = (props: Props) => {
   const { budgetYear, setBudgetYear } = useBudgetContext();
   const [prevBudgetYear, setPrevBudgetYear] = useState<number>(budgetYear - 1);
   const [nextBudgetYear, setNextBudgetYear] = useState<number>(budgetYear + 1);
+  const highlightedNavRef = useRef<HTMLDivElement | null>(null);
+  const monthNavRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setPrevBudgetYear(budgetYear - 1);
     setNextBudgetYear(budgetYear + 1);
   }, [budgetYear]);
+
+  useEffect(() => {
+    const highlightedNav = highlightedNavRef.current;
+    if (highlightedNav) {
+      const monthNavHeight = monthNavRef.current?.clientHeight || 0;
+      highlightedNav.style.setProperty('top', `${getHighlightedNavPosition(props.percentScrolled, monthNavHeight)}px`);
+    }
+  }, [props.percentScrolled]);
 
   const scrollToMonth = (event: React.MouseEvent<HTMLElement, MouseEvent>, target: string) => {
     props.scrollToMonth(target, event);
@@ -70,7 +82,7 @@ export const LedgerNav = (props: Props) => {
           <Icon icon="caret-right" />
         </a>
       </div>
-      <div className={classes.monthNav} data-testid="monthNav">
+      <div className={classes.monthNav} ref={monthNavRef} data-testid="monthNav">
         {isCurrentYear && (
           <span
             className={classes.todayIndicator}
@@ -78,6 +90,10 @@ export const LedgerNav = (props: Props) => {
             onClick={(e) => scrollToMonth(e, 'today')}
           />
         )}
+        <span
+          className={classes.highlightedNav}
+          ref={highlightedNavRef}
+        />
         {getMonthNavFor(0)}
         {getMonthNavFor(1)}
         {getMonthNavFor(2)}

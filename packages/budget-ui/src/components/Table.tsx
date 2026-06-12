@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Intent } from '@blueprintjs/core';
 import { useBudgetContext } from '../context';
 import {
@@ -49,6 +49,7 @@ interface Props {
   deleteItems: (fromYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
+  setPercentScrolled: (percent: number) => void;
 }
 
 export const Table = (props: Props) => {
@@ -85,6 +86,8 @@ export const Table = (props: Props) => {
   const [editedAmount, setEditedAmount] = useState<number>();
   const [editedPaid, setEditedPaid] = useState<boolean>();
   const [editedLabel, setEditedLabel] = useState<string>();
+
+  const rowCollectionRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     defaultDate.setFullYear(budgetYear);
@@ -126,6 +129,24 @@ export const Table = (props: Props) => {
     setFilteredLedgerData(newFilteredLedgerData);
     setLedgerTotals(getLedgerTotals(ledgerData.items));
   }, [ledgerData.items, searchTerm]);
+
+  useEffect(() => {
+    const container = rowCollectionRef.current;
+
+    if (container) {
+      const handleLocalScroll = () => {
+        props.setPercentScrolled((container.scrollTop / container.scrollHeight) * 100);
+      };
+
+      // Attach listener to the specific div element
+      container.addEventListener('scroll', handleLocalScroll);
+
+      // Clean up listener
+      return () => {
+        container.removeEventListener('scroll', handleLocalScroll);
+      };
+    }
+  }, []); 
 
   const openMultipleEditDialog = () => {
     setDialogMessage(getMessage(MessageType.CONFIRM_MULTIPLE_EDIT, getEditedEntry()));
@@ -604,7 +625,7 @@ export const Table = (props: Props) => {
           <div className={classes.tableRowItem}></div>
         </div>
       )}
-      <div className={classes.rowCollection}>
+      <div ref={rowCollectionRef} className={classes.rowCollection}>
         {props.isLoading ? (
           <Loader message={`Loading ${budgetYear} budget`} />
         ) : (
