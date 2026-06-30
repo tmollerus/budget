@@ -80,8 +80,12 @@ export const allLedgerItemsArePaid = (items: Array<ExtendedLedgerDataItem>): boo
   return items.every((item: ExtendedLedgerDataItem) => { return !!item.paid });
 };
 
-export const getHighlightedNavPosition = (percentScrolled: number, navHeight: number): number => {
+export const getHighlightedNavTop = (percentScrolled: number, navHeight: number): number => {
   return Math.min((percentScrolled / 100) * navHeight, navHeight - (navHeight * MONTH_HEIGHT));
+};
+
+export const getHighlightedNavHeight = (percentScrolled: [number, number], navHeight: number): number => {
+  return (percentScrolled[1] - percentScrolled[0]) * navHeight / 100;
 };
 
 export const noLedgerItemsArePaid = (items: Array<ExtendedLedgerDataItem>): boolean => {

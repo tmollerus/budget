@@ -1,7 +1,7 @@
 import { Classes } from "jss";
 import { PAID_SYMBOL } from "../constants/theme";
 import { LedgerDataItem, LedgerTotals } from "../types";
-import { parseDate } from "./date";
+import { getDayOfYear, getDaysInYear, parseDate } from "./date";
 import { dollarFormat, formatDate } from "./format";
 
 export enum ColumnType {
@@ -46,6 +46,11 @@ export const getRowId = (currentDate: string, previousDate: string): string => {
   } else {
     return '';
   }
+};
+
+export const getRowTestId = (currentDate: string): number => {
+  const dayOfYear = getDayOfYear(new Date(currentDate));
+  return dayOfYear / getDaysInYear(currentDate.split("-")[0] as unknown as number) * 100;
 };
 
 export const isFirstOfDate = (currentDate: string, previousDate: string): boolean => {
