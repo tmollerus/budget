@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Icon } from '@blueprintjs/core';
 import { useHistory } from 'react-router-dom';
 import { APP } from '../constants/app';
-import { getHighlightedNavPosition } from '../utils/ledger';
+import { getHighlightedNavHeight, getHighlightedNavTop } from '../utils/ledger';
 
 interface Props {
   scrollToMonth: (target: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
-  percentScrolled: number;
+  percentScrolled: [number, number];
 }
 
 export const LedgerNav = (props: Props) => {
@@ -30,7 +30,8 @@ export const LedgerNav = (props: Props) => {
     const highlightedNav = highlightedNavRef.current;
     if (highlightedNav) {
       const monthNavHeight = monthNavRef.current?.clientHeight || 0;
-      highlightedNav.style.setProperty('top', `${getHighlightedNavPosition(props.percentScrolled, monthNavHeight)}px`);
+      highlightedNav.style.setProperty('top', `${getHighlightedNavTop(props.percentScrolled[0], monthNavHeight)}px`);
+      highlightedNav.style.setProperty('height', `${getHighlightedNavHeight(props.percentScrolled, monthNavHeight)}px`);
     }
   }, [props.percentScrolled]);
 

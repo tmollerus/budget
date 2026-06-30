@@ -66,7 +66,7 @@ export const Ledger = () => {
   const [dialogMessage, setDialogMessage] = useState<string>('');
   const [isCategorizeDialogOpen, setIsCategorizeDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [percentScrolled, setPercentScrolled] = useState(0);
+  const [percentScrolled, setPercentScrolled] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
     async function checkBudgetGuid() {
@@ -306,7 +306,7 @@ export const Ledger = () => {
         history.push(`${APP.ROUTES.LEDGER}/${toYear}`);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       Toaster.show({
         message: `An error occurred while trying to copy items from ${fromYear} to ${toYear}`,
         intent: Intent.DANGER,
@@ -328,7 +328,7 @@ export const Ledger = () => {
         history.push(`${APP.ROUTES.LEDGER}/${fromYear - 1}`);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       Toaster.show({
         message: `An error occurred while trying to delete items for ${fromYear}`,
         intent: Intent.DANGER,

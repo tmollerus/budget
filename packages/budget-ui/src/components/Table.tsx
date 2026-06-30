@@ -24,6 +24,7 @@ import {
   ColumnType,
   getRowId,
   getLedgerTotals,
+  getRowTestId,
 } from '../utils/table';
 import { Dialog } from './Dialog';
 import { Loader } from './Loader';
@@ -49,7 +50,7 @@ interface Props {
   deleteItems: (fromYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
-  setPercentScrolled: (percent: number) => void;
+  setPercentScrolled: (percent: [number, number]) => void;
 }
 
 export const Table = (props: Props) => {
@@ -110,7 +111,7 @@ export const Table = (props: Props) => {
         setHasScrolled(true);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }, [budgetYear, filteredLedgerData.items]);
 
@@ -130,13 +131,49 @@ export const Table = (props: Props) => {
     setLedgerTotals(getLedgerTotals(ledgerData.items));
   }, [ledgerData.items, searchTerm]);
 
+  // Debounce helper to prevent excessive calculations during scrolling
+  const debounce = (func: (...args: any[]) => void, delay: number) => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    return (...args: any) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
   useEffect(() => {
     const container = rowCollectionRef.current;
 
     if (container) {
-      const handleLocalScroll = () => {
-        props.setPercentScrolled((container.scrollTop / container.scrollHeight) * 100);
-      };
+      const handleLocalScroll = debounce(() => {
+        // Select all tracked sections inside the container
+        const elements = container.querySelectorAll('div[data-test-id]');
+        let highestElementTestId: number = 0;
+        let lowestElementTestId: number = 0;
+        let minDistanceTop = Infinity;
+        let minDistanceBottom = Infinity;
+
+        elements.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          
+          // Find the element whose top is closest to the top of the viewport
+          const distanceToTop = Math.abs(rect.top);
+
+          if (distanceToTop < minDistanceTop) {
+            minDistanceTop = distanceToTop;
+            highestElementTestId = el.getAttribute('data-test-id') as unknown as number || 0;
+          }
+
+          // Find the element whose bottom is closest to the bottom of the viewport
+          const distanceToBottom = Math.abs(rect.bottom - window.innerHeight);
+
+          if (distanceToBottom < minDistanceBottom) {
+            minDistanceBottom = distanceToBottom;
+            lowestElementTestId = el.getAttribute('data-test-id') as unknown as number || 0;
+          }
+        });
+
+        props.setPercentScrolled([highestElementTestId, lowestElementTestId]);
+      }, 5);
 
       // Attach listener to the specific div element
       container.addEventListener('scroll', handleLocalScroll);
@@ -271,6 +308,7 @@ export const Table = (props: Props) => {
       return (
         <div
           id={getRowId(item.settledDate, previousSettledDate)}
+          data-test-id={getRowTestId(item.settledDate)}
           className={rowClassName}
           key={item.guid}
           onClick={(e) => handleRowClick(e, index)}
