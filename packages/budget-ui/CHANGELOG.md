@@ -1,3 +1,10 @@
+# [budget-ui-v3.28.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.27.0...budget-ui-v3.28.0) (2026-06-30)
+
+
+### Features
+
+* made scroll nav highlight reactive ([#113](https://github.com/tmollerus/budget/issues/113)) ([68df266](https://github.com/tmollerus/budget/commit/68df266a2821c50ec3156b48c89907d760b40d0e))
+
 # [budget-ui-v3.27.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.26.0...budget-ui-v3.27.0) (2026-06-12)
 
 
