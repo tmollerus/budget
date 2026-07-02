@@ -46,8 +46,8 @@ export class BudgetApiStack extends Stack {
     const createLambdaAndRoute = (
       lambdaName: string,
       lambdaHandler: string,
-      lambdaEntry: string,
       version: string,
+      lambdaEntry: string,
       route: string,
       httpMethods: Array<aws_apigatewayv2.HttpMethod>,
     ) => {
@@ -96,7 +96,7 @@ export class BudgetApiStack extends Stack {
       );
   
       budgetApi.addRoutes({
-        path: `/${version}/${route}`,
+        path: `/${version}${route}`,
         methods: httpMethods,
         integration: integration,
       });
