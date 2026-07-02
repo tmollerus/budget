@@ -1,10 +1,10 @@
 import { Context, APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult } from 'aws-lambda';
-import { getOktaUser } from '../managers/okta';
-import { getBudgetByEmail } from '../managers/postgres';
-import { getRedisClient } from '../managers/redis';
-import { BudgetRecord, Effect, OktaUser } from '../types';
-import { getPolicyResponse } from '../utils/authorizer';
-import { logElapsedTime } from '../utils/event';
+import { getOktaUser } from '../../managers/okta';
+import { getBudgetByEmail } from '../../managers/postgres';
+import { getRedisClient } from '../../managers/redis';
+import { BudgetRecord, Effect, OktaUser } from '../../types';
+import { getPolicyResponse } from '../../utils/authorizer';
+import { logElapsedTime } from '../../utils/event';
 
 const memoryCache: Record<string, { user: OktaUser; budgetGuid: string }> = {};
 

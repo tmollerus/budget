@@ -1,8 +1,8 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { getOktaUser } from '../../../managers/okta';
-import { describeDatabase, getBudgetByEmail } from '../../../managers/postgres';
-import { BudgetRecord, OktaUser } from '../../../types';
-import { getAuthToken } from '../../../utils/event';
+import { getOktaUser } from '../../../../managers/okta';
+import { describeDatabase, getBudgetByEmail } from '../../../../managers/postgres';
+import { BudgetRecord, OktaUser } from '../../../../types';
+import { getAuthToken } from '../../../../utils/event';
 
 export const getHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);

@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { describeDatabase } from '../../../managers/postgres';
+import { describeDatabase } from '../../../../managers/postgres';
 
 export const getHandler = async (): Promise<APIGatewayProxyResult> => {
   try {

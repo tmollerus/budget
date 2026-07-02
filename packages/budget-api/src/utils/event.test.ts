@@ -1,4 +1,4 @@
-import { headers } from "../test/fixtures/events";
+import { headers } from "../v1/test/fixtures/events";
 import { getAuthToken, logElapsedTime } from "./event";
 
 describe('Event utility', () => {

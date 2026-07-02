@@ -1,6 +1,6 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { createBudgetItem, softDeleteBudgetItem, updateBudgetItem } from '../../managers/postgres';
-import { ItemRecord } from '../../types';
+import { createBudgetItem, softDeleteBudgetItem, updateBudgetItem } from '../../../managers/postgres';
+import { ItemRecord } from '../../../types';
 
 export const postHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
