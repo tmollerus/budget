@@ -14,7 +14,7 @@ import {
   aws_logs,
   aws_rds,
   aws_secretsmanager,
-  aws_dynamodb
+  aws_dynamodb,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -178,7 +178,7 @@ export class BudgetApiStack extends Stack {
 
     const dynamodbTable = new aws_dynamodb.TableV2(
       this,
-      `${STACK_NAME}-DynamoDBTable`,
+      `${STACK_NAME}-Table`,
         {
         partitionKey: {
           name: 'pk',
@@ -188,12 +188,20 @@ export class BudgetApiStack extends Stack {
           name: 'sk',
           type: aws_dynamodb.AttributeType.STRING
         },
-        tableName: `${STACK_NAME}-DynamoDBTable`,
+        tableName: `${STACK_NAME}-Table`,
         removalPolicy: RemovalPolicy.RETAIN,
         billing: aws_dynamodb.Billing.onDemand(),
         pointInTimeRecovery: true,
       }
     );
+    dynamodbTable.addGlobalSecondaryIndex({
+      indexName: `${STACK_NAME}-Users`,
+      partitionKey: {
+        name: 'sk',
+        type: aws_dynamodb.AttributeType.STRING
+      },
+      projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
+    });
 
     /*
       partitionKey: [budgetId#uuid]
@@ -249,7 +257,7 @@ export class BudgetApiStack extends Stack {
 
     const authorizerLambda: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
-      functionName: `${STACK_NAME}-AuthorizerLambda`,
+      functionName: `${STACK_NAME}-AuthorizerLambda-v1`,
       handler: 'handler',
       entry: path.join(__dirname, '..', 'src', 'v1', 'authorizer', 'index.ts'),
       bundling: {
