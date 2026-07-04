@@ -81,7 +81,7 @@ export class BudgetApiStack extends Stack {
 
       const lambda: aws_lambda.IFunction = new NodejsFunction(
         this,
-        `${STACK_NAME}-${lambdaName}Lambda`,
+        `${STACK_NAME}-${lambdaName}Lambda-${version}`,
         {
           ...props,
         }
