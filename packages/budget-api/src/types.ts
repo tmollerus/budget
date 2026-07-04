@@ -83,3 +83,12 @@ export interface SubcategoryRecord {
   dateModified?: string;
   dateCreated?: string;
 }
+
+export interface UserRecord {
+  guid: string;
+  fullName: string;
+  active: boolean;
+  dateLastLogin: string;
+  dateCreated: string;
+  dateModified: string;
+}

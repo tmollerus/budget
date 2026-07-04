@@ -1,4 +1,4 @@
-import { getInsertColumnNames, getInsertValues } from "./db";
+import { getInsertColumnNames, getInsertValues, createDynamoDbItem } from "./db";
 import { Seeds } from '../types';
 
 describe('db utility', () => {

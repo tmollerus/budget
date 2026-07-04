@@ -17,7 +17,7 @@ import {
   aws_dynamodb,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LOCAL_DOMAIN } from '../src/constants/environment';
 import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/utils/cdk';
 import path = require('path');
@@ -51,7 +51,7 @@ export class BudgetApiStack extends Stack {
       route: string,
       httpMethods: Array<aws_apigatewayv2.HttpMethod>,
     ) => {
-      let props = {
+      let props: NodejsFunctionProps = {
         runtime: aws_lambda.Runtime.NODEJS_24_X,
         functionName: `${STACK_NAME}-${lambdaName}-${version}`,
         handler: lambdaHandler,
@@ -65,6 +65,8 @@ export class BudgetApiStack extends Stack {
         environment: {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
           DATABASE_URL: dbProxy.endpoint,
+          DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
+          DYNAMODB_INDEX_NAME: dynamodbTableIndexName,
         },
       };
       if (version === 'v1') {
@@ -85,7 +87,7 @@ export class BudgetApiStack extends Stack {
         }
       );
 
-      if (version !== 'v1') {
+      if (version === 'v2') {
         dynamodbTable.grantReadWriteData(lambda);
       }
 
@@ -99,6 +101,7 @@ export class BudgetApiStack extends Stack {
         path: `/${version}${route}`,
         methods: httpMethods,
         integration: integration,
+        authorizer: version === 'v2' ? authorizerV2 : authorizerV1,
       });
 
       lambda.role?.addManagedPolicy(
@@ -194,13 +197,14 @@ export class BudgetApiStack extends Stack {
         pointInTimeRecovery: true,
       }
     );
+    const dynamodbTableIndexName = `${STACK_NAME}-Users`;
     dynamodbTable.addGlobalSecondaryIndex({
-      indexName: `${STACK_NAME}-Users`,
+      indexName: dynamodbTableIndexName,
       partitionKey: {
         name: 'sk',
         type: aws_dynamodb.AttributeType.STRING
       },
-      projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
+      projectionType: aws_dynamodb.ProjectionType.ALL,
     });
 
     /*
@@ -255,7 +259,7 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const authorizerLambda: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
+    const authorizerLambdaV1: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambdaV1`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
       functionName: `${STACK_NAME}-AuthorizerLambda-v1`,
       handler: 'handler',
@@ -274,16 +278,50 @@ export class BudgetApiStack extends Stack {
         DATABASE_URL: dbProxy.endpoint,
       }
     });
-    secret.grantRead(authorizerLambda);
-    authorizerLambda.role?.addManagedPolicy(
+    secret.grantRead(authorizerLambdaV1);
+    authorizerLambdaV1.role?.addManagedPolicy(
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
         'service-role/AWSLambdaENIManagementAccess',
       ),
     );
 
-    const authorizer = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
-      `${STACK_NAME}-HttpLambdaAuthorizer`,
-      authorizerLambda,
+    const authorizerV1 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
+      `${STACK_NAME}-HttpLambdaAuthorizerV1`,
+      authorizerLambdaV1,
+      {
+        responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
+        resultsCacheTtl: Duration.seconds(0),
+      }
+    );
+
+    const authorizerLambdaV2: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambdaV2`, {
+      runtime: aws_lambda.Runtime.NODEJS_24_X,
+      functionName: `${STACK_NAME}-AuthorizerLambda-v2`,
+      handler: 'handler',
+      entry: path.join(__dirname, '..', 'src', 'v2', 'authorizer', 'index.ts'),
+      bundling: {
+        externalModules: [
+          'pg-native',
+        ],
+      },
+      vpc,
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: SUBNET_TYPE,
+      }),
+      securityGroups: [lambdaSecurityGroup],
+      environment: {
+        DATABASE_URL: dbProxy.endpoint,
+      }
+    });
+    authorizerLambdaV2.role?.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        'service-role/AWSLambdaENIManagementAccess',
+      ),
+    );
+
+    const authorizerV2 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
+      `${STACK_NAME}-HttpLambdaAuthorizerV2`,
+      authorizerLambdaV2,
       {
         responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
         resultsCacheTtl: Duration.seconds(0),
@@ -310,7 +348,7 @@ export class BudgetApiStack extends Stack {
           allowCredentials: false,
           allowOrigins: ALLOWED_ORIGINS,
         },
-        defaultAuthorizer: authorizer,
+        defaultAuthorizer: authorizerV1,
         description: 'Rest API for the Budget application',
         defaultDomainMapping: { domainName },
       }

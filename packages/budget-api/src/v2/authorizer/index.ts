@@ -1,6 +1,6 @@
 import { Context, APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult } from 'aws-lambda';
 import { getOktaUser } from '../../managers/okta';
-import { getBudgetByEmail } from '../../managers/postgres';
+import { getBudgetByEmail } from '../../managers/dynamodb';
 import { BudgetRecord, Effect, OktaUser } from '../../types';
 import { getPolicyResponse } from '../../utils/authorizer';
 import { logElapsedTime } from '../../utils/event';
