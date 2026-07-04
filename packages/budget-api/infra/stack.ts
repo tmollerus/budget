@@ -392,6 +392,15 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'GetAuth',
+      'getHandler',
+      'v2',
+      '/handlers/auth/login/item.ts',
+      '/auth/login',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
       'GetMigrations',
       'getHandler',
       'v1',
