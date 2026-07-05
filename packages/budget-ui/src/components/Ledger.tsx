@@ -85,8 +85,9 @@ export const Ledger = () => {
         setSubcategories(subcategories);
       }
     }
+
     checkBudgetGuid();
-  });
+  }, []);
 
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);

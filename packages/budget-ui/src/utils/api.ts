@@ -3,7 +3,7 @@ import { BudgetAuthResponse, LedgerData } from '../types';
 import { getAuthorization } from './session';
 
 export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/auth/login`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/auth/login`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,

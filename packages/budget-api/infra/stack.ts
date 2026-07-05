@@ -309,7 +309,7 @@ export class BudgetApiStack extends Stack {
         'service-role/AWSLambdaENIManagementAccess',
       ),
     );
-    dynamodbTable.grantReadWriteData(authorizerLambdaV2);
+    dynamodbTable.grantReadData(authorizerLambdaV2);
 
     const authorizerV2 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
       `${STACK_NAME}-HttpLambdaAuthorizerV2`,
@@ -429,6 +429,15 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'GetBudgetItemsForYear',
+      'getHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
       'CopyBudgetItemsToYear',
       'postHandler',
       'v1',
@@ -492,9 +501,27 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'CreateCategory',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/category.ts',
+      '/budgets/{budgetGuid}/categories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
       'GetSubcategories',
       'getHandler',
       'v1',
+      '/handlers/budgets/subcategories.ts',
+      '/budgets/{budgetGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetSubcategories',
+      'getHandler',
+      'v2',
       '/handlers/budgets/subcategories.ts',
       '/budgets/{budgetGuid}/subcategories',
       [ aws_apigatewayv2.HttpMethod.GET ]
