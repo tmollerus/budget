@@ -261,7 +261,7 @@ export class BudgetApiStack extends Stack {
 
     const authorizerLambdaV1: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
-      functionName: `${STACK_NAME}-AuthorizerLambda`,
+      functionName: `${STACK_NAME}-AuthorizerLambda-v1`,
       handler: 'handler',
       entry: path.join(__dirname, '..', 'src', 'v1', 'authorizer', 'index.ts'),
       bundling: {
@@ -286,7 +286,7 @@ export class BudgetApiStack extends Stack {
     );
 
     const authorizerV1 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
-      `${STACK_NAME}-HttpLambdaAuthorizer`,
+      `${STACK_NAME}-HttpLambdaAuthorizer-v1`,
       authorizerLambdaV1,
       {
         responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
@@ -299,18 +299,9 @@ export class BudgetApiStack extends Stack {
       functionName: `${STACK_NAME}-AuthorizerLambda-v2`,
       handler: 'handler',
       entry: path.join(__dirname, '..', 'src', 'v2', 'authorizer', 'index.ts'),
-      bundling: {
-        externalModules: [
-          'pg-native',
-        ],
-      },
-      vpc,
-      vpcSubnets: vpc.selectSubnets({
-        subnetType: SUBNET_TYPE,
-      }),
-      securityGroups: [lambdaSecurityGroup],
       environment: {
-        DATABASE_URL: dbProxy.endpoint,
+        DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
+        DYNAMODB_INDEX_NAME: dynamodbTableIndexName,
       }
     });
     authorizerLambdaV2.role?.addManagedPolicy(
@@ -318,6 +309,7 @@ export class BudgetApiStack extends Stack {
         'service-role/AWSLambdaENIManagementAccess',
       ),
     );
+    dynamodbTable.grantReadWriteData(authorizerLambdaV2);
 
     const authorizerV2 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
       `${STACK_NAME}-HttpLambdaAuthorizerV2`,
