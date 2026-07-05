@@ -204,7 +204,7 @@ export class BudgetApiStack extends Stack {
         name: 'sk',
         type: aws_dynamodb.AttributeType.STRING
       },
-      projectionType: aws_dynamodb.ProjectionType.ALL,
+      projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
     });
 
     /*
