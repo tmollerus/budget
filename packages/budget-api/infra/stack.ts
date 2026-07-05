@@ -259,9 +259,9 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const authorizerLambdaV1: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambdaV1`, {
+    const authorizerLambdaV1: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
-      functionName: `${STACK_NAME}-AuthorizerLambda-v1`,
+      functionName: `${STACK_NAME}-AuthorizerLambda`,
       handler: 'handler',
       entry: path.join(__dirname, '..', 'src', 'v1', 'authorizer', 'index.ts'),
       bundling: {
@@ -286,7 +286,7 @@ export class BudgetApiStack extends Stack {
     );
 
     const authorizerV1 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
-      `${STACK_NAME}-HttpLambdaAuthorizerV1`,
+      `${STACK_NAME}-HttpLambdaAuthorizer`,
       authorizerLambdaV1,
       {
         responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
