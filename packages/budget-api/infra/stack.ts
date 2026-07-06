@@ -465,6 +465,15 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'CreateBudgetItem',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
       'UpdateBudgetItem',
       'putHandler',
       'v1',
@@ -474,9 +483,27 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'UpdateBudgetItem',
+      'putHandler',
+      'v2',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items/{itemGuid}',
+      [ aws_apigatewayv2.HttpMethod.PUT ]
+    );
+
+    createLambdaAndRoute(
       'DeleteBudgetItem',
       'deleteHandler',
       'v1',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items/{itemGuid}',
+      [ aws_apigatewayv2.HttpMethod.DELETE ]
+    );
+
+    createLambdaAndRoute(
+      'DeleteBudgetItem',
+      'deleteHandler',
+      'v2',
       '/handlers/budgets/item.ts',
       '/budgets/{budgetGuid}/items/{itemGuid}',
       [ aws_apigatewayv2.HttpMethod.DELETE ]
