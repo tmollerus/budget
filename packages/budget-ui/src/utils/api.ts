@@ -33,7 +33,7 @@ export const getBudget = async (budgetGuid: string, year: string): Promise<Ledge
 };
 
 export const getBudgetItems = async (budgetGuid: string, year: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items?year=${year}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -41,7 +41,7 @@ export const getBudgetItems = async (budgetGuid: string, year: string) => {
   })
   .then((response) => response.json())
   .then((data) => {
-    Promise.all(data.items.map((item: any) => { return createEntryV2(budgetGuid, item); }));
+    // Promise.all(data.items.map((item: any) => { return createEntryV2(budgetGuid, item); }));
     return data;
   })
   .catch((err) => {

@@ -16,6 +16,7 @@ import {
   addLedgerDataItem,
   deleteLedgerDataItem,
   getMessage,
+  sortLedgerData,
   updateItemBalances,
   updateItemCategories,
   updateLedgerDataItem,
@@ -93,6 +94,7 @@ export const Ledger = () => {
     setIsLoading(true);
     setLedgerData({ items: [] });
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
+    newLedgerData.items = sortLedgerData(newLedgerData);
     newLedgerData.items = updateItemBalances(newLedgerData);
     newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
     setLedgerData(newLedgerData);

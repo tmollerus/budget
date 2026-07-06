@@ -1,11 +1,15 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DeleteCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 import { BudgetRecord, CategoryRecord, ItemRecord, QueryResult, SubcategoryRecord, UserRecord } from '../types';
 import { logElapsedTime } from '../utils/event';
 
 export const getClient = async (): Promise<any> => {
   return new DynamoDBClient({});
+};
+
+export const getDocClient = async (client: DynamoDBClient): Promise<any> => {
+  return DynamoDBDocumentClient.from(client);
 };
 
 export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
@@ -26,9 +30,10 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
 
     const getBudgetCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
-      KeyConditionExpression: "pk = :budgetGuid",
+      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
       ExpressionAttributeValues: {
         ":budgetGuid": getUserResponse.Items?.[0]?.pk?.replace('user#', 'budget#'),
+        ":skPrefix": "budget#",
       }
     });
     const response = await client.send(getBudgetCommand);
@@ -40,19 +45,23 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
 
 export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Promise<Array<ItemRecord> | void> => {
   const client = await getClient();
-  const startTime = new Date();
+  const docClient = await getDocClient(client);
 
   try {
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
-      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix) AND #active = :active",
+      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
+      FilterExpression: " begins_with(#settledDate, :year)",
+      ExpressionAttributeNames: {
+        '#settledDate': 'settledDate',
+      },
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
-        ":skPrefix": `item#${year}`,
-        ":active": true
+        ":skPrefix": 'item#',
+        ":year": year,
       }
     });
-    const response = await client.send(getCommand);
+    const response = await docClient.send(getCommand);
 
     return response.Items;
   } catch (err) {
