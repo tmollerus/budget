@@ -107,7 +107,7 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
       Item: {
         pk: `budget#${budgetGuid}`,
-        sk: `item#${uuidv4()}`,
+        sk: `item#${budgetItem.guid || uuidv4()}`,
         ...budgetItem,
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
