@@ -45,9 +45,11 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Pr
   try {
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
-      KeyConditionExpression: "pk = :budgetGuid",
+      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix) AND #active = :active",
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
+        ":skPrefix": `item#${year}`,
+        ":active": true
       }
     });
     const response = await client.send(getCommand);
@@ -62,7 +64,16 @@ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<C
   const client = await getClient();
 
   try {
-    return;
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
+      ExpressionAttributeValues: {
+        ":budgetGuid": `budget#${budgetGuid}`,
+        ":skPrefix": "category#"
+      }
+    });
+    const response = await client.send(getCommand);
+    return response.Items;
   } catch (err) {
     console.log(err);
   }
@@ -72,7 +83,16 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
   const client = await getClient();
 
   try {
-    return;
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
+      ExpressionAttributeValues: {
+        ":budgetGuid": `budget#${budgetGuid}`,
+        ":skPrefix": "subcategory#"
+      }
+    });
+    const response = await client.send(getCommand);
+    return response.Items;
   } catch (err) {
     console.log(err);
   }
