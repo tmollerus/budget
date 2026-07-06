@@ -535,6 +535,15 @@ export class BudgetApiStack extends Stack {
       '/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
+
+    createLambdaAndRoute(
+      'CreateSubcategory',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/subcategory.ts',
+      '/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
   }
 }
 

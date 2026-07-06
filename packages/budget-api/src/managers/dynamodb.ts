@@ -15,7 +15,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
     const getUserCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
       IndexName: process.env.DYNAMODB_INDEX_NAME,
-      KeyConditionExpression: "pk = :userId",
+      KeyConditionExpression: "sk = :userId",
       ExpressionAttributeValues: {
         ":userId": `user#${email}`,
       }
@@ -111,9 +111,8 @@ export const createCategoryRecord = async (budgetGuid: string, category: Categor
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
       Item: {
         pk: `budget#${budgetGuid}`,
-        sk: `category#${uuidv4()}`,
+        sk: `category#${category.guid || uuidv4()}`,
         ...category,
-        budgetGuid,
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
       },
@@ -136,9 +135,8 @@ export const createSubcategoryRecord = async (budgetGuid: string, subcategory: S
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
       Item: {
         pk: `budget#${budgetGuid}`,
-        sk: `subcategory#${uuidv4()}`,
+        sk: `subcategory#${subcategory.guid || uuidv4()}`,
         ...subcategory,
-        budgetGuid,
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
       },

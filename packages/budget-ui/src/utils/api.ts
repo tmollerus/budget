@@ -137,6 +137,7 @@ export const getBudgetCategories = async (budgetGuid: string) => {
   })
   .then((response) => response.json())
   .then((data) => {
+    // Promise.all(data.items.map((category: any) => createCategoryRecordV2(budgetGuid, category)));
     data.items.push({ guid: null, budget_guid: budgetGuid, label: 'Uncategorized'});
     return data.items;
   })
@@ -162,6 +163,23 @@ export const createCategoryRecord = async (budgetGuid: string, category: any) =>
   });
 };
 
+const createCategoryRecordV2 = async (budgetGuid: string, category: any) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/categories`, {
+    method: 'POST',
+    body: JSON.stringify(Object.assign(category, {budget_guid: budgetGuid})),
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
 export const getBudgetSubcategories = async (budgetGuid: string) => {
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/subcategories`, {
     method: 'GET',
@@ -171,6 +189,7 @@ export const getBudgetSubcategories = async (budgetGuid: string) => {
   })
   .then((response) => response.json())
   .then((data) => {
+    // Promise.all(data.items.map((subcategory: any) => createSubcategoryRecordV2(budgetGuid, subcategory)));
     data.items.push({ guid: null, category_guid: null, label: 'Uncategorized'});
     return data.items;
   })
@@ -181,6 +200,23 @@ export const getBudgetSubcategories = async (budgetGuid: string) => {
 
 export const createSubcategoryRecord = async (budgetGuid: string, subcategory: any, categoryGuid: string) => {
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories/${categoryGuid}/subcategories`, {
+    method: 'POST',
+    body: JSON.stringify(Object.assign(subcategory, {budget_guid: budgetGuid})),
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+const createSubcategoryRecordV2 = async (budgetGuid: string, subcategory: any, categoryGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/categories/${categoryGuid}/subcategories`, {
     method: 'POST',
     body: JSON.stringify(Object.assign(subcategory, {budget_guid: budgetGuid})),
     headers: {
