@@ -492,6 +492,15 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'GetCategories',
+      'getHandler',
+      'v2',
+      '/handlers/budgets/categories.ts',
+      '/budgets/{budgetGuid}/categories',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
       'CreateCategory',
       'postHandler',
       'v1',

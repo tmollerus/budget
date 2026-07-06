@@ -129,7 +129,26 @@ export const deleteYear = async (budgetGuid: string, sourceYear: number) => {
 };
 
 export const getBudgetCategories = async (budgetGuid: string) => {
+  await getBudgetCategoriesV2(budgetGuid);
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    // Promise.all(data.items.map((category: any) => createCategoryRecordV2(budgetGuid, category)));
+    data.items.push({ guid: null, budget_guid: budgetGuid, label: 'Uncategorized'});
+    return data.items;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+export const getBudgetCategoriesV2 = async (budgetGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/categories`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -181,6 +200,7 @@ const createCategoryRecordV2 = async (budgetGuid: string, category: any) => {
 };
 
 export const getBudgetSubcategories = async (budgetGuid: string) => {
+  await getBudgetSubcategoriesV2(budgetGuid);
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/subcategories`, {
     method: 'GET',
     headers: {
@@ -189,7 +209,24 @@ export const getBudgetSubcategories = async (budgetGuid: string) => {
   })
   .then((response) => response.json())
   .then((data) => {
-    // Promise.all(data.items.map((subcategory: any) => createSubcategoryRecordV2(budgetGuid, subcategory)));
+    // Promise.all(data.items.map((subcategory: any) => createSubcategoryRecordV2(budgetGuid, subcategory, subcategory.category_guid)));
+    data.items.push({ guid: null, category_guid: null, label: 'Uncategorized'});
+    return data.items;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
+export const getBudgetSubcategoriesV2 = async (budgetGuid: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/subcategories`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
     data.items.push({ guid: null, category_guid: null, label: 'Uncategorized'});
     return data.items;
   })
