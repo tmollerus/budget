@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 import { BudgetRecord, CategoryRecord, ItemRecord, QueryResult, SubcategoryRecord, UserRecord } from '../types';
 import { logElapsedTime } from '../utils/event';
@@ -279,17 +279,36 @@ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Prom
 
   try {
     const itemsToDelete = await getBudgetItemsByYear(budgetGuid, fromYear);
+
     if (itemsToDelete) {
-      await Promise.all(itemsToDelete.map(async (item) => {
-        const command = new DeleteCommand({
-          TableName: process.env.DYNAMODB_TABLE_NAME,
-          Key: {
+      do {
+        const keysToDelete = [];
+        for (let i = 0; i < 25; i++) {
+          keysToDelete.push({
             pk: `budget#${budgetGuid}`,
-            sk: `item#${item.guid}`
+            sk: `item#${itemsToDelete[i].guid}`
+          });
+        }
+        const deleteRequests = keysToDelete.map(key => ({
+          DeleteRequest: {
+            Key: key
+          }
+        }));
+        const command = new BatchWriteCommand({
+          RequestItems: {
+            [process.env.DYNAMODB_TABLE_NAME!]: deleteRequests
           }
         });
-        await client.send(command);
-      }));
+
+        try {
+          const response = await client.send(command);
+          console.log("Response from deleting items", response);
+          itemsToDelete.splice(0, 25);
+        } catch (err) {
+          console.error(err);
+          break;
+        }
+      } while (itemsToDelete!.length);
     }
   } catch (err) {
     console.log(err);
