@@ -237,33 +237,49 @@ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear:
 
   try {
     // Get all items from the source year
-    const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
+    const itemsToCopy = await getBudgetItemsByYear(budgetGuid, fromYear);
 
     // If there are items
-    if (existingItems) {
-      // For each item, create a new item with the same data but with the new year
-      await Promise.all(existingItems.map(async (item) => {
-        console.log("Item to copy", item);
-        let newSettledDate = new Date(item.settledDate);
-        newSettledDate.setFullYear(Number(toYear));
-        const newItem = { ...item };
-        newItem.settledDate = newSettledDate.toISOString();
-        newItem.paid = false;
-        newItem.guid = uuidv4();
-        newItem.dateCreated = new Date().toISOString();
-        newItem.dateModified = new Date().toISOString();
-        const putCommand = new PutCommand({
-          TableName: process.env.DYNAMODB_TABLE_NAME || '',
-          Item: {
-            ...newItem,
+    if (itemsToCopy) {
+      
+      do {
+        const itemsToWrite = [];
+        const limit = Math.min(25, itemsToCopy.length);
+        for (let i = 0; i < limit; i++) {
+          let newSettledDate = new Date(itemsToCopy[i].settledDate);
+          newSettledDate.setFullYear(Number(toYear));
+          itemsToWrite.push({
             pk: `budget#${budgetGuid}`,
-            sk: `item#${newItem.guid}`,
-          },
+            sk: `item#${itemsToCopy[i].guid}`,
+            settledDate: newSettledDate.toISOString(),
+            paid: false,
+            guid: uuidv4(),
+            dateCreated: new Date().toISOString(),
+            dateModified: new Date().toISOString(),
+          });
+        }
+        const writeRequests = itemsToWrite.map(item => ({
+          PutRequest: {
+            Item: item
+          }
+        }));
+        const command = new BatchWriteCommand({
+          RequestItems: {
+            [process.env.DYNAMODB_TABLE_NAME!]: writeRequests
+          }
         });
-        console.log("Inserting copied item", newItem);
-        const putResponse = await client.send(putCommand);
-        console.log("Response from inserting copied item", putResponse);
-      }));
+
+        try {
+          const response = await client.send(command);
+          console.log("Response from copying items", response);
+          itemsToCopy.splice(0, 25);
+        } catch (err) {
+          console.error(err);
+          break;
+        }
+      } while (itemsToCopy!.length);
+    } else {
+      console.log(`No items found to copy for year: ${fromYear}`);
     }
 
     return true;
@@ -283,7 +299,8 @@ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Prom
     if (itemsToDelete) {
       do {
         const keysToDelete = [];
-        for (let i = 0; i < 25; i++) {
+        const limit = Math.min(25, itemsToDelete.length);
+        for (let i = 0; i < limit; i++) {
           keysToDelete.push({
             pk: `budget#${budgetGuid}`,
             sk: `item#${itemsToDelete[i].guid}`
@@ -309,12 +326,14 @@ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Prom
           break;
         }
       } while (itemsToDelete!.length);
+    } else {
+      console.log(`No items found to delete for year: ${fromYear}`);
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
-  return false;
+  return true;
 };
 
 export const deleteCategory = async (budgetGuid: string, categoryGuid: string): Promise<any> => {
