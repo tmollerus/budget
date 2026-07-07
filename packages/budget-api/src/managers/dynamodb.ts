@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DeleteCommand, DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 import { BudgetRecord, CategoryRecord, ItemRecord, QueryResult, SubcategoryRecord, UserRecord } from '../types';
 import { logElapsedTime } from '../utils/event';
@@ -46,24 +46,36 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
 export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Promise<Array<ItemRecord> | void> => {
   const client = await getClient();
   const docClient = await getDocClient(client);
+  let items = [];
+
+  const paginatorConfig = {
+    client: docClient,
+    pageSize: 100
+  };
+
+  const queryParams = {
+    TableName: process.env.DYNAMODB_TABLE_NAME,
+    KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
+    FilterExpression: " begins_with(#settledDate, :year)",
+    ExpressionAttributeNames: {
+      "#settledDate": "settledDate"
+    },
+    ExpressionAttributeValues: {
+      ":budgetGuid": 'budget#2e02e112-78e4-11e1-8645-4e6ec7412f43',
+      ":skPrefix": "item#",
+      ":year": "2026"
+    },
+  };
 
   try {
-    const getCommand = new QueryCommand({
-      TableName: process.env.DYNAMODB_TABLE_NAME,
-      KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
-      FilterExpression: " begins_with(#settledDate, :year)",
-      ExpressionAttributeNames: {
-        '#settledDate': 'settledDate',
-      },
-      ExpressionAttributeValues: {
-        ":budgetGuid": `budget#${budgetGuid}`,
-        ":skPrefix": 'item#',
-        ":year": year,
+    const paginator = paginateQuery(paginatorConfig, queryParams);
+    for await (const page of paginator) {
+      if (page.Items) {
+        items.push(...page.Items);
       }
-    });
-    const response = await docClient.send(getCommand);
+    }
 
-    return response.Items;
+    return items as Array<ItemRecord>;
   } catch (err) {
     console.log(err);
   }
@@ -109,21 +121,35 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
 
 export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecord): Promise<any> => {
   const client = await getClient();
+  const itemGuid = budgetItem.guid || uuidv4();
 
   try {
     console.log('Inserting item', budgetItem);
-    const command = new PutCommand({
+
+    const putCommand = new PutCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
       Item: {
         pk: `budget#${budgetGuid}`,
-        sk: `item#${budgetItem.guid || uuidv4()}`,
+        sk: `item#${itemGuid}`,
         ...budgetItem,
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
       },
     });
 
-    const response = await client.send(command);
+    const putResponse = await client.send(putCommand);
+    console.log(putResponse);
+
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "pk = :budgetGuid AND sk = :sk",
+      ExpressionAttributeValues: {
+        ":budgetGuid": `budget#${budgetGuid}`,
+        ":sk": `item#${itemGuid}`
+      }
+    });
+    const response = await client.send(getCommand);
+
     console.log(response);
     return response.Items?.[0];
   } catch (err) {
@@ -276,7 +302,7 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
 
   try {
     console.log('Soft deleting item', itemGuid);
-    const command = new PutCommand({
+    const putCommand = new PutCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
       Item: {
         pk: `budget#${budgetGuid}`,
@@ -287,8 +313,19 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
       },
     });
 
-    const response = await client.send(command);
-    console.log(response);
+    const putResponse = await client.send(putCommand);
+    console.log(putResponse);
+
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "pk = :budgetGuid AND sk = :sk",
+      ExpressionAttributeValues: {
+        ":budgetGuid": `budget#${budgetGuid}`,
+        ":sk": `item#${itemGuid}`
+      }
+    });
+    const response = await client.send(getCommand);
+
     return response.Items?.[0];
   } catch (err) {
     console.log(err);
@@ -300,7 +337,7 @@ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
 
   try {
     console.log('Updating item', budgetItem);
-    const command = new PutCommand({
+    const putCommand = new PutCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
       Item: {
         pk: `budget#${budgetGuid}`,
@@ -311,7 +348,19 @@ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       },
     });
 
-    const response = await client.send(command);
+    const putResponse = await client.send(putCommand);
+    console.log(putResponse);
+
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "pk = :budgetGuid AND sk = :sk",
+      ExpressionAttributeValues: {
+        ":budgetGuid": `budget#${budgetGuid}`,
+        ":sk": `item#${budgetItem.guid}`
+      }
+    });
+    const response = await client.send(getCommand);
+
     console.log(response);
     return response.Items?.[0];
   } catch (err) {

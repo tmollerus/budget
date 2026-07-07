@@ -171,6 +171,7 @@ export const Ledger = () => {
         });
       }
     } catch (err) {
+      console.error(err);
       // originalItem && updateLedgerDataItem(ledgerData, originalItem);
       Toaster.show({
         message: `An error occurred while trying to categorize the item`,
@@ -254,6 +255,7 @@ export const Ledger = () => {
         icon: 'tick-circle',
       });
     } catch (err) {
+      console.error(err);
       originalItem && updateLedgerDataItem(ledgerData, originalItem);
       Toaster.show({
         message: `An error occurred while trying to save the new item`,
@@ -288,6 +290,7 @@ export const Ledger = () => {
         icon: 'tick-circle',
       });
     } catch (err) {
+      console.error(err);
       Toaster.show({
         message: `An error occurred while trying to save the changes`,
         intent: Intent.DANGER,
