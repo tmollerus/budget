@@ -60,6 +60,7 @@ export const Ledger = () => {
   defaultDate.setFullYear(budgetYear);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isEmpty, setIsEmpty] = useState<boolean>(false);
   const [categoryToCreate, setCategoryToCreate] = useState<Category>();
   const [subcategoryToCreate, setSubcategoryToCreate] = useState<Subcategory>();
   const [itemToCategorize, setItemToCategorize] = useState<LedgerDataItem>();
@@ -98,9 +99,13 @@ export const Ledger = () => {
       newLedgerData.items = sortLedgerData(newLedgerData);
       newLedgerData.items = updateItemBalances(newLedgerData);
       newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
+      setLedgerData(newLedgerData);
+      setIsLoading(false);
+      setIsEmpty(false);
+    } else {
+      setIsLoading(false);
+      setIsEmpty(true);
     }
-    setLedgerData(newLedgerData);
-    setIsLoading(false);
   }, [budgetGuid, budgetYear, setLedgerData]);
 
   useEffect(() => {
@@ -303,8 +308,14 @@ export const Ledger = () => {
 
   const copyItems = async (fromYear: number, toYear: number) => {
     try {
+      const copyToaster = Toaster.show({
+        message: `Copying items from ${fromYear} to ${toYear}`,
+        intent: Intent.PRIMARY,
+        icon: 'refresh',
+      });
       const isCopySuccessful = await copyYear(budgetGuid, fromYear, toYear);
       if (isCopySuccessful) {
+        Toaster.dismiss(copyToaster);
         Toaster.show({
           message: `Successfully copied items from ${fromYear} to ${toYear}`,
           intent: Intent.SUCCESS,
@@ -325,8 +336,14 @@ export const Ledger = () => {
 
   const deleteItems = async (fromYear: number) => {
     try {
+      const deleteToaster = Toaster.show({
+        message: `Deleting items from ${fromYear}`,
+        intent: Intent.PRIMARY,
+        icon: 'refresh',
+      });
       const isDeleteSuccessful = await deleteYear(budgetGuid, fromYear);
       if (isDeleteSuccessful) {
+        Toaster.dismiss(deleteToaster);
         Toaster.show({
           message: `Successfully deleted all items from ${fromYear}`,
           intent: Intent.SUCCESS,
@@ -361,6 +378,7 @@ export const Ledger = () => {
           deleteItems={deleteItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}
+          isEmpty={isEmpty}
           setPercentScrolled={setPercentScrolled}
         />
       </div>

@@ -50,6 +50,7 @@ interface Props {
   deleteItems: (fromYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
+  isEmpty: boolean;
   setPercentScrolled: (percent: [number, number]) => void;
 }
 
@@ -666,6 +667,8 @@ export const Table = (props: Props) => {
       <div ref={rowCollectionRef} className={classes.rowCollection}>
         {props.isLoading ? (
           <Loader message={`Loading ${budgetYear} budget`} />
+        ) : props.isEmpty ? (
+          <Loader message={`No items found for ${budgetYear}`} empty />
         ) : (
           getRows(filteredLedgerData.items, budgetYear)
         )}

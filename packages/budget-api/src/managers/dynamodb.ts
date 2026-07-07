@@ -248,14 +248,16 @@ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear:
         for (let i = 0; i < limit; i++) {
           let newSettledDate = new Date(itemsToCopy[i].settledDate);
           newSettledDate.setFullYear(Number(toYear));
+          let newGuid = uuidv4();
+          let newItem = { ...itemsToCopy[i] };
+          newItem.settledDate = newSettledDate.toISOString();
+          newItem.paid = false;
+          newItem.guid = newGuid;
+          newItem.dateCreated = new Date().toISOString();
+          newItem.dateModified = new Date().toISOString();
           itemsToWrite.push({
-            pk: `budget#${budgetGuid}`,
-            sk: `item#${itemsToCopy[i].guid}`,
-            settledDate: newSettledDate.toISOString(),
-            paid: false,
-            guid: uuidv4(),
-            dateCreated: new Date().toISOString(),
-            dateModified: new Date().toISOString(),
+            ...newItem,
+            sk: `item#${newGuid}`,
           });
         }
         const writeRequests = itemsToWrite.map(item => ({

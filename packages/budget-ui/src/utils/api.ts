@@ -25,7 +25,9 @@ export const getBudgetItems = async (budgetGuid: string, year: string) => {
   })
   .then((response) => response.json())
   .then((data) => {
-    // Promise.all(data.items.map((item: any) => { return createEntryV2(budgetGuid, item); }));
+    // if (year === '2026') {
+    //   Promise.all(data.items.map((item: any) => { return createEntry(budgetGuid, item); }));
+    // }
     return data;
   })
   .catch((err) => {
