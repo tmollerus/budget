@@ -242,15 +242,27 @@ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear:
     // If there are items
     if (existingItems) {
       // For each item, create a new item with the same data but with the new year
-      Promise.all(existingItems.map(async (item) => {
+      await Promise.all(existingItems.map(async (item) => {
+        console.log("Item to copy", item);
         let newSettledDate = new Date(item.settledDate);
         newSettledDate.setFullYear(Number(toYear));
-        item.settledDate = newSettledDate.toISOString();
-        item.paid = false;
-        item.guid = uuidv4();
-        item.dateCreated = new Date().toISOString();
-        item.dateModified = new Date().toISOString();
-        await createBudgetItem(budgetGuid, item);
+        const newItem = { ...item };
+        newItem.settledDate = newSettledDate.toISOString();
+        newItem.paid = false;
+        newItem.guid = uuidv4();
+        newItem.dateCreated = new Date().toISOString();
+        newItem.dateModified = new Date().toISOString();
+        const putCommand = new PutCommand({
+          TableName: process.env.DYNAMODB_TABLE_NAME || '',
+          Item: {
+            ...newItem,
+            pk: `budget#${budgetGuid}`,
+            sk: `item#${newItem.guid}`,
+          },
+        });
+        console.log("Inserting copied item", newItem);
+        const putResponse = await client.send(putCommand);
+        console.log("Response from inserting copied item", putResponse);
       }));
     }
 
@@ -268,7 +280,7 @@ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Prom
   try {
     const itemsToDelete = await getBudgetItemsByYear(budgetGuid, fromYear);
     if (itemsToDelete) {
-      Promise.all(itemsToDelete.map(async (item) => {
+      await Promise.all(itemsToDelete.map(async (item) => {
         const command = new DeleteCommand({
           TableName: process.env.DYNAMODB_TABLE_NAME,
           Key: {
