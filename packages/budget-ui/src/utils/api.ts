@@ -16,22 +16,6 @@ export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
   });
 };
 
-export const getBudget = async (budgetGuid: string, year: string): Promise<LedgerData> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}?year=${year}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${getAuthorization()}`,
-    },
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    return data;
-  })
-  .catch((err) => {
-    return Promise.reject(err);
-  });
-};
-
 export const getBudgetItems = async (budgetGuid: string, year: string) => {
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items?year=${year}`, {
     method: 'GET',

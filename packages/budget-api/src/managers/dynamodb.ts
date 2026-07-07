@@ -61,9 +61,9 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Pr
       "#settledDate": "settledDate"
     },
     ExpressionAttributeValues: {
-      ":budgetGuid": 'budget#2e02e112-78e4-11e1-8645-4e6ec7412f43',
+      ":budgetGuid": `budget#${budgetGuid}`,
       ":skPrefix": "item#",
-      ":year": "2026"
+      ":year": year
     },
   };
 
@@ -132,6 +132,7 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
         pk: `budget#${budgetGuid}`,
         sk: `item#${itemGuid}`,
         ...budgetItem,
+        guid: itemGuid,
         dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
       },
@@ -235,7 +236,25 @@ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear:
   const client = await getClient();
 
   try {
-    return false
+    // Get all items from the source year
+    const existingItems = await getBudgetItemsByYear(budgetGuid, fromYear);
+
+    // If there are items
+    if (existingItems) {
+      // For each item, create a new item with the same data but with the new year
+      Promise.all(existingItems.map(async (item) => {
+        let newSettledDate = new Date(item.settledDate);
+        newSettledDate.setFullYear(Number(toYear));
+        item.settledDate = newSettledDate.toISOString();
+        item.paid = false;
+        item.guid = uuidv4();
+        item.dateCreated = new Date().toISOString();
+        item.dateModified = new Date().toISOString();
+        await createBudgetItem(budgetGuid, item);
+      }));
+    }
+
+    return true;
   } catch (err) {
     console.log(err);
   }
@@ -247,7 +266,19 @@ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Prom
   const client = await getClient();
 
   try {
-    return false;
+    const itemsToDelete = await getBudgetItemsByYear(budgetGuid, fromYear);
+    if (itemsToDelete) {
+      Promise.all(itemsToDelete.map(async (item) => {
+        const command = new DeleteCommand({
+          TableName: process.env.DYNAMODB_TABLE_NAME,
+          Key: {
+            pk: `budget#${budgetGuid}`,
+            sk: `item#${item.guid}`
+          }
+        });
+        await client.send(command);
+      }));
+    }
   } catch (err) {
     console.log(err);
   }
@@ -304,12 +335,12 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
     console.log('Soft deleting item', itemGuid);
     const putCommand = new PutCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME || '',
+      ConditionExpression: 'attribute_exists(pk) AND attribute_exists(sk)',
       Item: {
         pk: `budget#${budgetGuid}`,
         sk: `item#${itemGuid}`,
         active: false,
         dateModified: new Date().toISOString(),
-        ConditionExpression: 'attribute_exists(pk) AND attribute_exists(sk)',
       },
     });
 

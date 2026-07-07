@@ -447,9 +447,27 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'CopyBudgetItemsToYear',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/copy',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
       'DeleteBudgetItemsFromYear',
       'deleteHandler',
       'v1',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/delete',
+      [ aws_apigatewayv2.HttpMethod.DELETE ]
+    );
+
+    createLambdaAndRoute(
+      'DeleteBudgetItemsFromYear',
+      'deleteHandler',
+      'v2',
       '/handlers/budgets/items.ts',
       '/budgets/{budgetGuid}/items/delete',
       [ aws_apigatewayv2.HttpMethod.DELETE ]
