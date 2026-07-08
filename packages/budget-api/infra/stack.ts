@@ -447,6 +447,15 @@ export class BudgetApiStack extends Stack {
     );
 
     createLambdaAndRoute(
+      'GetStartingBalanceForYear',
+      'startingBalanceHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/starting-balance',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
       'CopyBudgetItemsToYear',
       'postHandler',
       'v1',
