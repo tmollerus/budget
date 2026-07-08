@@ -34,6 +34,7 @@ import {
   getBudgetSubcategories,
   updateEntry,
   getBudgetItemCount,
+  getBudgetStartingBalance,
 } from '../utils/api';
 import { formatDate, dollarFormat } from "../utils/format";
 import { Dialog } from './Dialog';
@@ -98,10 +99,11 @@ export const Ledger = () => {
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);
     setLedgerData({ items: [] });
+    const startingBalance = await getBudgetStartingBalance(budgetGuid, String(budgetYear));
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     if (newLedgerData.items.length) {
       newLedgerData.items = sortLedgerData(newLedgerData);
-      newLedgerData.items = updateItemBalances(newLedgerData);
+      newLedgerData.items = updateItemBalances(newLedgerData, startingBalance);
       newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
       setLedgerData(newLedgerData);
       setIsLoading(false);

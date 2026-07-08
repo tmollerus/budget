@@ -51,6 +51,22 @@ export const getBudgetItemCount = async (budgetGuid: string, year: string) => {
   });
 };
 
+export const getBudgetStartingBalance = async (budgetGuid: string, year: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items/starting-balance?year=${year}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${getAuthorization()}`,
+    },
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    return data.startingBalance;
+  })
+  .catch((err) => {
+    return Promise.reject(err);
+  });
+};
+
 export const createEntry = async (budgetGuid: string, entry: any) => {
   return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items`, {
     method: 'POST',

@@ -125,12 +125,12 @@ export const sortLedgerData = (ledgerData: LedgerData): Array<ExtendedLedgerData
   return sortedLedgerData.items;
 };
 
-export const updateItemBalances = (ledgerData: LedgerData): Array<ExtendedLedgerDataItem> => {
-  let balance = Number(ledgerData.items[0].starting_balance);
+export const updateItemBalances = (ledgerData: LedgerData, startingBalance: number = 0): Array<ExtendedLedgerDataItem> => {
+  let balance = startingBalance ||Number(ledgerData.items[0].starting_balance);
 
   return ledgerData.items.map((item: ExtendedLedgerDataItem, index: number) => {
     balance += netValue(Number(ledgerData.items[index].amount), ledgerData.items[index].type_id);
-    return Object.assign(item, { balance });
+    return Object.assign(item, { balance, starting_balance: startingBalance ? startingBalance : item.starting_balance });
   });
 };
 

@@ -17,7 +17,6 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
   try {
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
-      IndexName: process.env.DYNAMODB_INDEX_NAME,
       KeyConditionExpression: "pk = :guid AND begins_with(sk, :skPrefix)",
       ExpressionAttributeValues: {
         ":guid": `budget#${guid}`,

@@ -1,6 +1,8 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { copyFromYear, deleteFromYear, getBudget, getBudgetItemsByYear } from '../../../managers/dynamodb';
 
+const memoryCache: Record<string, { startingBalance: number; }> = {};
+
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
@@ -52,20 +54,35 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
   const forYear = event.queryStringParameters?.year || '';
+  const cacheKey = `${budgetGuid}-${forYear}`;
 
   try {
+    // FIX: how do we invalidate cache keys when items are added/updated/deleted?
+    if (Number(forYear) < new Date().getFullYear() && memoryCache[cacheKey]) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ startingBalance: memoryCache[cacheKey].startingBalance }),
+      };
+    }
+
     const budget = await getBudget(budgetGuid);
     let startingBalance = Number(budget?.starting_balance) || 0;
   
     const items = await getBudgetItemsByYear(budgetGuid, forYear.toString(), true);
     const totalBalance = items!.reduce((acc, item) => {
-      if (item.type_id === 1) {
+      if (!item.active) {
+        return acc;
+      } else if (item.type_id === 1) {
         return acc + item.amount;
       } else {
         return acc - item.amount;
       }
     }, 0);
     startingBalance += totalBalance;
+
+    memoryCache[cacheKey] = {
+      startingBalance,
+    };
     
     return {
       statusCode: 200,
@@ -80,17 +97,6 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
     };
   }
 };
-
-
-      // (SELECT SUM(budgets.starting_balance + (SELECT SUM(CASE WHEN type_id=1 THEN amount ELSE -amount END)
-      //     FROM items
-      //     WHERE EXTRACT(YEAR FROM "settledDate") < $2
-      //       AND items.active = true
-      //       AND items.budget_guid = $1)) AS balance         
-      //     FROM budgets
-      //     WHERE guid = $1
-      //     GROUP BY guid
-      // ) AS starting_balance,
 
 export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
