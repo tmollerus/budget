@@ -33,6 +33,7 @@ import {
   getBudgetItems,
   getBudgetSubcategories,
   updateEntry,
+  getBudgetItemCount,
 } from '../utils/api';
 import { formatDate, dollarFormat } from "../utils/format";
 import { Dialog } from './Dialog';
@@ -60,7 +61,10 @@ export const Ledger = () => {
   defaultDate.setFullYear(budgetYear);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCopying, setIsCopying] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isEmpty, setIsEmpty] = useState<boolean>(false);
+  const [nextYearItemCount, setNextYearItemCount] = useState<number>(0);
   const [categoryToCreate, setCategoryToCreate] = useState<Category>();
   const [subcategoryToCreate, setSubcategoryToCreate] = useState<Subcategory>();
   const [itemToCategorize, setItemToCategorize] = useState<LedgerDataItem>();
@@ -105,6 +109,10 @@ export const Ledger = () => {
     } else {
       setIsLoading(false);
       setIsEmpty(true);
+    }
+    if (new Date().getFullYear() === budgetYear) {
+      const nextYearItems = await getBudgetItemCount(budgetGuid, String(budgetYear + 1));
+      setNextYearItemCount(nextYearItems?.count || 0);
     }
   }, [budgetGuid, budgetYear, setLedgerData]);
 
@@ -308,14 +316,11 @@ export const Ledger = () => {
 
   const copyItems = async (fromYear: number, toYear: number) => {
     try {
-      const copyToaster = Toaster.show({
-        message: `Copying items from ${fromYear} to ${toYear}`,
-        intent: Intent.PRIMARY,
-        icon: 'refresh',
-      });
+      setIsLoading(false);
+      setIsCopying(true);
       const isCopySuccessful = await copyYear(budgetGuid, fromYear, toYear);
       if (isCopySuccessful) {
-        Toaster.dismiss(copyToaster);
+        setIsCopying(false);
         Toaster.show({
           message: `Successfully copied items from ${fromYear} to ${toYear}`,
           intent: Intent.SUCCESS,
@@ -326,6 +331,7 @@ export const Ledger = () => {
       }
     } catch (err) {
       console.error(err);
+      setIsCopying(false);
       Toaster.show({
         message: `An error occurred while trying to copy items from ${fromYear} to ${toYear}`,
         intent: Intent.DANGER,
@@ -336,14 +342,11 @@ export const Ledger = () => {
 
   const deleteItems = async (fromYear: number) => {
     try {
-      const deleteToaster = Toaster.show({
-        message: `Deleting items from ${fromYear}`,
-        intent: Intent.PRIMARY,
-        icon: 'refresh',
-      });
+      setIsLoading(false);
+      setIsDeleting(true);
       const isDeleteSuccessful = await deleteYear(budgetGuid, fromYear);
       if (isDeleteSuccessful) {
-        Toaster.dismiss(deleteToaster);
+        setIsDeleting(false);
         Toaster.show({
           message: `Successfully deleted all items from ${fromYear}`,
           intent: Intent.SUCCESS,
@@ -354,6 +357,7 @@ export const Ledger = () => {
       }
     } catch (err) {
       console.error(err);
+      setIsDeleting(false);
       Toaster.show({
         message: `An error occurred while trying to delete items for ${fromYear}`,
         intent: Intent.DANGER,
@@ -378,7 +382,10 @@ export const Ledger = () => {
           deleteItems={deleteItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}
+          isCopying={isCopying}
+          isDeleting={isDeleting}
           isEmpty={isEmpty}
+          nextYearItemCount={nextYearItemCount}
           setPercentScrolled={setPercentScrolled}
         />
       </div>
