@@ -17,7 +17,7 @@ export const postHandler = async (event: APIGatewayEvent, context: Context): Pro
       body: JSON.stringify(createdItem),
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,
@@ -40,7 +40,7 @@ export const deleteHandler = async (event: APIGatewayEvent, context: Context): P
       body: '',
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,

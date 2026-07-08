@@ -50,7 +50,7 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: 
       });
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
   logElapsedTime('About to return response', elapsedTime);

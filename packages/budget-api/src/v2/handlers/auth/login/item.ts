@@ -13,7 +13,7 @@ export const getHandler = async (event: APIGatewayEvent, context: Context): Prom
       body: JSON.stringify({user: user, budgetGuid}),
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
   
   return {

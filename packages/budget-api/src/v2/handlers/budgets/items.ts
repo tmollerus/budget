@@ -15,7 +15,7 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
       body: JSON.stringify({items}),
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,
@@ -23,6 +23,30 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
     };
   }
 };
+
+export const countHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  console.log(`Event: ${JSON.stringify(event, null, 2)}`);
+
+  const budgetGuid = event.pathParameters?.budgetGuid || '';
+  const year = event.queryStringParameters?.year || '';
+
+  try {
+    const items = await getBudgetItemsByYear(budgetGuid, year);
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({count: items?.length || 0}),
+    };
+  } catch (err) {
+    console.error(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({err}),
+    };
+  }
+};
+
 export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
@@ -45,7 +69,7 @@ export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayPro
       };
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,
@@ -75,7 +99,7 @@ export const deleteHandler = async (event: APIGatewayEvent): Promise<APIGatewayP
       };
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,

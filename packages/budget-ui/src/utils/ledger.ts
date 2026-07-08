@@ -110,7 +110,7 @@ export const sortLedgerData = (ledgerData: LedgerData): Array<ExtendedLedgerData
     } else if (a.type_id === 2 && b.type_id === 3) {
       return -1;
     } else if (a.type_id === 3 && b.type_id === 2) {
-      return 1;
+      return -1;
     } else if (a.type_id === 3 && b.type_id === 1) {
       return 1;
     } else if (a.amount > b.amount) {

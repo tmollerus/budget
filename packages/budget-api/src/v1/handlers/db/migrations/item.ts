@@ -9,7 +9,7 @@ export const getHandler = async (): Promise<APIGatewayProxyResult> => {
       body: `Success: ${String(migrationResult)}`,
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return {
       statusCode: 500,
       body: `Failure: ${err}`,

@@ -39,7 +39,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
     const response = await client.send(getBudgetCommand);
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -77,7 +77,7 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Pr
 
     return items as Array<ItemRecord>;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -96,7 +96,7 @@ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<C
     const response = await client.send(getCommand);
     return response.Items;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -115,7 +115,7 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
     const response = await client.send(getCommand);
     return response.Items;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -154,7 +154,7 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
     console.log(response);
     return response.Items?.[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -178,7 +178,7 @@ export const createCategoryRecord = async (budgetGuid: string, category: Categor
     console.log(response);
     return response.Items?.[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -202,7 +202,7 @@ export const createSubcategoryRecord = async (budgetGuid: string, subcategory: S
     console.log(response);
     return response.Items?.[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -228,7 +228,7 @@ export const createUserRecord = async (budgetGuid: string, email: string, fullNa
     console.log(response);
     return response.Items?.[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -286,7 +286,7 @@ export const copyFromYear = async (budgetGuid: string, fromYear: string, toYear:
 
     return true;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
   return false;
@@ -355,7 +355,7 @@ export const deleteCategory = async (budgetGuid: string, categoryGuid: string): 
     console.log(response);
     return response;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -376,7 +376,7 @@ export const deleteSubcategory = async (budgetGuid: string, subcategoryGuid: str
     console.log(response);
     return response;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -411,7 +411,7 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
 
     return response.Items?.[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
@@ -447,6 +447,6 @@ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
     console.log(response);
     return response.Items?.[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };

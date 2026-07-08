@@ -41,7 +41,7 @@ export const getClient = async (): Promise<any> => {
 
     return results;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     client.end();
   }
@@ -65,7 +65,7 @@ export const getClient = async (): Promise<any> => {
         dryRun || await client.query(sql, seeds[i]);
       } catch (err: any) {
         console.log('Error while tring to execute SQL', sql);
-        console.log(err);
+        console.error(err);
         throw new Error(err);
       }
     }
@@ -94,7 +94,7 @@ export const getClient = async (): Promise<any> => {
     const items = await client.query(`SELECT COUNT(*) FROM items;`);
     result += `Table items contains ${items.rows[0].count} rows;`;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     result += err;
   } finally {
     client.end();
@@ -121,7 +121,7 @@ export const getClient = async (): Promise<any> => {
     console.log('Result returned', result);
     return result.rows[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     client.end();
   }
@@ -167,7 +167,7 @@ export const getClient = async (): Promise<any> => {
     logElapsedTime(`Elapsed time to query for records from ${year}`, elapsedTime);
     return result.rows;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     client.end();
   }
@@ -189,7 +189,7 @@ export const getClient = async (): Promise<any> => {
     console.log('Result returned', result);
     return result.rows;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     client.end();
   }
@@ -211,7 +211,7 @@ export const getClient = async (): Promise<any> => {
     console.log('Result returned', result);
     return result.rows;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     client.end();
   }
@@ -232,7 +232,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result.rows[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -251,7 +251,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result.rows[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -270,7 +270,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result.rows[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -315,7 +315,7 @@ export const getClient = async (): Promise<any> => {
       return true;
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
   return false;
@@ -345,7 +345,7 @@ export const getClient = async (): Promise<any> => {
       console.log(`Not deleting items from ${fromYear} since some items are paid.`);
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 
   return false;
@@ -367,7 +367,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -386,7 +386,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -406,7 +406,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result;
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -427,7 +427,7 @@ export const getClient = async (): Promise<any> => {
     console.log(result);
     return result.rows[0];
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
  };
 
@@ -447,7 +447,7 @@ export const getClient = async (): Promise<any> => {
       return results;
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     client.end();
   }
