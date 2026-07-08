@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { copyFromYear, deleteFromYear, getBudgetItemsByYear } from '../../../managers/dynamodb';
+import { copyFromYear, deleteFromYear, getBudget, getBudgetItemsByYear } from '../../../managers/dynamodb';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -52,9 +52,11 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
   const forYear = event.queryStringParameters?.year || '';
-  let startingBalance = 0;
 
   try {
+    const budget = await getBudget(budgetGuid);
+    let startingBalance = Number(budget?.starting_balance) || 0;
+  
     const items = await getBudgetItemsByYear(budgetGuid, forYear.toString(), true);
     const totalBalance = items!.reduce((acc, item) => {
       if (item.type_id === 1) {

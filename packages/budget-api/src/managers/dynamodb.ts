@@ -11,6 +11,29 @@ export const getDocClient = async (client: DynamoDBClient): Promise<any> => {
   return DynamoDBDocumentClient.from(client);
 };
 
+export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
+  const client = await getClient();
+
+  try {
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      IndexName: process.env.DYNAMODB_INDEX_NAME,
+      KeyConditionExpression: "pk = :guid AND begins_with(sk, :skPrefix)",
+      ExpressionAttributeValues: {
+        ":guid": `budget#${guid}`,
+        ":skPrefix": "budget#"
+      }
+    });
+
+    const response = await client.send(getCommand);
+    console.log(response);
+
+    return response.Items?.[0] as BudgetRecord | undefined;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
   const client = await getClient();
 
