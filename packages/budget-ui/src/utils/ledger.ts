@@ -98,11 +98,14 @@ export const netValue = (amount: number, typeId: number): number => {
 
 export const sortLedgerData = (ledgerData: LedgerData): Array<ExtendedLedgerDataItem> => {
   const sortedLedgerData = JSON.parse(JSON.stringify(ledgerData)) as LedgerData;
+  // DB sort is ORDER BY "settledDate" ASC, paid DESC, type_id ASC, amount ASC
   sortedLedgerData.items.sort((a, b) => {
     if (a.settledDate < b.settledDate) {
       return -1;
     } else if (a.settledDate > b.settledDate) {
       return 1;
+    } else if (a.paid && !b.paid) {
+      return -1;
     } else if (a.type_id === 1 && (b.type_id === 3 || b.type_id === 2)) {
       return -1;
     } else if (a.type_id === 2 && b.type_id === 1) {
@@ -110,7 +113,7 @@ export const sortLedgerData = (ledgerData: LedgerData): Array<ExtendedLedgerData
     } else if (a.type_id === 2 && b.type_id === 3) {
       return -1;
     } else if (a.type_id === 3 && b.type_id === 2) {
-      return -1;
+      return 1;
     } else if (a.type_id === 3 && b.type_id === 1) {
       return 1;
     } else if (a.amount > b.amount) {
