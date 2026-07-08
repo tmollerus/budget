@@ -1,8 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
-import { BudgetRecord, CategoryRecord, ItemRecord, QueryResult, SubcategoryRecord, UserRecord } from '../types';
-import { logElapsedTime } from '../utils/event';
+import { BudgetRecord, CategoryRecord, ItemRecord, SubcategoryRecord } from '../types';
 
 export const getClient = async (): Promise<any> => {
   return new DynamoDBClient({});
@@ -43,7 +42,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
   }
 };
 
-export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Promise<Array<ItemRecord> | void> => {
+export const getBudgetItemsByYear = async (budgetGuid: string, year: string, upToYear: boolean = false): Promise<Array<ItemRecord> | void> => {
   const client = await getClient();
   const docClient = await getDocClient(client);
   let items = [];
@@ -56,7 +55,7 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string): Pr
   const queryParams = {
     TableName: process.env.DYNAMODB_TABLE_NAME,
     KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
-    FilterExpression: " begins_with(#settledDate, :year)",
+    FilterExpression: upToYear ? "#settledDate < :year" : "begins_with(#settledDate, :year)",
     ExpressionAttributeNames: {
       "#settledDate": "settledDate"
     },

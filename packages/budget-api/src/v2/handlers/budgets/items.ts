@@ -55,20 +55,15 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
   let startingBalance = 0;
 
   try {
-    // For each year from 2012 onwards
-    for (let year = 2012; year > Number(forYear); year++) {
-      // Get the items for that year
-      const items = await getBudgetItemsByYear(budgetGuid, year.toString());
-      // Sum the amounts for that year
-      const yearBalance = items!.reduce((acc, item) => {
-        if (item.type_id === 1) {
-          return acc + item.amount;
-        } else {
-          return acc - item.amount;
-        }
-      }, 0);
-      startingBalance += yearBalance;
-    }
+    const items = await getBudgetItemsByYear(budgetGuid, forYear.toString(), true);
+    const totalBalance = items!.reduce((acc, item) => {
+      if (item.type_id === 1) {
+        return acc + item.amount;
+      } else {
+        return acc - item.amount;
+      }
+    }, 0);
+    startingBalance += totalBalance;
     
     return {
       statusCode: 200,
