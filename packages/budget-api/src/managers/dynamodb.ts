@@ -27,7 +27,7 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
     });
 
     const response = await client.send(getCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
@@ -50,7 +50,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
     });
 
     const getUserResponse: QueryCommandOutput = await client.send(getUserCommand);
-    console.info(logQueryEfficiency(getUserResponse));
+    console.log(logQueryEfficiency(getUserResponse));
 
     const getBudgetCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
@@ -62,7 +62,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getBudgetCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
@@ -122,7 +122,7 @@ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<C
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items;
   } catch (err) {
@@ -144,7 +144,7 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items;
   } catch (err) {
@@ -183,7 +183,7 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items?.[0];
   } catch (err) {
@@ -435,7 +435,7 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items?.[0];
   } catch (err) {
@@ -472,7 +472,7 @@ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.info(logQueryEfficiency(response));
+    console.log(logQueryEfficiency(response));
 
     return response.Items?.[0];
   } catch (err) {
