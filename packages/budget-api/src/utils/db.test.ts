@@ -1,4 +1,4 @@
-import { getInsertColumnNames, getInsertValues } from "./db";
+import { getInsertColumnNames, getInsertValues, logQueryEfficiency } from "./db";
 import { Seeds } from '../types';
 
 describe('db utility', () => {
@@ -21,5 +21,21 @@ describe('db utility', () => {
   test('getInsertValues', () => {
     const valuesString = getInsertValues(types.seeds[1]);
     expect(valuesString.split(',').length).toBe(types.seeds[0].length);
+  });
+
+  test('logQueryEfficiency', () => {
+    const queryResponse = {
+      Count: 50,
+      ScannedCount: 42,
+      ConsumedCapacity: {
+        CapacityUnits: 2
+      },
+      $metadata: {
+        httpStatusCode: 200,
+        requestId: '1234567890',
+      },
+    };
+    const logMessage = logQueryEfficiency(queryResponse);
+    expect(logMessage).toContain(`Query efficiency: ${queryResponse.Count} items returned / ${queryResponse.ScannedCount} items scanned = ${(queryResponse.Count || 0) / (queryResponse.ScannedCount || 1) * 100}%`);
   });
 });

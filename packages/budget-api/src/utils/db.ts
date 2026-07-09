@@ -1,3 +1,4 @@
+import { QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { ItemRecord } from "../types";
 
 export const getInsertColumnNames = (fields: Array<string>): string => {
@@ -54,4 +55,9 @@ export const getSetStatementAndParams = (budgetGuid: string, budgetItem: ItemRec
   }
 
   return { setStatement, setParameters };
+};
+
+export const logQueryEfficiency = (queryResult: QueryCommandOutput) => {
+  const { Count: count, ScannedCount: scannedCount, ConsumedCapacity: consumedCapacity } = queryResult;
+  return `Query efficiency: ${count} items returned / ${scannedCount} items scanned = ${(count || 0) / (scannedCount || 1) * 100}%, ConsumedCapacity: ${consumedCapacity?.CapacityUnits || 0} units`;
 };

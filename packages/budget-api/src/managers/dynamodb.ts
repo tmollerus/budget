@@ -1,7 +1,8 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand, QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 import { BudgetRecord, CategoryRecord, ItemRecord, SubcategoryRecord } from '../types';
+import { logQueryEfficiency } from "../utils/db";
 
 export const getClient = async (): Promise<any> => {
   return new DynamoDBClient({});
@@ -21,11 +22,12 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
       ExpressionAttributeValues: {
         ":guid": `budget#${guid}`,
         ":skPrefix": "budget#"
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
 
     const response = await client.send(getCommand);
-    console.log(response);
+    console.info(logQueryEfficiency(response));
 
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
@@ -43,11 +45,12 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
       KeyConditionExpression: "sk = :userId",
       ExpressionAttributeValues: {
         ":userId": `user#${email}`,
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
 
-    const getUserResponse = await client.send(getUserCommand);
-    console.log(getUserResponse);
+    const getUserResponse: QueryCommandOutput = await client.send(getUserCommand);
+    console.info(logQueryEfficiency(getUserResponse));
 
     const getBudgetCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
@@ -55,9 +58,12 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
       ExpressionAttributeValues: {
         ":budgetGuid": getUserResponse.Items?.[0]?.pk?.replace('user#', 'budget#'),
         ":skPrefix": "budget#",
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getBudgetCommand);
+    console.info(logQueryEfficiency(response));
+
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
     console.error(err);
@@ -112,9 +118,12 @@ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<C
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
         ":skPrefix": "category#"
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
+    console.info(logQueryEfficiency(response));
+
     return response.Items;
   } catch (err) {
     console.error(err);
@@ -131,9 +140,12 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
         ":skPrefix": "subcategory#"
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
+    console.info(logQueryEfficiency(response));
+
     return response.Items;
   } catch (err) {
     console.error(err);
@@ -160,7 +172,6 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
     });
 
     const putResponse = await client.send(putCommand);
-    console.log(putResponse);
 
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
@@ -168,11 +179,12 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
         ":sk": `item#${itemGuid}`
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
+    console.info(logQueryEfficiency(response));
 
-    console.log(response);
     return response.Items?.[0];
   } catch (err) {
     console.error(err);
@@ -196,7 +208,6 @@ export const createCategoryRecord = async (budgetGuid: string, category: Categor
     });
 
     const response = await client.send(command);
-    console.log(response);
     return response.Items?.[0];
   } catch (err) {
     console.error(err);
@@ -220,7 +231,6 @@ export const createSubcategoryRecord = async (budgetGuid: string, subcategory: S
     });
 
     const response = await client.send(command);
-    console.log(response);
     return response.Items?.[0];
   } catch (err) {
     console.error(err);
@@ -246,7 +256,6 @@ export const createUserRecord = async (budgetGuid: string, email: string, fullNa
     });
 
     const response = await client.send(command);
-    console.log(response);
     return response.Items?.[0];
   } catch (err) {
     console.error(err);
@@ -342,7 +351,6 @@ export const deleteFromYear = async (budgetGuid: string, fromYear: string): Prom
 
         try {
           const response = await client.send(command);
-          console.log("Response from deleting items", response);
           itemsToDelete.splice(0, 25);
         } catch (err) {
           console.error(err);
@@ -373,7 +381,6 @@ export const deleteCategory = async (budgetGuid: string, categoryGuid: string): 
     });
 
     const response = await client.send(command);
-    console.log(response);
     return response;
   } catch (err) {
     console.error(err);
@@ -394,7 +401,6 @@ export const deleteSubcategory = async (budgetGuid: string, subcategoryGuid: str
     });
 
     const response = await client.send(command);
-    console.log(response);
     return response;
   } catch (err) {
     console.error(err);
@@ -418,7 +424,6 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
     });
 
     const putResponse = await client.send(putCommand);
-    console.log(putResponse);
 
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
@@ -426,9 +431,11 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
         ":sk": `item#${itemGuid}`
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
+    console.info(logQueryEfficiency(response));
 
     return response.Items?.[0];
   } catch (err) {
@@ -461,11 +468,12 @@ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       ExpressionAttributeValues: {
         ":budgetGuid": `budget#${budgetGuid}`,
         ":sk": `item#${budgetItem.guid}`
-      }
+      },
+      ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
+    console.info(logQueryEfficiency(response));
 
-    console.log(response);
     return response.Items?.[0];
   } catch (err) {
     console.error(err);

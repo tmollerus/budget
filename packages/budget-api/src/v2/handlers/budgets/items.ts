@@ -58,6 +58,7 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
 
   try {
     // FIX: how do we invalidate cache keys when items are added/updated/deleted?
+    // By sending a clear cache parameter in the request.
     if (Number(forYear) < new Date().getFullYear() && memoryCache[cacheKey]) {
       return {
         statusCode: 200,
