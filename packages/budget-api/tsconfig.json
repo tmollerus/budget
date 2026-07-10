@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2022",
+    "target": "es2020",
     "strict": true,
     "preserveConstEnums": true,
     "noEmit": true,
     "sourceMap": false,
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true, 
     "skipLibCheck": true,

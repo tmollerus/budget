@@ -2,7 +2,6 @@
   "name": "budget-api",
   "version": "1.0.0",
   "private": true,
-  "type": "commonjs",
   "scripts": {
     "build": "tsc",
     "test": "jest --coverage",
