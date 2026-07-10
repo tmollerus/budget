@@ -1,4 +1,4 @@
-// import fetch from 'node-fetch';
+import fetch from 'node-fetch';
 import { OKTA } from '../constants/okta';
 import { OktaUser } from '../types';
 
