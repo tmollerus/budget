@@ -74,6 +74,14 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string, upT
   const client = await getClient();
   const docClient = await getDocClient(client);
   let items = [];
+  const stats = {
+    Count: 0,
+    ScannedCount: 0,
+    ConsumedCapacity: {
+      CapacityUnits: 0
+    },
+    $metadata: {},
+  };
 
   const paginatorConfig = {
     client: docClient,
@@ -99,8 +107,12 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string, upT
     for await (const page of paginator) {
       if (page.Items) {
         items.push(...page.Items);
+        stats.Count += page.Count || 0;
+        stats.ScannedCount += page.ScannedCount || 0;
+        stats.ConsumedCapacity.CapacityUnits += page.ConsumedCapacity?.CapacityUnits || 0;
       }
     }
+    console.log(logQueryEfficiency(stats));
 
     return items as Array<ItemRecord>;
   } catch (err) {

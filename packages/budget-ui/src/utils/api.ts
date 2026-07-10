@@ -1,5 +1,5 @@
 import { APP } from '../constants/app';
-import { BudgetAuthResponse, LedgerData } from '../types';
+import { BudgetAuthResponse } from '../types';
 import { getAuthorization } from './session';
 
 export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {

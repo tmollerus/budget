@@ -10,11 +10,11 @@ import { useStyles } from './StatTable.styles';
 
 export const BalanceChart = () => {
   const yAxisInterval = 5000;
-  const { ledgerData, budgetYear } = useBudgetContext();
+  const { ledgerData, budgetYear, startingBalance } = useBudgetContext();
   const classes = useStyles();
 
   const getLowestBalance = (entries: Array<ExtendedLedgerDataItem>) => {
-    let currentTotal = Number(ledgerData?.items[0].starting_balance || 0);
+    let currentTotal = Number(startingBalance || 0);
     let lowestBalance = 0;
 
     if (entries) {
@@ -50,7 +50,7 @@ export const BalanceChart = () => {
 
   const getGraphData = (entries: Array<ExtendedLedgerDataItem>) => {
     const graphData = [];
-    let currentTotal = Number(ledgerData?.items[0].starting_balance || 0);
+    let currentTotal = Number(startingBalance || 0);
     let currentDay: number = 0;
 
     if (entries) {

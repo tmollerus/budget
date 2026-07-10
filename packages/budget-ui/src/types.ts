@@ -29,6 +29,8 @@ export type BudgetContextType = {
   setBudgetYear: Dispatch<SetStateAction<number>>;
   budgetGuid: string;
   setBudgetGuid: Dispatch<SetStateAction<string>>;
+  startingBalance?: number;
+  setStartingBalance: Dispatch<SetStateAction<number | undefined>>;
   ledgerData: LedgerData;
   setLedgerData: Dispatch<SetStateAction<LedgerData>>;
   categories: Array<Category>;

@@ -51,6 +51,8 @@ export const Ledger = () => {
     setBudgetGuid,
     budgetYear,
     setBudgetYear,
+    startingBalance,
+    setStartingBalance,
     ledgerData,
     setLedgerData,
     categories,
@@ -99,11 +101,11 @@ export const Ledger = () => {
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);
     setLedgerData({ items: [] });
-    const startingBalance = await getBudgetStartingBalance(budgetGuid, String(budgetYear));
+    setStartingBalance(await getBudgetStartingBalance(budgetGuid, String(budgetYear)));
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     if (newLedgerData.items.length) {
       newLedgerData.items = sortLedgerData(newLedgerData);
-      newLedgerData.items = updateItemBalances(newLedgerData, startingBalance);
+      newLedgerData.items = updateItemBalances(newLedgerData, startingBalance!);
       newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
       setLedgerData(newLedgerData);
       setIsLoading(false);
@@ -179,7 +181,7 @@ export const Ledger = () => {
           setSubcategories(subcategories);
           setSubcategoryToCreate(undefined);
         }
-        setLedgerData(updateLedgerDataItem(ledgerData, itemToCategorize!));
+        setLedgerData(updateLedgerDataItem(ledgerData, itemToCategorize!, startingBalance!));
         await updateEntry(budgetGuid, itemToCategorize);
         Toaster.show({
           message: getMessage(MessageType.ITEM_CATEGORIZED, itemToCategorize!),
@@ -218,7 +220,7 @@ export const Ledger = () => {
   const deleteItem = async () => {
     setIsDeleteDialogOpen(false);
     if (itemToDelete) {
-      setLedgerData(deleteLedgerDataItem(ledgerData, itemToDelete));
+      setLedgerData(deleteLedgerDataItem(ledgerData, itemToDelete, startingBalance!));
       const success = await deleteEntry(budgetGuid, itemToDelete.guid);
       if (success) {
         const deletedItem: LedgerDataItem = itemToDelete;
@@ -245,7 +247,7 @@ export const Ledger = () => {
   const addItem = async (newItem: PartialLedgerDataItem): Promise<boolean> => {
     try {
       const addedItem = await createEntry(budgetGuid, newItem);
-      setLedgerData(addLedgerDataItem(ledgerData, addedItem));
+      setLedgerData(addLedgerDataItem(ledgerData, addedItem, startingBalance!));
       Toaster.show({
         message: getMessage(MessageType.ITEM_ADDED, addedItem),
         intent: Intent.SUCCESS,
@@ -264,7 +266,7 @@ export const Ledger = () => {
 
   const editItem = async (editedItem: PartialLedgerDataItem, originalItem?: LedgerDataItem) => {
     try {
-      setLedgerData(updateLedgerDataItem(ledgerData, editedItem));
+      setLedgerData(updateLedgerDataItem(ledgerData, editedItem, startingBalance!));
       const savedItem = await updateEntry(budgetGuid, editedItem);
       Toaster.show({
         message: getMessage(MessageType.ITEM_EDITED, savedItem),
@@ -273,7 +275,7 @@ export const Ledger = () => {
       });
     } catch (err) {
       console.error(err);
-      originalItem && updateLedgerDataItem(ledgerData, originalItem);
+      originalItem && updateLedgerDataItem(ledgerData, originalItem, startingBalance!);
       Toaster.show({
         message: `An error occurred while trying to save the new item`,
         intent: Intent.DANGER,
@@ -293,7 +295,7 @@ export const Ledger = () => {
           if (originalItem.guid === editedItem.guid) {
             originalItem.paid = editedItem.paid;
           }
-          setLedgerData(updateLedgerDataItem(ledgerData, originalItem));
+          setLedgerData(updateLedgerDataItem(ledgerData, originalItem, startingBalance!));
           await updateEntry(budgetGuid, originalItem);
           return originalItem as LedgerDataItem;
         }),

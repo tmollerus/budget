@@ -3,16 +3,16 @@ import { formatDate, dollarFormat, getEntryTypeName } from "./format";
 import { setToUTC } from './date';
 import { MONTH_HEIGHT } from "../constants/theme";
 
-export const addLedgerDataItem = (ledgerData: LedgerData, addedItem: ExtendedLedgerDataItem): LedgerData => {
+export const addLedgerDataItem = (ledgerData: LedgerData, addedItem: ExtendedLedgerDataItem, startingBalance: number): LedgerData => {
   let updatedLedgerData = JSON.parse(JSON.stringify(ledgerData));
   updatedLedgerData.items.push(addedItem);
   updatedLedgerData.items = sortLedgerData(updatedLedgerData);
-  updatedLedgerData.items = updateItemBalances(updatedLedgerData);
+  updatedLedgerData.items = updateItemBalances(updatedLedgerData, startingBalance);
 
   return updatedLedgerData;
 };
 
-export const deleteLedgerDataItem = (ledgerData: LedgerData, deletedItem: PartialLedgerDataItem): LedgerData => {
+export const deleteLedgerDataItem = (ledgerData: LedgerData, deletedItem: PartialLedgerDataItem, startingBalance: number): LedgerData => {
   let updatedLedgerData = JSON.parse(JSON.stringify(ledgerData));
   const index = ledgerData.items.findIndex((item) => {
     return item.guid === deletedItem.guid;
@@ -21,7 +21,7 @@ export const deleteLedgerDataItem = (ledgerData: LedgerData, deletedItem: Partia
   if (index >= 0) {
     updatedLedgerData.items.splice(index, 1);
     updatedLedgerData.items = sortLedgerData(updatedLedgerData);
-    updatedLedgerData.items = updateItemBalances(updatedLedgerData);
+    updatedLedgerData.items = updateItemBalances(updatedLedgerData, startingBalance);
   } else {
     console.error('No match was found for the updated item in the ledger data', deletedItem);
   }
@@ -128,8 +128,8 @@ export const sortLedgerData = (ledgerData: LedgerData): Array<ExtendedLedgerData
   return sortedLedgerData.items;
 };
 
-export const updateItemBalances = (ledgerData: LedgerData, startingBalance: number = 0): Array<ExtendedLedgerDataItem> => {
-  let balance = startingBalance ||Number(ledgerData.items[0].starting_balance);
+export const updateItemBalances = (ledgerData: LedgerData, startingBalance: number): Array<ExtendedLedgerDataItem> => {
+  let balance = startingBalance;
 
   return ledgerData.items.map((item: ExtendedLedgerDataItem, index: number) => {
     balance += netValue(Number(ledgerData.items[index].amount), ledgerData.items[index].type_id);
@@ -145,7 +145,7 @@ export const updateItemCategories = (ledgerData: LedgerData, categories: Array<C
   });
 };
 
-export const updateLedgerDataItem = (ledgerData: LedgerData, updatedItem: PartialLedgerDataItem): LedgerData => {
+export const updateLedgerDataItem = (ledgerData: LedgerData, updatedItem: PartialLedgerDataItem, startingBalance: number): LedgerData => {
   let updatedLedgerData = JSON.parse(JSON.stringify(ledgerData));
   const index = ledgerData.items.findIndex((item) => {
     return item.guid === updatedItem.guid;
@@ -160,7 +160,7 @@ export const updateLedgerDataItem = (ledgerData: LedgerData, updatedItem: Partia
     updatedLedgerData.items[index].category_guid = updatedItem.category_guid;
     updatedLedgerData.items[index].subcategory_guid = updatedItem.subcategory_guid;
     updatedLedgerData.items = sortLedgerData(updatedLedgerData);
-    updatedLedgerData.items = updateItemBalances(updatedLedgerData);
+    updatedLedgerData.items = updateItemBalances(updatedLedgerData, startingBalance);
   } else {
     console.error('No match was found for the updated item in the ledger data', updatedItem);
   }
