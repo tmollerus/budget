@@ -101,11 +101,12 @@ export const Ledger = () => {
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);
     setLedgerData({ items: [] });
-    setStartingBalance(await getBudgetStartingBalance(budgetGuid, String(budgetYear)));
+    const thisYearStartingBalance = await getBudgetStartingBalance(budgetGuid, String(budgetYear));
+    setStartingBalance(thisYearStartingBalance);
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     if (newLedgerData.items.length) {
       newLedgerData.items = sortLedgerData(newLedgerData);
-      newLedgerData.items = updateItemBalances(newLedgerData, startingBalance!);
+      newLedgerData.items = updateItemBalances(newLedgerData, thisYearStartingBalance!);
       newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
       setLedgerData(newLedgerData);
       setIsLoading(false);
