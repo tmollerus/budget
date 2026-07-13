@@ -197,7 +197,7 @@ export class BudgetApiStack extends Stack {
         pointInTimeRecovery: true,
       }
     );
-    const dynamodbTableUsersIndex = `${STACK_NAME}-Users`;
+    const dynamodbTableUsersIndex = `${STACK_NAME}-Index-Users`;
     dynamodbTable.addGlobalSecondaryIndex({
       indexName: dynamodbTableUsersIndex,
       partitionKey: {
