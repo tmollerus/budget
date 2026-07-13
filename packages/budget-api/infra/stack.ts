@@ -197,22 +197,36 @@ export class BudgetApiStack extends Stack {
         pointInTimeRecovery: true,
       }
     );
-    const dynamodbTableIndexName = `${STACK_NAME}-Users`;
+    const dynamodbTableUsersIndex = `${STACK_NAME}-Index-Users`;
     dynamodbTable.addGlobalSecondaryIndex({
-      indexName: dynamodbTableIndexName,
+      indexName: dynamodbTableUsersIndex,
       partitionKey: {
         name: 'sk',
         type: aws_dynamodb.AttributeType.STRING
       },
       projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
     });
-
-    /*
-      partitionKey: [budgetId#uuid]
-      sortKey: [user#uuid, item#uuid, category#uuid, subcategory#uuid]
-      // Drop types, make it an enum
-    */
-
+    const dynamodbTableItemsIndex = `${STACK_NAME}-Index-Items`;
+    dynamodbTable.addGlobalSecondaryIndex({
+      indexName: dynamodbTableItemsIndex,
+      partitionKeys: [
+        {
+          name: 'pk',
+          type: aws_dynamodb.AttributeType.STRING
+        }
+      ],
+      sortKeys: [
+        {
+          name: 'sk',
+          type: aws_dynamodb.AttributeType.STRING
+        },
+        {
+          name: 'settledDate',
+          type: aws_dynamodb.AttributeType.STRING
+        }
+      ],
+      projectionType: aws_dynamodb.ProjectionType.ALL
+    });
 
     const secret = new aws_secretsmanager.Secret(
       this,
