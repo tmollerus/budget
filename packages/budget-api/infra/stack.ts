@@ -66,7 +66,7 @@ export class BudgetApiStack extends Stack {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
           DATABASE_URL: dbProxy.endpoint,
           DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
-          DYNAMODB_INDEX_NAME: dynamodbTableIndexName,
+          DYNAMODB_INDEX_NAME: dynamodbTableUsersIndex,
         },
       };
       if (version === 'v1') {
