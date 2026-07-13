@@ -315,7 +315,7 @@ export class BudgetApiStack extends Stack {
       entry: path.join(__dirname, '..', 'src', 'v2', 'authorizer', 'index.ts'),
       environment: {
         DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
-        DYNAMODB_INDEX_NAME: dynamodbTableIndexName,
+        DYNAMODB_INDEX_NAME: dynamodbTableUsersIndex,
       }
     });
     authorizerLambdaV2.role?.addManagedPolicy(
