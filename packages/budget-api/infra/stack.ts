@@ -197,7 +197,7 @@ export class BudgetApiStack extends Stack {
         pointInTimeRecovery: true,
       }
     );
-    const dynamodbTableUsersIndex = `${STACK_NAME}-Index-Users`;
+    const dynamodbTableUsersIndex = `${STACK_NAME}-Users`;
     dynamodbTable.addGlobalSecondaryIndex({
       indexName: dynamodbTableUsersIndex,
       partitionKey: {
@@ -206,27 +206,27 @@ export class BudgetApiStack extends Stack {
       },
       projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
     });
-    // const dynamodbTableItemsIndex = `${STACK_NAME}-Index-Items`;
-    // dynamodbTable.addGlobalSecondaryIndex({
-    //   indexName: dynamodbTableItemsIndex,
-    //   partitionKeys: [
-    //     {
-    //       name: 'pk',
-    //       type: aws_dynamodb.AttributeType.STRING
-    //     }
-    //   ],
-    //   sortKeys: [
-    //     {
-    //       name: 'sk',
-    //       type: aws_dynamodb.AttributeType.STRING
-    //     },
-    //     {
-    //       name: 'settledDate',
-    //       type: aws_dynamodb.AttributeType.STRING
-    //     }
-    //   ],
-    //   projectionType: aws_dynamodb.ProjectionType.ALL
-    // });
+    const dynamodbTableItemsIndex = `${STACK_NAME}-Index-Items`;
+    dynamodbTable.addGlobalSecondaryIndex({
+      indexName: dynamodbTableItemsIndex,
+      partitionKeys: [
+        {
+          name: 'pk',
+          type: aws_dynamodb.AttributeType.STRING
+        }
+      ],
+      sortKeys: [
+        {
+          name: 'sk',
+          type: aws_dynamodb.AttributeType.STRING
+        },
+        {
+          name: 'settledDate',
+          type: aws_dynamodb.AttributeType.STRING
+        }
+      ],
+      projectionType: aws_dynamodb.ProjectionType.ALL
+    });
 
     const secret = new aws_secretsmanager.Secret(
       this,
