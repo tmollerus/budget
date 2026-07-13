@@ -1,7 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { BatchWriteCommand, DeleteCommand, DynamoDBDocumentClient, paginateQuery, PutCommand, QueryCommand, QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
-import { BudgetRecord, CategoryRecord, ItemRecord, SubcategoryRecord } from '../types';
+import { BudgetRecord, CategoryRecord, ItemRecord, SubcategoryRecord, StatsRecord } from '../types';
 import { logQueryEfficiency } from "../utils/db";
 
 export const getClient = async (): Promise<any> => {
@@ -244,6 +244,29 @@ export const createSubcategoryRecord = async (budgetGuid: string, subcategory: S
 
     const response = await client.send(command);
     return response.Items?.[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const getStatsByYear = async (guid: string, year: string): Promise<StatsRecord | void> => {
+  const client = await getClient();
+
+  try {
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "pk = :guid AND sk = :sk",
+      ExpressionAttributeValues: {
+        ":guid": `budget#${guid}`,
+        ":sk": `stats#${year}`
+      },
+      ReturnConsumedCapacity: "INDEXES"
+    });
+
+    const response = await client.send(getCommand);
+    console.log(logQueryEfficiency(response));
+
+    return response.Items?.[0] as StatsRecord | undefined;
   } catch (err) {
     console.error(err);
   }

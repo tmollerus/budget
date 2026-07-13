@@ -84,6 +84,18 @@ export interface SubcategoryRecord {
   dateCreated?: string;
 }
 
+export interface StatsRecord {
+  starting_balance: number;
+  category_totals: {
+    [category_label: string]: {
+      total: number;
+      [subcategory_label: string]: number;
+    };
+  };
+  dateModified?: string;
+  dateCreated?: string;
+}
+
 export interface UserRecord {
   guid: string;
   fullName: string;
