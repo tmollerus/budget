@@ -52,7 +52,7 @@ export const getBudgetItemCount = async (budgetGuid: string, year: string) => {
 };
 
 export const getBudgetStartingBalance = async (budgetGuid: string, year: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items/starting-balance?year=${year}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/stats?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -60,7 +60,7 @@ export const getBudgetStartingBalance = async (budgetGuid: string, year: string)
   })
   .then((response) => response.json())
   .then((data) => {
-    return data.startingBalance;
+    return data.items.startingBalance;
   })
   .catch((err) => {
     return Promise.reject(err);

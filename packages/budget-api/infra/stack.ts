@@ -9,12 +9,14 @@ import {
   aws_apigatewayv2_authorizers,
   aws_apigatewayv2_integrations,
   aws_certificatemanager,
-  aws_iam,
+  aws_dynamodb,
   aws_ec2,
+  aws_events,
+  aws_events_targets,
+  aws_iam,
   aws_logs,
   aws_rds,
   aws_secretsmanager,
-  aws_dynamodb,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -333,6 +335,22 @@ export class BudgetApiStack extends Stack {
         resultsCacheTtl: Duration.seconds(0),
       }
     );
+
+    const statsLambdaV2: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-StatsLambdaV2`, {
+      runtime: aws_lambda.Runtime.NODEJS_24_X,
+      functionName: `${STACK_NAME}-StatsLambda-v2`,
+      handler: 'putHandler',
+      entry: path.join(__dirname, '..', 'src', 'v2', 'handlers', 'budgets', 'stats.ts'),
+      environment: {
+        DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
+      }
+    });
+    const statsGenerationRule = new aws_events.Rule(this, `${STACK_NAME}-StatsGenerationRule-v2`, {
+      // schedule: aws_events.Schedule.expression('cron(0 0 * * ? *)'), // nightly
+      schedule: aws_events.Schedule.expression('cron(*/5 * * * *)'), // every 5 minutes
+      description: 'Each night, generates stats (starting balance, category totals, item counts) for each year',
+    });
+    statsGenerationRule.addTarget(new aws_events_targets.LambdaFunction(statsLambdaV2));
 
     const domainName = new aws_apigatewayv2.DomainName(
       this,

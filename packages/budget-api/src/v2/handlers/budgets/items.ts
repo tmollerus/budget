@@ -59,8 +59,6 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
   const cacheKey = `${budgetGuid}-${forYear}`;
 
   try {
-    // FIX: how do we invalidate cache keys when items are added/updated/deleted?
-    // By sending a clear cache parameter in the request.
     if (Number(forYear) < new Date().getFullYear() && memoryCache[cacheKey] && clearCache !== 'true') {
       return {
         statusCode: 200,
@@ -86,32 +84,6 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
     memoryCache[cacheKey] = {
       startingBalance,
     };
-
-    const stats: StatsRecord = {
-      startingBalance: startingBalance,
-      totals: {
-        income: 0,
-        transfer: 0,
-        expense: 0,
-      },
-      categories: {},
-    };
-    items?.forEach((item) => {
-      if (item.type_id === 1) {
-        stats.totals.income += item.amount;
-      } else if (item.type_id === 2) {
-        stats.totals.transfer += item.amount;
-      } else {
-        stats.totals.expense += item.amount;
-      }
-      if (item.category_guid) {
-        stats.categories[item.category_guid].total += item.amount;
-        if (item.subcategory_guid) {
-          stats.categories[item.category_guid][item.subcategory_guid] += item.amount;
-        }
-      }
-    });
-    await createStatsrecord(budgetGuid, forYear, stats);
     
     return {
       statusCode: 200,

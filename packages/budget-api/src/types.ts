@@ -91,6 +91,7 @@ export interface StatsRecord {
     transfer: number;
     expense: number;
   };
+  nextYearItemCount: number;
   categories: {
     [categoryGuid: string]: {
       [subcategoryGuid: string]: number;

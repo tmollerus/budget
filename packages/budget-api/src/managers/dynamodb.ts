@@ -35,6 +35,28 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
   }
 };
 
+export const getBudgets = async (): Promise<Array<BudgetRecord> | void> => {
+  const client = await getClient();
+
+  try {
+    const getCommand = new QueryCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      KeyConditionExpression: "begins_with(sk, :skPrefix)",
+      ExpressionAttributeValues: {
+        ":skPrefix": "budget#"
+      },
+      ReturnConsumedCapacity: "INDEXES"
+    });
+
+    const response = await client.send(getCommand);
+    console.log(logQueryEfficiency(response));
+
+    return response.Items;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
   const client = await getClient();
 
