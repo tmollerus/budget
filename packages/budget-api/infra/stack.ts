@@ -346,8 +346,8 @@ export class BudgetApiStack extends Stack {
       }
     });
     const statsGenerationRule = new aws_events.Rule(this, `${STACK_NAME}-StatsGenerationRule-v2`, {
-      // schedule: aws_events.Schedule.expression('cron(0 0 * * ? *)'), // nightly
-      schedule: aws_events.Schedule.expression('cron(*/5 * * * *)'), // every 5 minutes
+      schedule: aws_events.Schedule.expression('cron(0 0 * * ? *)'), // nightly
+      // schedule: aws_events.Schedule.expression('cron(*/5 * * * *)'), // every 5 minutes
       description: 'Each night, generates stats (starting balance, category totals, item counts) for each year',
     });
     statsGenerationRule.addTarget(new aws_events_targets.LambdaFunction(statsLambdaV2));
