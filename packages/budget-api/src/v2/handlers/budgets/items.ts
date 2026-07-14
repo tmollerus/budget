@@ -1,5 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { copyFromYear, deleteFromYear, getBudget, getBudgetItemsByYear } from '../../../managers/dynamodb';
+import { copyFromYear, createStatsrecord, deleteFromYear, getBudget, getBudgetItemsByYear } from '../../../managers/dynamodb';
+import { StatsRecord } from '../../../types';
 
 const memoryCache: Record<string, { startingBalance: number; }> = {};
 
@@ -54,12 +55,13 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
   const forYear = event.queryStringParameters?.year || '';
+  const clearCache = event.queryStringParameters?.clearCache || false;
   const cacheKey = `${budgetGuid}-${forYear}`;
 
   try {
     // FIX: how do we invalidate cache keys when items are added/updated/deleted?
     // By sending a clear cache parameter in the request.
-    if (Number(forYear) < new Date().getFullYear() && memoryCache[cacheKey]) {
+    if (Number(forYear) < new Date().getFullYear() && memoryCache[cacheKey] && clearCache !== 'true') {
       return {
         statusCode: 200,
         body: JSON.stringify({ startingBalance: memoryCache[cacheKey].startingBalance }),
@@ -70,7 +72,7 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
     let startingBalance = Number(budget?.starting_balance) || 0;
   
     const items = await getBudgetItemsByYear(budgetGuid, forYear.toString(), true);
-    const totalBalance = items!.reduce((acc, item) => {
+    const yearsChange = items!.reduce((acc, item) => {
       if (!item.active) {
         return acc;
       } else if (item.type_id === 1) {
@@ -79,11 +81,37 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
         return acc - item.amount;
       }
     }, 0);
-    startingBalance += totalBalance;
+    startingBalance += yearsChange;
 
     memoryCache[cacheKey] = {
       startingBalance,
     };
+
+    const stats: StatsRecord = {
+      startingBalance: startingBalance,
+      totals: {
+        income: 0,
+        transfer: 0,
+        expense: 0,
+      },
+      categories: {},
+    };
+    items?.forEach((item) => {
+      if (item.type_id === 1) {
+        stats.totals.income += item.amount;
+      } else if (item.type_id === 2) {
+        stats.totals.transfer += item.amount;
+      } else {
+        stats.totals.expense += item.amount;
+      }
+      if (item.category_guid) {
+        stats.categories[item.category_guid].total += item.amount;
+        if (item.subcategory_guid) {
+          stats.categories[item.category_guid][item.subcategory_guid] += item.amount;
+        }
+      }
+    });
+    await createStatsrecord(budgetGuid, forYear, stats);
     
     return {
       statusCode: 200,

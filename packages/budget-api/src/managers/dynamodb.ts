@@ -272,6 +272,29 @@ export const getStatsByYear = async (guid: string, year: string): Promise<StatsR
   }
 };
 
+export const createStatsrecord = async (budgetGuid: string, year: string, stats: StatsRecord): Promise<any> => {
+  const client = await getClient();
+
+  try {
+    const command = new PutCommand({
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      Item: {
+        pk: `budget#${budgetGuid}`,
+        sk: `stats#${year}`,
+        ...stats,
+        dateCreated: new Date().toISOString(),
+        dateModified: new Date().toISOString(),
+      },
+    });
+
+    const response = await client.send(command);
+
+    return response.Items?.[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export const createUserRecord = async (budgetGuid: string, email: string, fullName: string): Promise<any> => {
   const client = await getClient();
 

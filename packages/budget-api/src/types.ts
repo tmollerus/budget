@@ -85,11 +85,15 @@ export interface SubcategoryRecord {
 }
 
 export interface StatsRecord {
-  starting_balance: number;
-  category_totals: {
-    [category_label: string]: {
-      total: number;
-      [subcategory_label: string]: number;
+  startingBalance: number;
+  totals: {
+    income: number;
+    transfer: number;
+    expense: number;
+  };
+  categories: {
+    [categoryGuid: string]: {
+      [subcategoryGuid: string]: number;
     };
   };
   dateModified?: string;
