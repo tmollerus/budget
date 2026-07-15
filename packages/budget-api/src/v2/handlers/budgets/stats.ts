@@ -26,7 +26,6 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
 };
 
 export const putHandler = async (): Promise<void> => {
-  console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   const currentYear = new Date().getFullYear();
 
   try {

@@ -345,6 +345,7 @@ export class BudgetApiStack extends Stack {
         DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
       }
     });
+    dynamodbTable.grantReadWriteData(statsLambdaV2);
     const statsGenerationRule = new aws_events.Rule(this, `${STACK_NAME}-StatsGenerationRule-v2`, {
       schedule: aws_events.Schedule.expression('cron(0 0 * * ? *)'), // nightly
       // schedule: aws_events.Schedule.expression('cron(*/5 * * * *)'), // every 5 minutes
