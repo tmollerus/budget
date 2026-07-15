@@ -294,7 +294,7 @@ export const getStatsByYear = async (guid: string, year: string): Promise<StatsR
   }
 };
 
-export const createStatsrecord = async (budgetGuid: string, year: string, stats: StatsRecord): Promise<any> => {
+export const updateStatsrecord = async (budgetGuid: string, year: string, stats: StatsRecord): Promise<any> => {
   const client = await getClient();
 
   try {
@@ -304,7 +304,6 @@ export const createStatsrecord = async (budgetGuid: string, year: string, stats:
         pk: `budget#${budgetGuid}`,
         sk: `stats#${year}`,
         ...stats,
-        dateCreated: new Date().toISOString(),
         dateModified: new Date().toISOString(),
       },
     });

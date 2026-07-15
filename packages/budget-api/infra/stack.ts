@@ -336,23 +336,6 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const statsLambdaV2: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-StatsLambdaV2`, {
-      runtime: aws_lambda.Runtime.NODEJS_24_X,
-      functionName: `${STACK_NAME}-StatsLambda-v2`,
-      handler: 'putHandler',
-      entry: path.join(__dirname, '..', 'src', 'v2', 'handlers', 'budgets', 'stats.ts'),
-      environment: {
-        DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
-      }
-    });
-    dynamodbTable.grantReadWriteData(statsLambdaV2);
-    const statsGenerationRule = new aws_events.Rule(this, `${STACK_NAME}-StatsGenerationRule-v2`, {
-      schedule: aws_events.Schedule.expression('cron(0 0 * * ? *)'), // nightly
-      // schedule: aws_events.Schedule.expression('cron(*/5 * * * *)'), // every 5 minutes
-      description: 'Each night, generates stats (starting balance, category totals, item counts) for each year',
-    });
-    statsGenerationRule.addTarget(new aws_events_targets.LambdaFunction(statsLambdaV2));
-
     const domainName = new aws_apigatewayv2.DomainName(
       this,
       `${STACK_NAME}-DomainName`,
@@ -495,6 +478,15 @@ export class BudgetApiStack extends Stack {
       '/handlers/budgets/stats.ts',
       '/budgets/{budgetGuid}/stats',
       [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'UpdateStatsForYear',
+      'putHandler',
+      'v2',
+      '/handlers/budgets/stats.ts',
+      '/budgets/{budgetGuid}/stats',
+      [ aws_apigatewayv2.HttpMethod.PUT ]
     );
 
     createLambdaAndRoute(

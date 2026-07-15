@@ -60,7 +60,7 @@ export const getBudgetStartingBalance = async (budgetGuid: string, year: string)
   })
   .then((response) => response.json())
   .then((data) => {
-    return data.items.startingBalance;
+    return data.startingBalance;
   })
   .catch((err) => {
     return Promise.reject(err);

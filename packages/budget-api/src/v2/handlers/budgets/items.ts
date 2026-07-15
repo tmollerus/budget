@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { copyFromYear, createStatsrecord, deleteFromYear, getBudget, getBudgetItemsByYear } from '../../../managers/dynamodb';
+import { copyFromYear, deleteFromYear, getBudget, getBudgetItemsByYear } from '../../../managers/dynamodb';
 import { StatsRecord } from '../../../types';
 
 const memoryCache: Record<string, { startingBalance: number; }> = {};
@@ -59,6 +59,8 @@ export const startingBalanceHandler = async (event: APIGatewayEvent): Promise<AP
   const cacheKey = `${budgetGuid}-${forYear}`;
 
   try {
+    // FIX: how do we invalidate cache keys when items are added/updated/deleted?
+    // By sending a clear cache parameter in the request.
     if (Number(forYear) < new Date().getFullYear() && memoryCache[cacheKey] && clearCache !== 'true') {
       return {
         statusCode: 200,
