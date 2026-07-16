@@ -35,6 +35,7 @@ import {
   updateEntry,
   getBudgetItemCount,
   getBudgetStartingBalance,
+  getBudgetStatsForYear,
 } from '../utils/api';
 import { formatDate, dollarFormat } from "../utils/format";
 import { Dialog } from './Dialog';
@@ -101,7 +102,8 @@ export const Ledger = () => {
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);
     setLedgerData({ items: [] });
-    const thisYearStartingBalance = await getBudgetStartingBalance(budgetGuid, String(budgetYear));
+    const stats = await getBudgetStatsForYear(budgetGuid, String(budgetYear));
+    const thisYearStartingBalance = stats.startingBalance;
     setStartingBalance(thisYearStartingBalance);
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
     if (newLedgerData.items.length) {
@@ -116,8 +118,7 @@ export const Ledger = () => {
       setIsEmpty(true);
     }
     if (new Date().getFullYear() === budgetYear) {
-      const nextYearItems = await getBudgetItemCount(budgetGuid, String(budgetYear + 1));
-      setNextYearItemCount(nextYearItems?.count || 0);
+      setNextYearItemCount(stats.nextYearItemCount || 0);
     }
   }, [budgetGuid, budgetYear, setLedgerData]);
 

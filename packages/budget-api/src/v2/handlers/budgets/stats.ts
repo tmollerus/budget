@@ -9,7 +9,15 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
   const year = event.queryStringParameters?.year || '';
 
   try {
-    const stats = await getStatsByYear(budgetGuid, year);
+    let stats: StatsRecord | void;
+    if (Number(year) > new Date().getFullYear()) {
+      stats = await writeStatsRecord(budgetGuid, year);
+    } else {
+      stats = await getStatsByYear(budgetGuid, year);
+      if (!stats) {
+        stats = await writeStatsRecord(budgetGuid, year, true);
+      }
+    }
     
     return {
       statusCode: 200,
@@ -29,6 +37,24 @@ export const putHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
   const budgetGuid = event.pathParameters?.budgetGuid || '';
   const year = event.queryStringParameters?.year || '';
 
+  try {
+    const stats: StatsRecord | void = await writeStatsRecord(budgetGuid, year);
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({...stats}),
+    };
+  } catch (err) {
+    console.error(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({err}),
+    };
+  }
+};
+
+const writeStatsRecord = async (budgetGuid: string, year: string, create: boolean = false): Promise<StatsRecord | void> => {
   try {
     const budgetRecord = await getBudget(budgetGuid);
     let startingBalance = Number(budgetRecord?.starting_balance) || 0;
@@ -80,18 +106,16 @@ export const putHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
         }
       }
     });
+
+    if (create) {
+      stats.dateCreated = new Date().toISOString();
+    }
     await updateStatsrecord(budgetGuid, year.toString(), stats);
-    
-    return {
-      statusCode: 200,
-      body: JSON.stringify({...stats}),
-    };
+
+    return stats;
   } catch (err) {
     console.error(err);
 
-    return {
-      statusCode: 500,
-      body: JSON.stringify({err}),
-    };
+    return;
   }
 };
