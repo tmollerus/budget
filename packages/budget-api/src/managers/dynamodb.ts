@@ -27,7 +27,7 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
     });
 
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('getBudget - get budget by guid', response));
 
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
@@ -35,28 +35,7 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
   }
 };
 
-export const getBudgets = async (): Promise<Array<BudgetRecord> | void> => {
-  const client = await getClient();
-
-  try {
-    const getCommand = new QueryCommand({
-      TableName: process.env.DYNAMODB_TABLE_NAME,
-      KeyConditionExpression: "begins_with(sk, :skPrefix)",
-      ExpressionAttributeValues: {
-        ":skPrefix": "budget#"
-      },
-      ReturnConsumedCapacity: "INDEXES"
-    });
-
-    const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
-
-    return response.Items;
-  } catch (err) {
-    console.error(err);
-  }
-};
-
+// Query efficiency 1/1 100%
 export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
   const client = await getClient();
 
@@ -72,7 +51,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
     });
 
     const getUserResponse: QueryCommandOutput = await client.send(getUserCommand);
-    console.log(logQueryEfficiency(getUserResponse));
+    console.log(logQueryEfficiency('getBudgetByEmail - get user by email', getUserResponse));
 
     const getBudgetCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
@@ -84,7 +63,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getBudgetCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('getBudgetByEmail - get budget by guid', response));
 
     return response.Items?.[0] as BudgetRecord | undefined;
   } catch (err) {
@@ -134,7 +113,7 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string, upT
         stats.ConsumedCapacity.CapacityUnits += page.ConsumedCapacity?.CapacityUnits || 0;
       }
     }
-    console.log(logQueryEfficiency(stats));
+    console.log(logQueryEfficiency('getBudgetItemsByYear - get items by year, paginated', stats));
 
     return items as Array<ItemRecord>;
   } catch (err) {
@@ -156,7 +135,7 @@ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<C
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('getCategoriesByBudget', response));
 
     return response.Items;
   } catch (err) {
@@ -178,7 +157,7 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('getSubcategoriesByBudget', response));
 
     return response.Items;
   } catch (err) {
@@ -217,7 +196,7 @@ export const createBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('createBudgetItem - get budget item by guid', response));
 
     return response.Items?.[0];
   } catch (err) {
@@ -271,6 +250,7 @@ export const createSubcategoryRecord = async (budgetGuid: string, subcategory: S
   }
 };
 
+// Query efficiency 1/1 100%
 export const getStatsByYear = async (guid: string, year: string): Promise<StatsRecord | void> => {
   const client = await getClient();
 
@@ -286,7 +266,7 @@ export const getStatsByYear = async (guid: string, year: string): Promise<StatsR
     });
 
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('getStatsByYear', response));
 
     return response.Items?.[0] as StatsRecord | undefined;
   } catch (err) {
@@ -514,7 +494,7 @@ export const softDeleteBudgetItem = async (budgetGuid: string, itemGuid: string)
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('softDeleteBudgetItem - get item by guid', response));
 
     return response.Items?.[0];
   } catch (err) {
@@ -551,7 +531,7 @@ export const updateBudgetItem = async (budgetGuid: string, budgetItem: ItemRecor
       ReturnConsumedCapacity: "INDEXES"
     });
     const response = await client.send(getCommand);
-    console.log(logQueryEfficiency(response));
+    console.log(logQueryEfficiency('updateBudgetItem - get item by guid', response));
 
     return response.Items?.[0];
   } catch (err) {

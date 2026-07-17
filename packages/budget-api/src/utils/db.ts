@@ -57,7 +57,7 @@ export const getSetStatementAndParams = (budgetGuid: string, budgetItem: ItemRec
   return { setStatement, setParameters };
 };
 
-export const logQueryEfficiency = (queryResult: QueryCommandOutput) => {
+export const logQueryEfficiency = (queryDescription: string, queryResult: QueryCommandOutput) => {
   const { Count: count, ScannedCount: scannedCount, ConsumedCapacity: consumedCapacity } = queryResult;
-  return `Query efficiency: ${count} items returned / ${scannedCount} items scanned = ${(count || 0) / (scannedCount || 1) * 100}%, ConsumedCapacity: ${consumedCapacity?.CapacityUnits || 0} units`;
+  return `[${queryDescription}] Query efficiency: ${count} items returned / ${scannedCount} items scanned = ${(count || 0) / (scannedCount || 1) * 100}%, ConsumedCapacity: ${consumedCapacity?.CapacityUnits || 0} units`;
 };

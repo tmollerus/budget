@@ -1,5 +1,5 @@
-import { APIGatewayProxyResult, APIGatewayEvent, EventBridgeEvent } from 'aws-lambda';
-import { updateStatsrecord, getBudget, getBudgetItemsByYear, getBudgets, getStatsByYear } from '../../../managers/dynamodb';
+import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
+import { updateStatsrecord, getBudget, getBudgetItemsByYear, getStatsByYear } from '../../../managers/dynamodb';
 import { BudgetRecord, StatsRecord } from '../../../types';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
@@ -7,10 +7,11 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
   const year = event.queryStringParameters?.year || '';
+  const refresh = event.queryStringParameters?.refresh || '';
 
   try {
     let stats: StatsRecord | void;
-    if (Number(year) > new Date().getFullYear()) {
+    if (refresh === "true" || Number(year) > new Date().getFullYear()) {
       stats = await writeStatsRecord(budgetGuid, year);
     } else {
       stats = await getStatsByYear(budgetGuid, year);
@@ -84,7 +85,9 @@ const writeStatsRecord = async (budgetGuid: string, year: string, create: boolea
       },
       categories: {},
     };
-    items?.forEach((item) => {
+
+    const thisYearsItems = await getBudgetItemsByYear(budgetGuid, year);
+    thisYearsItems?.forEach((item) => {
       if (item.type_id === 1) {
         stats.totals.income += item.amount;
       } else if (item.type_id === 2) {

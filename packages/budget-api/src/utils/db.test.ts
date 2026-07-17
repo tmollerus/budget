@@ -35,7 +35,8 @@ describe('db utility', () => {
         requestId: '1234567890',
       },
     };
-    const logMessage = logQueryEfficiency(queryResponse);
+    const logMessage = logQueryEfficiency('Foo', queryResponse);
     expect(logMessage).toContain(`Query efficiency: ${queryResponse.Count} items returned / ${queryResponse.ScannedCount} items scanned = ${(queryResponse.Count || 0) / (queryResponse.ScannedCount || 1) * 100}%`);
+    expect(logMessage).toContain(`Foo`);
   });
 });

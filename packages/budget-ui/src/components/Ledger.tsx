@@ -33,8 +33,6 @@ import {
   getBudgetItems,
   getBudgetSubcategories,
   updateEntry,
-  getBudgetItemCount,
-  getBudgetStartingBalance,
   getBudgetStatsForYear,
 } from '../utils/api';
 import { formatDate, dollarFormat } from "../utils/format";
