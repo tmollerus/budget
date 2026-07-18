@@ -35,11 +35,11 @@ export const getBudget = async (guid: string): Promise<BudgetRecord | void> => {
   }
 };
 
-// Query efficiency 1/1 100%
 export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | void> => {
   const client = await getClient();
 
   try {
+    // Query efficiency 1/1 100%
     const getUserCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
       IndexName: process.env.DYNAMODB_INDEX_NAME,
@@ -53,6 +53,7 @@ export const getBudgetByEmail = async (email: string): Promise<BudgetRecord | vo
     const getUserResponse: QueryCommandOutput = await client.send(getUserCommand);
     console.log(logQueryEfficiency('getBudgetByEmail - get user by email', getUserResponse));
 
+    // Query efficiency 1/1 100%
     const getBudgetCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
       KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
@@ -89,6 +90,7 @@ export const getBudgetItemsByYear = async (budgetGuid: string, year: string, upT
     pageSize: 100
   };
 
+  // Query efficiency 494/7167 6.9%
   const queryParams = {
     TableName: process.env.DYNAMODB_TABLE_NAME,
     KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
@@ -125,6 +127,7 @@ export const getCategoriesByBudget = async (budgetGuid: string): Promise<Array<C
   const client = await getClient();
 
   try {
+    // Query efficiency: 10/10 100%
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
       KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
@@ -147,6 +150,7 @@ export const getSubcategoriesByBudget = async (budgetGuid: string): Promise<Arra
   const client = await getClient();
 
   try {
+    // Query efficiency: 42/42 100%
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
       KeyConditionExpression: "pk = :budgetGuid AND begins_with(sk, :skPrefix)",
@@ -250,11 +254,11 @@ export const createSubcategoryRecord = async (budgetGuid: string, subcategory: S
   }
 };
 
-// Query efficiency 1/1 100%
 export const getStatsByYear = async (guid: string, year: string): Promise<StatsRecord | void> => {
   const client = await getClient();
 
   try {
+    // Query efficiency 1/1 100%
     const getCommand = new QueryCommand({
       TableName: process.env.DYNAMODB_TABLE_NAME,
       KeyConditionExpression: "pk = :guid AND sk = :sk",
