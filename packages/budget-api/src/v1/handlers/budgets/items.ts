@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { copyFromYear, deleteFromYear, getBudgetItemsByYear } from '../../managers/postgres';
+import { copyFromYear, deleteFromYear, getBudgetItemsByYear } from '../../../managers/postgres';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -15,7 +15,7 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
       body: JSON.stringify({items}),
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,
@@ -45,7 +45,7 @@ export const postHandler = async (event: APIGatewayEvent): Promise<APIGatewayPro
       };
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,
@@ -75,7 +75,7 @@ export const deleteHandler = async (event: APIGatewayEvent): Promise<APIGatewayP
       };
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,

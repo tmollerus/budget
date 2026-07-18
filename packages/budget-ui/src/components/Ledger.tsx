@@ -16,6 +16,7 @@ import {
   addLedgerDataItem,
   deleteLedgerDataItem,
   getMessage,
+  sortLedgerData,
   updateItemBalances,
   updateItemCategories,
   updateLedgerDataItem,
@@ -32,6 +33,7 @@ import {
   getBudgetItems,
   getBudgetSubcategories,
   updateEntry,
+  getBudgetStatsForYear,
 } from '../utils/api';
 import { formatDate, dollarFormat } from "../utils/format";
 import { Dialog } from './Dialog';
@@ -48,6 +50,8 @@ export const Ledger = () => {
     setBudgetGuid,
     budgetYear,
     setBudgetYear,
+    startingBalance,
+    setStartingBalance,
     ledgerData,
     setLedgerData,
     categories,
@@ -59,6 +63,10 @@ export const Ledger = () => {
   defaultDate.setFullYear(budgetYear);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCopying, setIsCopying] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isEmpty, setIsEmpty] = useState<boolean>(false);
+  const [nextYearItemCount, setNextYearItemCount] = useState<number>(0);
   const [categoryToCreate, setCategoryToCreate] = useState<Category>();
   const [subcategoryToCreate, setSubcategoryToCreate] = useState<Subcategory>();
   const [itemToCategorize, setItemToCategorize] = useState<LedgerDataItem>();
@@ -85,17 +93,31 @@ export const Ledger = () => {
         setSubcategories(subcategories);
       }
     }
+
     checkBudgetGuid();
-  });
+  }, []);
 
   const reloadLedgerData = useCallback(async () => {
     setIsLoading(true);
     setLedgerData({ items: [] });
+    const stats = await getBudgetStatsForYear(budgetGuid, String(budgetYear));
+    const thisYearStartingBalance = stats.startingBalance;
+    setStartingBalance(thisYearStartingBalance);
     const newLedgerData = await getBudgetItems(budgetGuid, String(budgetYear));
-    newLedgerData.items = updateItemBalances(newLedgerData);
-    newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
-    setLedgerData(newLedgerData);
-    setIsLoading(false);
+    if (newLedgerData.items.length) {
+      newLedgerData.items = sortLedgerData(newLedgerData);
+      newLedgerData.items = updateItemBalances(newLedgerData, thisYearStartingBalance!);
+      newLedgerData.items = updateItemCategories(newLedgerData, categories, subcategories);
+      setLedgerData(newLedgerData);
+      setIsLoading(false);
+      setIsEmpty(false);
+    } else {
+      setIsLoading(false);
+      setIsEmpty(true);
+    }
+    if (new Date().getFullYear() === budgetYear) {
+      setNextYearItemCount(stats.nextYearItemCount || 0);
+    }
   }, [budgetGuid, budgetYear, setLedgerData]);
 
   useEffect(() => {
@@ -159,7 +181,7 @@ export const Ledger = () => {
           setSubcategories(subcategories);
           setSubcategoryToCreate(undefined);
         }
-        setLedgerData(updateLedgerDataItem(ledgerData, itemToCategorize!));
+        setLedgerData(updateLedgerDataItem(ledgerData, itemToCategorize!, startingBalance!));
         await updateEntry(budgetGuid, itemToCategorize);
         Toaster.show({
           message: getMessage(MessageType.ITEM_CATEGORIZED, itemToCategorize!),
@@ -168,6 +190,7 @@ export const Ledger = () => {
         });
       }
     } catch (err) {
+      console.error(err);
       // originalItem && updateLedgerDataItem(ledgerData, originalItem);
       Toaster.show({
         message: `An error occurred while trying to categorize the item`,
@@ -197,7 +220,7 @@ export const Ledger = () => {
   const deleteItem = async () => {
     setIsDeleteDialogOpen(false);
     if (itemToDelete) {
-      setLedgerData(deleteLedgerDataItem(ledgerData, itemToDelete));
+      setLedgerData(deleteLedgerDataItem(ledgerData, itemToDelete, startingBalance!));
       const success = await deleteEntry(budgetGuid, itemToDelete.guid);
       if (success) {
         const deletedItem: LedgerDataItem = itemToDelete;
@@ -224,7 +247,7 @@ export const Ledger = () => {
   const addItem = async (newItem: PartialLedgerDataItem): Promise<boolean> => {
     try {
       const addedItem = await createEntry(budgetGuid, newItem);
-      setLedgerData(addLedgerDataItem(ledgerData, addedItem));
+      setLedgerData(addLedgerDataItem(ledgerData, addedItem, startingBalance!));
       Toaster.show({
         message: getMessage(MessageType.ITEM_ADDED, addedItem),
         intent: Intent.SUCCESS,
@@ -243,7 +266,7 @@ export const Ledger = () => {
 
   const editItem = async (editedItem: PartialLedgerDataItem, originalItem?: LedgerDataItem) => {
     try {
-      setLedgerData(updateLedgerDataItem(ledgerData, editedItem));
+      setLedgerData(updateLedgerDataItem(ledgerData, editedItem, startingBalance!));
       const savedItem = await updateEntry(budgetGuid, editedItem);
       Toaster.show({
         message: getMessage(MessageType.ITEM_EDITED, savedItem),
@@ -251,7 +274,8 @@ export const Ledger = () => {
         icon: 'tick-circle',
       });
     } catch (err) {
-      originalItem && updateLedgerDataItem(ledgerData, originalItem);
+      console.error(err);
+      originalItem && updateLedgerDataItem(ledgerData, originalItem, startingBalance!);
       Toaster.show({
         message: `An error occurred while trying to save the new item`,
         intent: Intent.DANGER,
@@ -271,7 +295,7 @@ export const Ledger = () => {
           if (originalItem.guid === editedItem.guid) {
             originalItem.paid = editedItem.paid;
           }
-          setLedgerData(updateLedgerDataItem(ledgerData, originalItem));
+          setLedgerData(updateLedgerDataItem(ledgerData, originalItem, startingBalance!));
           await updateEntry(budgetGuid, originalItem);
           return originalItem as LedgerDataItem;
         }),
@@ -285,6 +309,7 @@ export const Ledger = () => {
         icon: 'tick-circle',
       });
     } catch (err) {
+      console.error(err);
       Toaster.show({
         message: `An error occurred while trying to save the changes`,
         intent: Intent.DANGER,
@@ -295,8 +320,11 @@ export const Ledger = () => {
 
   const copyItems = async (fromYear: number, toYear: number) => {
     try {
+      setIsLoading(false);
+      setIsCopying(true);
       const isCopySuccessful = await copyYear(budgetGuid, fromYear, toYear);
       if (isCopySuccessful) {
+        setIsCopying(false);
         Toaster.show({
           message: `Successfully copied items from ${fromYear} to ${toYear}`,
           intent: Intent.SUCCESS,
@@ -307,6 +335,7 @@ export const Ledger = () => {
       }
     } catch (err) {
       console.error(err);
+      setIsCopying(false);
       Toaster.show({
         message: `An error occurred while trying to copy items from ${fromYear} to ${toYear}`,
         intent: Intent.DANGER,
@@ -317,8 +346,11 @@ export const Ledger = () => {
 
   const deleteItems = async (fromYear: number) => {
     try {
+      setIsLoading(false);
+      setIsDeleting(true);
       const isDeleteSuccessful = await deleteYear(budgetGuid, fromYear);
       if (isDeleteSuccessful) {
+        setIsDeleting(false);
         Toaster.show({
           message: `Successfully deleted all items from ${fromYear}`,
           intent: Intent.SUCCESS,
@@ -329,6 +361,7 @@ export const Ledger = () => {
       }
     } catch (err) {
       console.error(err);
+      setIsDeleting(false);
       Toaster.show({
         message: `An error occurred while trying to delete items for ${fromYear}`,
         intent: Intent.DANGER,
@@ -353,6 +386,10 @@ export const Ledger = () => {
           deleteItems={deleteItems}
           scrollToMonth={scrollToMonth}
           isLoading={isLoading}
+          isCopying={isCopying}
+          isDeleting={isDeleting}
+          isEmpty={isEmpty}
+          nextYearItemCount={nextYearItemCount}
           setPercentScrolled={setPercentScrolled}
         />
       </div>

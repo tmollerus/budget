@@ -1,6 +1,6 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { createCategoryRecord, createSubcategoryRecord, deleteCategory, deleteSubcategory } from '../../managers/postgres';
-import { CategoryRecord, SubcategoryRecord } from '../../types';
+import { createCategoryRecord, createSubcategoryRecord, deleteCategory, deleteSubcategory } from '../../../managers/postgres';
+import { CategoryRecord, SubcategoryRecord } from '../../../types';
 
 export const postHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -17,7 +17,7 @@ export const postHandler = async (event: APIGatewayEvent, context: Context): Pro
       body: JSON.stringify(createdItem),
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,
@@ -40,7 +40,7 @@ export const deleteHandler = async (event: APIGatewayEvent, context: Context): P
       body: '',
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,

@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { getCategoriesByBudget, getSubcategoriesByBudget } from '../../../managers/postgres';
+import { getSubcategoriesByBudget } from '../../../managers/dynamodb';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);

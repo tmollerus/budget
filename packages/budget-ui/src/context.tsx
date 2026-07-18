@@ -10,6 +10,10 @@ const BudgetContextDefaults: BudgetContextType = {
   setBudgetGuid: () => {
     throw new Error('Function not implemented!');
   },
+  startingBalance: undefined,
+  setStartingBalance: () => {
+    throw new Error('Function not implemented!');
+  },
   ledgerData: { items: [] },
   setLedgerData: () => {
     throw new Error('Function not implemented!');
@@ -33,6 +37,7 @@ export const useBudgetContext = () => {
 export const BudgetContextProvider: FC<BudgetProviderProps> = ({ children }) => {
   const [budgetYear, setBudgetYear] = useState<number>(BudgetContextDefaults.budgetYear);
   const [budgetGuid, setBudgetGuid] = useState<string>(BudgetContextDefaults.budgetGuid);
+  const [startingBalance, setStartingBalance] = useState<number | undefined>(BudgetContextDefaults.startingBalance);
   const [ledgerData, setLedgerData] = useState<LedgerData>(BudgetContextDefaults.ledgerData);
   const [categories, setCategories] = useState<Array<Category>>(BudgetContextDefaults.categories);
   const [subcategories, setSubcategories] = useState<Array<Subcategory>>(
@@ -44,6 +49,8 @@ export const BudgetContextProvider: FC<BudgetProviderProps> = ({ children }) => 
     setBudgetYear,
     budgetGuid,
     setBudgetGuid,
+    startingBalance,
+    setStartingBalance,
     ledgerData,
     setLedgerData,
     categories,

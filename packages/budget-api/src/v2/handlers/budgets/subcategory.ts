@@ -1,15 +1,15 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { createCategoryRecord, deleteCategory } from '../../../managers/postgres';
-import { CategoryRecord } from '../../../types';
+import { createSubcategoryRecord, deleteSubcategory } from '../../../managers/dynamodb';
+import { SubcategoryRecord } from '../../../types';
 
 export const postHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
-  const category: CategoryRecord = JSON.parse(event.body || '{}');
+  const subcategory: SubcategoryRecord = JSON.parse(event.body || '{}');
 
   try {
-    const createdItem = await createCategoryRecord(budgetGuid, category);
+    const createdItem = await createSubcategoryRecord(budgetGuid, subcategory);
 
     return {
       statusCode: 200,
@@ -29,10 +29,10 @@ export const deleteHandler = async (event: APIGatewayEvent, context: Context): P
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
 
   const budgetGuid = event.pathParameters?.budgetGuid || '';
-  const categoryGuid = event.pathParameters?.categoryGuid || '';
+  const subcategoryGuid = event.pathParameters?.subcategoryGuid || '';
 
   try {
-    const item = await deleteCategory(budgetGuid, categoryGuid);
+    const item = await deleteSubcategory(budgetGuid, subcategoryGuid);
 
     return {
       statusCode: 200,

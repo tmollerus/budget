@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { describeDatabase } from '../../../managers/postgres';
+import { describeDatabase } from '../../../../managers/postgres';
 
 export const getHandler = async (): Promise<APIGatewayProxyResult> => {
   try {
@@ -9,7 +9,7 @@ export const getHandler = async (): Promise<APIGatewayProxyResult> => {
       body: `Success: ${String(dbInfo)}`,
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return {
       statusCode: 500,
       body: `Failure: ${err}`,

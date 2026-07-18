@@ -50,6 +50,10 @@ interface Props {
   deleteItems: (fromYear: number) => void;
   scrollToMonth: (month: string, event?: React.MouseEvent<HTMLElement, MouseEvent>) => boolean;
   isLoading: boolean;
+  isCopying: boolean;
+  isDeleting: boolean;
+  isEmpty: boolean;
+  nextYearItemCount: number;
   setPercentScrolled: (percent: [number, number]) => void;
 }
 
@@ -491,7 +495,7 @@ export const Table = (props: Props) => {
 
     if (
       items.length &&
-      Number(items[0]?.next_year_item_count) === 0 &&
+      props.nextYearItemCount === 0 &&
       new Date().getFullYear() === parseDate(items[items.length - 1]?.settledDate).getFullYear()
     ) {
       rows.push(
@@ -666,6 +670,12 @@ export const Table = (props: Props) => {
       <div ref={rowCollectionRef} className={classes.rowCollection}>
         {props.isLoading ? (
           <Loader message={`Loading ${budgetYear} budget`} />
+        ) : props.isCopying ? (
+          <Loader message={`Copying items from ${budgetYear} to ${budgetYear + 1}`} />
+        ) : props.isDeleting ? (
+          <Loader message={`Deleting items from ${budgetYear}`} />
+        ) : props.isEmpty ? (
+          <Loader message={`No items found for ${budgetYear}`} empty />
         ) : (
           getRows(filteredLedgerData.items, budgetYear)
         )}

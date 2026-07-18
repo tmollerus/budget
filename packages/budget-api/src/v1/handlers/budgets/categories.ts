@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { getCategoriesByBudget } from '../../managers/postgres';
+import { getCategoriesByBudget } from '../../../managers/postgres';
 
 export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
@@ -14,7 +14,7 @@ export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProx
       body: JSON.stringify({items}),
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
 
     return {
       statusCode: 500,

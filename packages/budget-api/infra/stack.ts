@@ -1,6 +1,7 @@
 import { 
   App,
   Duration,
+  RemovalPolicy,
   Stack,
   StackProps,
   aws_lambda,
@@ -8,16 +9,19 @@ import {
   aws_apigatewayv2_authorizers,
   aws_apigatewayv2_integrations,
   aws_certificatemanager,
-  aws_iam,
+  aws_dynamodb,
   aws_ec2,
+  aws_events,
+  aws_events_targets,
+  aws_iam,
   aws_logs,
   aws_rds,
-  aws_secretsmanager
+  aws_secretsmanager,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { LOCAL_DOMAIN } from '../src/v1/constants/environment';
-import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/v1/utils/cdk';
+import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { LOCAL_DOMAIN } from '../src/constants/environment';
+import { getAllowedOrigins, getAllowedPreflightHeaders, getAllowedPreflightMethods } from '../src/utils/cdk';
 import path = require('path');
 
 // Heavily inspired by https://www.freecodecamp.org/news/aws-lambda-rds/
@@ -44,15 +48,16 @@ export class BudgetApiStack extends Stack {
     const createLambdaAndRoute = (
       lambdaName: string,
       lambdaHandler: string,
+      version: string,
       lambdaEntry: string,
       route: string,
       httpMethods: Array<aws_apigatewayv2.HttpMethod>,
     ) => {
-      const lambda: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-${lambdaName}Lambda`, {
+      let props: NodejsFunctionProps = {
         runtime: aws_lambda.Runtime.NODEJS_24_X,
-        functionName: `${STACK_NAME}-${lambdaName}`,
+        functionName: `${STACK_NAME}-${lambdaName}-${version}`,
         handler: lambdaHandler,
-        entry: path.join(__dirname, '..', lambdaEntry),
+        entry: path.join(__dirname, `../src/${version}`, lambdaEntry),
         timeout: Duration.seconds(60),
         bundling: {
           externalModules: [
@@ -62,13 +67,32 @@ export class BudgetApiStack extends Stack {
         environment: {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
           DATABASE_URL: dbProxy.endpoint,
+          DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
+          DYNAMODB_INDEX_NAME: dynamodbTableUsersIndex,
         },
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SUBNET_TYPE,
-        }),
-        securityGroups: [lambdaSecurityGroup],
-      });
+      };
+      if (version === 'v1') {
+        props = Object.assign(props, {
+          vpc,
+          vpcSubnets: vpc.selectSubnets({
+            subnetType: SUBNET_TYPE,
+          }),
+          securityGroups: [lambdaSecurityGroup],
+        });
+      }
+
+      const lambda: aws_lambda.IFunction = new NodejsFunction(
+        this,
+        `${STACK_NAME}-${lambdaName}Lambda${version === 'v1' ? '' : `-${version}`}`,
+        {
+          ...props,
+        }
+      );
+
+      if (version === 'v2') {
+        dynamodbTable.grantReadWriteData(lambda);
+      }
+
       secret.grantRead(lambda);
       const integration = new aws_apigatewayv2_integrations.HttpLambdaIntegration(
         `${STACK_NAME}-${lambdaName}Integration`,
@@ -76,9 +100,10 @@ export class BudgetApiStack extends Stack {
       );
   
       budgetApi.addRoutes({
-        path: route,
+        path: `/${version}${route}`,
         methods: httpMethods,
         integration: integration,
+        authorizer: version === 'v2' ? authorizerV2 : authorizerV1,
       });
 
       lambda.role?.addManagedPolicy(
@@ -156,6 +181,55 @@ export class BudgetApiStack extends Stack {
       }
     );
 
+    const dynamodbTable = new aws_dynamodb.TableV2(
+      this,
+      `${STACK_NAME}-Table`,
+        {
+        partitionKey: {
+          name: 'pk',
+          type: aws_dynamodb.AttributeType.STRING
+        },
+        sortKey: {
+          name: 'sk',
+          type: aws_dynamodb.AttributeType.STRING
+        },
+        tableName: `${STACK_NAME}-Table`,
+        removalPolicy: RemovalPolicy.RETAIN,
+        billing: aws_dynamodb.Billing.onDemand(),
+        pointInTimeRecovery: true,
+      }
+    );
+    const dynamodbTableUsersIndex = `${STACK_NAME}-Users`;
+    dynamodbTable.addGlobalSecondaryIndex({
+      indexName: dynamodbTableUsersIndex,
+      partitionKey: {
+        name: 'sk',
+        type: aws_dynamodb.AttributeType.STRING
+      },
+      projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
+    });
+    // const dynamodbTableItemsIndex = `${STACK_NAME}-Index-Items`;
+    // dynamodbTable.addGlobalSecondaryIndex({
+    //   indexName: dynamodbTableItemsIndex,
+    //   partitionKeys: [
+    //     {
+    //       name: 'pk',
+    //       type: aws_dynamodb.AttributeType.STRING
+    //     }
+    //   ],
+    //   sortKeys: [
+    //     {
+    //       name: 'sk',
+    //       type: aws_dynamodb.AttributeType.STRING
+    //     },
+    //     {
+    //       name: 'settledDate',
+    //       type: aws_dynamodb.AttributeType.STRING
+    //     }
+    //   ],
+    //   projectionType: aws_dynamodb.ProjectionType.ALL
+    // });
+
     const secret = new aws_secretsmanager.Secret(
       this,
       `${STACK_NAME}-Secret`,
@@ -201,9 +275,9 @@ export class BudgetApiStack extends Stack {
       }
     );
 
-    const authorizerLambda: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
+    const authorizerLambdaV1: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambda`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
-      functionName: `${STACK_NAME}-AuthorizerLambda`,
+      functionName: `${STACK_NAME}-AuthorizerLambda-v1`,
       handler: 'handler',
       entry: path.join(__dirname, '..', 'src', 'v1', 'authorizer', 'index.ts'),
       bundling: {
@@ -220,16 +294,42 @@ export class BudgetApiStack extends Stack {
         DATABASE_URL: dbProxy.endpoint,
       }
     });
-    secret.grantRead(authorizerLambda);
-    authorizerLambda.role?.addManagedPolicy(
+    secret.grantRead(authorizerLambdaV1);
+    authorizerLambdaV1.role?.addManagedPolicy(
       aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
         'service-role/AWSLambdaENIManagementAccess',
       ),
     );
 
-    const authorizer = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
-      `${STACK_NAME}-HttpLambdaAuthorizer`,
-      authorizerLambda,
+    const authorizerV1 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
+      `${STACK_NAME}-HttpLambdaAuthorizer-v1`,
+      authorizerLambdaV1,
+      {
+        responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
+        resultsCacheTtl: Duration.seconds(0),
+      }
+    );
+
+    const authorizerLambdaV2: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambdaV2`, {
+      runtime: aws_lambda.Runtime.NODEJS_24_X,
+      functionName: `${STACK_NAME}-AuthorizerLambda-v2`,
+      handler: 'handler',
+      entry: path.join(__dirname, '..', 'src', 'v2', 'authorizer', 'index.ts'),
+      environment: {
+        DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
+        DYNAMODB_INDEX_NAME: dynamodbTableUsersIndex,
+      }
+    });
+    authorizerLambdaV2.role?.addManagedPolicy(
+      aws_iam.ManagedPolicy.fromAwsManagedPolicyName(
+        'service-role/AWSLambdaENIManagementAccess',
+      ),
+    );
+    dynamodbTable.grantReadData(authorizerLambdaV2);
+
+    const authorizerV2 = new aws_apigatewayv2_authorizers.HttpLambdaAuthorizer(
+      `${STACK_NAME}-HttpLambdaAuthorizerV2`,
+      authorizerLambdaV2,
       {
         responseTypes: [aws_apigatewayv2_authorizers.HttpLambdaResponseType.IAM],
         resultsCacheTtl: Duration.seconds(0),
@@ -256,7 +356,7 @@ export class BudgetApiStack extends Stack {
           allowCredentials: false,
           allowOrigins: ALLOWED_ORIGINS,
         },
-        defaultAuthorizer: authorizer,
+        defaultAuthorizer: authorizerV1,
         description: 'Rest API for the Budget application',
         defaultDomainMapping: { domainName },
       }
@@ -293,112 +393,261 @@ export class BudgetApiStack extends Stack {
     createLambdaAndRoute(
       'GetAuth',
       'getHandler',
-      'src/v1/handlers/auth/login/item.ts',
-      '/v1/auth/login',
+      'v1',
+      '/handlers/auth/login/item.ts',
+      '/auth/login',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetAuth',
+      'getHandler',
+      'v2',
+      '/handlers/auth/login/item.ts',
+      '/auth/login',
       [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
       'GetMigrations',
       'getHandler',
-      'src/v1/handlers/db/migrations/item.ts',
-      '/v1/db/migrations',
+      'v1',
+      '/handlers/db/migrations/item.ts',
+      '/db/migrations',
       [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
       'GetSeeds',
       'getHandler',
-      'src/v1/handlers/db/seeds/item.ts',
-      '/v1/db/seeds',
+      'v1',
+      '/handlers/db/seeds/item.ts',
+      '/db/seeds',
       [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
       'GetDbDescription',
       'getHandler',
-      'src/v1/handlers/db/describe/item.ts',
-      '/v1/db/describe',
+      'v1',
+      '/handlers/db/describe/item.ts',
+      '/db/describe',
       [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
       'GetBudgetItemsForYear',
       'getHandler',
-      'src/v1/handlers/budgets/items.ts',
-      '/v1/budgets/{budgetGuid}/items',
+      'v1',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items',
       [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetBudgetItemsForYear',
+      'getHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'CountBudgetItemsForYear',
+      'countHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/count',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetStartingBalanceForYear',
+      'startingBalanceHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/starting-balance',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetStatsForYear',
+      'getHandler',
+      'v2',
+      '/handlers/budgets/stats.ts',
+      '/budgets/{budgetGuid}/stats',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'UpdateStatsForYear',
+      'putHandler',
+      'v2',
+      '/handlers/budgets/stats.ts',
+      '/budgets/{budgetGuid}/stats',
+      [ aws_apigatewayv2.HttpMethod.PUT ]
     );
 
     createLambdaAndRoute(
       'CopyBudgetItemsToYear',
       'postHandler',
-      'src/v1/handlers/budgets/items.ts',
-      '/v1/budgets/{budgetGuid}/items/copy',
+      'v1',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/copy',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
+      'CopyBudgetItemsToYear',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/copy',
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
       'DeleteBudgetItemsFromYear',
       'deleteHandler',
-      'src/v1/handlers/budgets/items.ts',
-      '/v1/budgets/{budgetGuid}/items/delete',
+      'v1',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/delete',
+      [ aws_apigatewayv2.HttpMethod.DELETE ]
+    );
+
+    createLambdaAndRoute(
+      'DeleteBudgetItemsFromYear',
+      'deleteHandler',
+      'v2',
+      '/handlers/budgets/items.ts',
+      '/budgets/{budgetGuid}/items/delete',
       [ aws_apigatewayv2.HttpMethod.DELETE ]
     );
 
     createLambdaAndRoute(
       'CreateBudgetItem',
       'postHandler',
-      'src/v1/handlers/budgets/item.ts',
-      '/v1/budgets/{budgetGuid}/items',
+      'v1',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
+      'CreateBudgetItem',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items',
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
       'UpdateBudgetItem',
       'putHandler',
-      'src/v1/handlers/budgets/item.ts',
-      '/v1/budgets/{budgetGuid}/items/{itemGuid}',
+      'v1',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items/{itemGuid}',
+      [ aws_apigatewayv2.HttpMethod.PUT ]
+    );
+
+    createLambdaAndRoute(
+      'UpdateBudgetItem',
+      'putHandler',
+      'v2',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items/{itemGuid}',
       [ aws_apigatewayv2.HttpMethod.PUT ]
     );
 
     createLambdaAndRoute(
       'DeleteBudgetItem',
       'deleteHandler',
-      'src/v1/handlers/budgets/item.ts',
-      '/v1/budgets/{budgetGuid}/items/{itemGuid}',
+      'v1',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items/{itemGuid}',
+      [ aws_apigatewayv2.HttpMethod.DELETE ]
+    );
+
+    createLambdaAndRoute(
+      'DeleteBudgetItem',
+      'deleteHandler',
+      'v2',
+      '/handlers/budgets/item.ts',
+      '/budgets/{budgetGuid}/items/{itemGuid}',
       [ aws_apigatewayv2.HttpMethod.DELETE ]
     );
 
     createLambdaAndRoute(
       'GetCategories',
       'getHandler',
-      'src/v1/handlers/budgets/categories.ts',
-      '/v1/budgets/{budgetGuid}/categories',
+      'v1',
+      '/handlers/budgets/categories.ts',
+      '/budgets/{budgetGuid}/categories',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetCategories',
+      'getHandler',
+      'v2',
+      '/handlers/budgets/categories.ts',
+      '/budgets/{budgetGuid}/categories',
       [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
       'CreateCategory',
       'postHandler',
-      'src/v1/handlers/budgets/category.ts',
-      '/v1/budgets/{budgetGuid}/categories',
+      'v1',
+      '/handlers/budgets/category.ts',
+      '/budgets/{budgetGuid}/categories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
+      'CreateCategory',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/category.ts',
+      '/budgets/{budgetGuid}/categories',
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
       'GetSubcategories',
       'getHandler',
-      'src/v1/handlers/budgets/subcategories.ts',
-      '/v1/budgets/{budgetGuid}/subcategories',
+      'v1',
+      '/handlers/budgets/subcategories.ts',
+      '/budgets/{budgetGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetSubcategories',
+      'getHandler',
+      'v2',
+      '/handlers/budgets/subcategories.ts',
+      '/budgets/{budgetGuid}/subcategories',
       [ aws_apigatewayv2.HttpMethod.GET ]
     );
 
     createLambdaAndRoute(
       'CreateSubcategory',
       'postHandler',
-      'src/v1/handlers/budgets/subcategory.ts',
-      '/v1/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
+      'v1',
+      '/handlers/budgets/subcategory.ts',
+      '/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
+      'CreateSubcategory',
+      'postHandler',
+      'v2',
+      '/handlers/budgets/subcategory.ts',
+      '/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
   }

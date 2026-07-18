@@ -1,6 +1,29 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { createBudgetItem, softDeleteBudgetItem, updateBudgetItem } from '../../../managers/postgres';
+import { createBudgetItem, getBudgetItemsByYear, softDeleteBudgetItem, updateBudgetItem } from '../../../managers/dynamodb';
 import { ItemRecord } from '../../../types';
+
+export const getHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+  console.log(`Event: ${JSON.stringify(event, null, 2)}`);
+
+  const budgetGuid = event.pathParameters?.budgetGuid || '';
+  const year = event.queryStringParameters?.year || '';
+
+  try {
+    const items = await getBudgetItemsByYear(budgetGuid, year);
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({items}),
+    };
+  } catch (err) {
+    console.error(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({err}),
+    };
+  }
+};
 
 export const postHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);

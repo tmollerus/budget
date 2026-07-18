@@ -5,6 +5,7 @@ interface Props {
   message?: string;
   size?: number;
   hide?: boolean;
+  empty?: boolean;
 }
 
 export const Loader = (props: Props) => {
@@ -16,7 +17,7 @@ export const Loader = (props: Props) => {
 
   return (
     <div className={classList.join(' ')}>
-      <Spinner size={props.size || 42} data-testid="spinner" />
+      {!props.empty && <Spinner size={props.size || 42} data-testid="spinner" />}
       {props.message && (
         <span className={classes.message} data-testid="loadingMessage">
           {props.message}...

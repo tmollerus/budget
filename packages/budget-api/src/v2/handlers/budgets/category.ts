@@ -1,5 +1,5 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { createCategoryRecord, deleteCategory } from '../../../managers/postgres';
+import { createCategoryRecord, deleteCategory } from '../../../managers/dynamodb';
 import { CategoryRecord } from '../../../types';
 
 export const postHandler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {

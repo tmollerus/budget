@@ -111,12 +111,12 @@ describe('Ledger functions', () => {
 
   test('updateItemBalances', () => {
     let withUpdatedBalances = Object.assign({}, ledgerData);
-    let expectedBalance = Number(withUpdatedBalances.items[0].starting_balance);
+    let expectedBalance = 1000;
     expect(withUpdatedBalances.items[0].balance).not.toBeDefined();
     expect(withUpdatedBalances.items[1].balance).not.toBeDefined();
     expect(withUpdatedBalances.items[2].balance).not.toBeDefined();
 
-    withUpdatedBalances.items = updateItemBalances(ledgerData);
+    withUpdatedBalances.items = updateItemBalances(ledgerData, 1000);
     expect(withUpdatedBalances.items[0].balance).toBeDefined();
     expect(withUpdatedBalances.items[1].balance).toBeDefined();
     expect(withUpdatedBalances.items[2].balance).toBeDefined();
@@ -139,7 +139,7 @@ describe('Ledger functions', () => {
       settledDate: setToUTC(newSettledDate.toISOString()),
       paid: !!previousLedgerData.items[0].paid,
     }
-    let updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem);
+    let updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem, 1000);
     expect(updatedLedgerData.items[0].guid).toBe(previousLedgerData.items[0].guid);
     expect(updatedLedgerData.items[0].type_id).toBe(previousLedgerData.items[0].type_id);
     expect(updatedLedgerData.items[0].amount).toBe(previousLedgerData.items[0].amount);
@@ -148,7 +148,7 @@ describe('Ledger functions', () => {
     expect(updatedLedgerData.items[0].paid).toBe(previousLedgerData.items[0].paid);
     
     updatedItem.guid = previousLedgerData.items[0].guid;
-    updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem);
+    updatedLedgerData = updateLedgerDataItem(previousLedgerData, updatedItem, 1000);
     expect(updatedLedgerData.items[0].guid).toBe(previousLedgerData.items[0].guid);
     expect(updatedLedgerData.items[0].type_id).toBe(previousLedgerData.items[0].type_id + 1);
     expect(updatedLedgerData.items[0].amount).toBe(previousLedgerData.items[0].amount + 1.99);

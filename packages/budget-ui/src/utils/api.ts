@@ -1,9 +1,9 @@
 import { APP } from '../constants/app';
-import { BudgetAuthResponse, LedgerData } from '../types';
+import { BudgetAuthResponse } from '../types';
 import { getAuthorization } from './session';
 
 export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/auth/login`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/auth/login`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -16,8 +16,8 @@ export const getBudgetGuid = async (): Promise<BudgetAuthResponse> => {
   });
 };
 
-export const getBudget = async (budgetGuid: string, year: string): Promise<LedgerData> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}?year=${year}`, {
+export const getBudgetItems = async (budgetGuid: string, year: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -25,6 +25,9 @@ export const getBudget = async (budgetGuid: string, year: string): Promise<Ledge
   })
   .then((response) => response.json())
   .then((data) => {
+    // if (year === '2026') {
+    //   Promise.all(data.items.map((item: any) => { return createEntry(budgetGuid, item); }));
+    // }
     return data;
   })
   .catch((err) => {
@@ -32,8 +35,8 @@ export const getBudget = async (budgetGuid: string, year: string): Promise<Ledge
   });
 };
 
-export const getBudgetItems = async (budgetGuid: string, year: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items?year=${year}`, {
+export const getBudgetStatsForYear = async (budgetGuid: string, year: string) => {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/stats?year=${year}`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -49,7 +52,7 @@ export const getBudgetItems = async (budgetGuid: string, year: string) => {
 };
 
 export const createEntry = async (budgetGuid: string, entry: any) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items`, {
     method: 'POST',
     body: JSON.stringify(Object.assign(entry, {budget_guid: budgetGuid})),
     headers: {
@@ -67,7 +70,7 @@ export const createEntry = async (budgetGuid: string, entry: any) => {
 
 export const updateEntry = async (budgetGuid: string, entry: any) => {
   const entryWithoutNulls = Object.fromEntries(Object.entries(entry).filter(([_, v]) => v != null));
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/${entry.guid}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items/${entry.guid}`, {
     method: 'PUT',
     body: JSON.stringify(entryWithoutNulls),
     headers: {
@@ -84,7 +87,7 @@ export const updateEntry = async (budgetGuid: string, entry: any) => {
 };
 
 export const deleteEntry = async (budgetGuid: string, itemGuid: string): Promise<boolean> => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/${itemGuid}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items/${itemGuid}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -99,7 +102,7 @@ export const deleteEntry = async (budgetGuid: string, itemGuid: string): Promise
 };
 
 export const copyYear = async (budgetGuid: string, sourceYear: number, destinationYear: number) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/copy?from=${sourceYear}&to=${destinationYear}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items/copy?from=${sourceYear}&to=${destinationYear}`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -114,7 +117,7 @@ export const copyYear = async (budgetGuid: string, sourceYear: number, destinati
 };
 
 export const deleteYear = async (budgetGuid: string, sourceYear: number) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/items/delete?from=${sourceYear}`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/items/delete?from=${sourceYear}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -129,7 +132,7 @@ export const deleteYear = async (budgetGuid: string, sourceYear: number) => {
 };
 
 export const getBudgetCategories = async (budgetGuid: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/categories`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -146,7 +149,7 @@ export const getBudgetCategories = async (budgetGuid: string) => {
 };
 
 export const createCategoryRecord = async (budgetGuid: string, category: any) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/categories`, {
     method: 'POST',
     body: JSON.stringify(Object.assign(category, {budget_guid: budgetGuid})),
     headers: {
@@ -163,7 +166,7 @@ export const createCategoryRecord = async (budgetGuid: string, category: any) =>
 };
 
 export const getBudgetSubcategories = async (budgetGuid: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/subcategories`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/subcategories`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${getAuthorization()}`,
@@ -180,7 +183,7 @@ export const getBudgetSubcategories = async (budgetGuid: string) => {
 };
 
 export const createSubcategoryRecord = async (budgetGuid: string, subcategory: any, categoryGuid: string) => {
-  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v1/budgets/${budgetGuid}/categories/${categoryGuid}/subcategories`, {
+  return fetch(`${process.env.REACT_APP_API_HOST || APP.HOSTS.API}/v2/budgets/${budgetGuid}/categories/${categoryGuid}/subcategories`, {
     method: 'POST',
     body: JSON.stringify(Object.assign(subcategory, {budget_guid: budgetGuid})),
     headers: {
