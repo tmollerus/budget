@@ -11,9 +11,12 @@ import {
   aws_certificatemanager,
   aws_dynamodb,
   aws_ec2,
+  aws_events,
+  aws_events_targets,
   aws_iam,
   aws_logs,
   aws_rds,
+  aws_secretsmanager,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -63,22 +66,34 @@ export class BudgetApiStack extends Stack {
         },
         environment: {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
+          DATABASE_URL: dbProxy.endpoint,
           DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
           DYNAMODB_INDEX_NAME: dynamodbTableUsersIndex,
         },
       };
+      if (version === 'v1') {
+        props = Object.assign(props, {
+          vpc,
+          vpcSubnets: vpc.selectSubnets({
+            subnetType: SUBNET_TYPE,
+          }),
+          securityGroups: [lambdaSecurityGroup],
+        });
+      }
 
       const lambda: aws_lambda.IFunction = new NodejsFunction(
         this,
-        `${STACK_NAME}-${lambdaName}Lambda-${version}`,
+        `${STACK_NAME}-${lambdaName}Lambda${version === 'v1' ? '' : `-${version}`}`,
         {
           ...props,
         }
       );
 
-      dynamodbTable.grantReadWriteData(lambda);
+      if (version === 'v2') {
+        dynamodbTable.grantReadWriteData(lambda);
+      }
 
-      // secret.grantRead(lambda);
+      secret.grantRead(lambda);
       const integration = new aws_apigatewayv2_integrations.HttpLambdaIntegration(
         `${STACK_NAME}-${lambdaName}Integration`,
         lambda
@@ -88,6 +103,7 @@ export class BudgetApiStack extends Stack {
         path: `/${version}${route}`,
         methods: httpMethods,
         integration: integration,
+        authorizer: version === 'v2' ? authorizerV2 : authorizerV1,
       });
 
       lambda.role?.addManagedPolicy(
@@ -117,6 +133,28 @@ export class BudgetApiStack extends Stack {
         ],
       }
     );
+
+    const dbSecurityGroup = new aws_ec2.SecurityGroup(
+      this,
+      `${STACK_NAME}-dbSecurityGroup`,
+      {
+        vpc,
+      }
+    );
+
+    const lambdaSecurityGroup = new aws_ec2.SecurityGroup(
+      this,
+      `${STACK_NAME}-lambdaSecurityGroup`,
+      {
+        vpc,
+      }
+    );
+
+    dbSecurityGroup.addIngressRule(
+      lambdaSecurityGroup,
+      aws_ec2.Port.tcp(5432),
+      'Allow lambdas to access budget postgres database'
+    );
     
     const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
     const db = new aws_rds.DatabaseInstance(
@@ -131,7 +169,11 @@ export class BudgetApiStack extends Stack {
           aws_ec2.InstanceSize.MICRO
         ),
         vpc,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SUBNET_TYPE,
+        }),
         databaseName,
+        securityGroups: [dbSecurityGroup],
         credentials: aws_rds.Credentials.fromGeneratedSecret('postgres'),
         allocatedStorage: 10,
         maxAllocatedStorage: 200,
@@ -187,6 +229,51 @@ export class BudgetApiStack extends Stack {
     //   ],
     //   projectionType: aws_dynamodb.ProjectionType.ALL
     // });
+
+    const secret = new aws_secretsmanager.Secret(
+      this,
+      `${STACK_NAME}-Secret`,
+      {
+        description: `Secret for Budget API`,
+        secretName: `${STACK_NAME}-Secret`,
+      }
+    );
+
+    const proxySecurityGroup = new aws_ec2.SecurityGroup(
+      this,
+      `${STACK_NAME}-proxySecurityGroup`,
+      {
+        vpc,
+        description: 'Security group for RDS Proxy',
+      }
+    );
+
+    proxySecurityGroup.addIngressRule(
+      lambdaSecurityGroup,
+      aws_ec2.Port.tcp(5432),
+      'Allow lambdas to access RDS proxy'
+    );
+
+    dbSecurityGroup.addIngressRule(
+      proxySecurityGroup,
+      aws_ec2.Port.tcp(5432),
+      'Allow proxy to access database'
+    );
+
+    const dbProxy = new aws_rds.DatabaseProxy(
+      this,
+      'Proxy',
+      {
+        proxyTarget: aws_rds.ProxyTarget.fromInstance(db),
+        secrets: [db.secret!],
+        securityGroups: [proxySecurityGroup],
+        vpc,
+        requireTLS: false,
+        vpcSubnets: vpc.selectSubnets({
+          subnetType: SUBNET_TYPE,
+        }),
+      }
+    );
 
     const authorizerLambdaV2: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambdaV2`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
@@ -266,7 +353,7 @@ export class BudgetApiStack extends Stack {
           responseLength: '$context.responseLength',
         }),
       };
-    };
+    }
 
     createLambdaAndRoute(
       'GetAuth',
@@ -370,10 +457,28 @@ export class BudgetApiStack extends Stack {
     createLambdaAndRoute(
       'GetCategories',
       'getHandler',
+      'v1',
+      '/handlers/budgets/categories.ts',
+      '/budgets/{budgetGuid}/categories',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetCategories',
+      'getHandler',
       'v2',
       '/handlers/budgets/categories.ts',
       '/budgets/{budgetGuid}/categories',
       [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'CreateCategory',
+      'postHandler',
+      'v1',
+      '/handlers/budgets/category.ts',
+      '/budgets/{budgetGuid}/categories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
@@ -388,10 +493,28 @@ export class BudgetApiStack extends Stack {
     createLambdaAndRoute(
       'GetSubcategories',
       'getHandler',
+      'v1',
+      '/handlers/budgets/subcategories.ts',
+      '/budgets/{budgetGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'GetSubcategories',
+      'getHandler',
       'v2',
       '/handlers/budgets/subcategories.ts',
       '/budgets/{budgetGuid}/subcategories',
       [ aws_apigatewayv2.HttpMethod.GET ]
+    );
+
+    createLambdaAndRoute(
+      'CreateSubcategory',
+      'postHandler',
+      'v1',
+      '/handlers/budgets/subcategory.ts',
+      '/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
     createLambdaAndRoute(
