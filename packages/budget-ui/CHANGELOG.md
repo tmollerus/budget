@@ -1,3 +1,10 @@
+# [budget-ui-v3.29.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.28.0...budget-ui-v3.29.0) (2026-07-18)
+
+
+### Features
+
+* added v2 APIs, switched to dynamodb from postgres ([#114](https://github.com/tmollerus/budget/issues/114)) ([0f43d44](https://github.com/tmollerus/budget/commit/0f43d44404c8d201613c9fdbce41e1d18982c7e9))
+
 # [budget-ui-v3.28.0](https://github.com/tmollerus/budget/compare/budget-ui-v3.27.0...budget-ui-v3.28.0) (2026-06-30)
 
 
