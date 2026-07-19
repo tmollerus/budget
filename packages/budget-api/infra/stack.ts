@@ -10,11 +10,8 @@ import {
   aws_apigatewayv2_integrations,
   aws_certificatemanager,
   aws_dynamodb,
-  aws_ec2,
   aws_iam,
   aws_logs,
-  aws_rds,
-  aws_secretsmanager,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -41,7 +38,6 @@ export class BudgetApiStack extends Stack {
     const STACK_NAME = `${process.env.ENV_NAME}-${id}`;
     const ALLOWED_ORIGINS = getAllowedOrigins(process.env.CORS_DOMAINS, LOCAL_DOMAIN);
     const CERT_ARN = 'arn:aws:acm:us-east-1:360115878429:certificate/6432f08a-5ab8-442b-be1c-6ceaabe27f0a';
-    const SUBNET_TYPE = aws_ec2.SubnetType.PRIVATE_WITH_NAT;
 
     const createLambdaAndRoute = (
       lambdaName: string,
@@ -71,12 +67,8 @@ export class BudgetApiStack extends Stack {
           ...props,
         }
       );
+      dynamodbTable.grantReadWriteData(lambda);
 
-      if (version === 'v2') {
-        dynamodbTable.grantReadWriteData(lambda);
-      }
-
-      secret.grantRead(lambda);
       const integration = new aws_apigatewayv2_integrations.HttpLambdaIntegration(
         `${STACK_NAME}-${lambdaName}Integration`,
         lambda
@@ -95,51 +87,6 @@ export class BudgetApiStack extends Stack {
         ),
       );
     };
-
-    const vpc = new aws_ec2.Vpc(
-      this,
-      `${STACK_NAME}-Vpc`,
-      {
-        maxAzs: 2,
-        natGateways: 1,
-        subnetConfiguration: [
-          {
-            cidrMask: 24,
-            name: `${STACK_NAME}-Vpc-Subnet-PWN`,
-            subnetType: aws_ec2.SubnetType.PRIVATE_WITH_NAT,
-          },
-          {
-            cidrMask: 24,
-            name: `${STACK_NAME}-Vpc-Subnet-PUB`,
-            subnetType: aws_ec2.SubnetType.PUBLIC,
-          },
-        ],
-      }
-    );
-    
-    const databaseName = (`${process.env.ENV_NAME}${id.replace('-', '')}db`);
-    const db = new aws_rds.DatabaseInstance(
-      this,
-      `${STACK_NAME}-Database`,
-      {
-        engine: aws_rds.DatabaseInstanceEngine.postgres({
-          version: aws_rds.PostgresEngineVersion.VER_14_20,
-        }),
-        instanceType: aws_ec2.InstanceType.of(
-          aws_ec2.InstanceClass.BURSTABLE3,
-          aws_ec2.InstanceSize.MICRO
-        ),
-        vpc,
-        vpcSubnets: vpc.selectSubnets({
-          subnetType: SUBNET_TYPE,
-        }),
-        databaseName,
-        credentials: aws_rds.Credentials.fromGeneratedSecret('postgres'),
-        allocatedStorage: 10,
-        maxAllocatedStorage: 200,
-        allowMajorVersionUpgrade: true,
-      }
-    );
 
     const dynamodbTable = new aws_dynamodb.TableV2(
       this,
@@ -168,45 +115,6 @@ export class BudgetApiStack extends Stack {
       },
       projectionType: aws_dynamodb.ProjectionType.KEYS_ONLY,
     });
-    // const dynamodbTableItemsIndex = `${STACK_NAME}-Index-Items`;
-    // dynamodbTable.addGlobalSecondaryIndex({
-    //   indexName: dynamodbTableItemsIndex,
-    //   partitionKeys: [
-    //     {
-    //       name: 'pk',
-    //       type: aws_dynamodb.AttributeType.STRING
-    //     }
-    //   ],
-    //   sortKeys: [
-    //     {
-    //       name: 'sk',
-    //       type: aws_dynamodb.AttributeType.STRING
-    //     },
-    //     {
-    //       name: 'settledDate',
-    //       type: aws_dynamodb.AttributeType.STRING
-    //     }
-    //   ],
-    //   projectionType: aws_dynamodb.ProjectionType.ALL
-    // });
-
-    const secret = new aws_secretsmanager.Secret(
-      this,
-      `${STACK_NAME}-Secret`,
-      {
-        description: `Secret for Budget API`,
-        secretName: `${STACK_NAME}-Secret`,
-      }
-    );
-
-    const proxySecurityGroup = new aws_ec2.SecurityGroup(
-      this,
-      `${STACK_NAME}-proxySecurityGroup`,
-      {
-        vpc,
-        description: 'Security group for RDS Proxy',
-      }
-    );
 
     const authorizerLambdaV2: aws_lambda.IFunction = new NodejsFunction(this, `${STACK_NAME}-AuthorizerLambdaV2`, {
       runtime: aws_lambda.Runtime.NODEJS_24_X,
