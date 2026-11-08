@@ -104,6 +104,8 @@ jobs:
           ENV_NAME: production
           CORS_DOMAINS: https://budget.mollerus.net
           DOMAIN_NAME: budget-api.mollerus.net
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: cdk deploy --require-approval=never --no-execute
 
       - name: If change-set created, comment on PR

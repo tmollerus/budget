@@ -12,7 +12,6 @@ import {
   aws_dynamodb,
   aws_iam,
   aws_logs,
-  aws_secretsmanager,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -336,14 +335,14 @@ export class BudgetApiStack extends Stack {
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
 
-    createLambdaAndRoute(
-      'GetTokens',
-      'postHandler',
-      'v2',
-      '/handlers/auth/tokens.ts',
-      '/auth/tokens',
-      [ aws_apigatewayv2.HttpMethod.POST ]
-    );
+    // createLambdaAndRoute(
+    //   'GetTokens',
+    //   'postHandler',
+    //   'v2',
+    //   '/handlers/auth/tokens.ts',
+    //   '/auth/tokens',
+    //   [ aws_apigatewayv2.HttpMethod.POST ]
+    // );
   }
 }
 
