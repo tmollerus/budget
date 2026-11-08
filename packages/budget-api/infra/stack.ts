@@ -12,6 +12,7 @@ import {
   aws_dynamodb,
   aws_iam,
   aws_logs,
+  aws_secretsmanager,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -25,7 +26,9 @@ import path = require('path');
 [
   'ENV_NAME',
   'CORS_DOMAINS',
-  'DOMAIN_NAME'
+  'DOMAIN_NAME',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
 ].forEach((envVar) => {
   if (!process.env[envVar]) {
     throw new Error(`process.env.${envVar} must be defined, variable ${envVar} currently set to ${process.env[envVar]}`);
@@ -57,6 +60,8 @@ export class BudgetApiStack extends Stack {
           ALLOWED_ORIGINS: ALLOWED_ORIGINS.join(','),
           DYNAMODB_TABLE_NAME: dynamodbTable.tableName,
           DYNAMODB_INDEX_NAME: dynamodbTableUsersIndex,
+          GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '',
+          GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET || '',
         },
       };
 
@@ -328,6 +333,15 @@ export class BudgetApiStack extends Stack {
       'v2',
       '/handlers/budgets/subcategory.ts',
       '/budgets/{budgetGuid}/categories/{categoryGuid}/subcategories',
+      [ aws_apigatewayv2.HttpMethod.POST ]
+    );
+
+    createLambdaAndRoute(
+      'GetTokens',
+      'postHandler',
+      'v2',
+      '/handlers/auth/tokens.ts',
+      '/auth/tokens',
       [ aws_apigatewayv2.HttpMethod.POST ]
     );
   }

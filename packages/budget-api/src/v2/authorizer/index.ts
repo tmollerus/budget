@@ -1,5 +1,6 @@
 import { Context, APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult } from 'aws-lambda';
 import { getOktaUser } from '../../managers/okta';
+import { verifyGoogleToken } from '../../managers/google';
 import { getBudgetByEmail } from '../../managers/dynamodb';
 import { BudgetRecord, Effect, OktaUser } from '../../types';
 import { getPolicyResponse } from '../../utils/authorizer';
@@ -24,26 +25,31 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: 
       throw new Error('Missing auth token!');
     }
 
-    if (memoryCache[authorizationToken]) {
-      return getPolicyResponse('user', Effect.ALLOW, event.methodArn, {
-        user: JSON.stringify(memoryCache[authorizationToken].user) || '',
-        budgetGuid: memoryCache[authorizationToken].budgetGuid || '',
-      });
-    }
+    // if (memoryCache[authorizationToken]) {
+    //   return getPolicyResponse('user', Effect.ALLOW, event.methodArn, {
+    //     user: JSON.stringify(memoryCache[authorizationToken].user) || '',
+    //     budgetGuid: memoryCache[authorizationToken].budgetGuid || '',
+    //   });
+    // }
 
     elapsedTime = logElapsedTime('About to get Okta user', startTime);
     user = await getOktaUser(authorizationToken);
     elapsedTime = logElapsedTime('Got Okta user', elapsedTime);
+    if (!user?.active) {
+      elapsedTime = logElapsedTime('Okta user not valid, about to get Google user', elapsedTime);
+      user = await verifyGoogleToken(authorizationToken);
+      elapsedTime = logElapsedTime('Got Google user', elapsedTime);
+    }
 
     elapsedTime = logElapsedTime('About to retrieve budget', elapsedTime);
     budget = await getBudgetByEmail(user.username!);
     elapsedTime = logElapsedTime('Retrieved budget', elapsedTime);
 
     if (budget?.guid) {
-      memoryCache[authorizationToken] = {
-        user,
-        budgetGuid: budget.guid,
-      };
+      // memoryCache[authorizationToken] = {
+      //   user,
+      //   budgetGuid: budget.guid,
+      // };
       return getPolicyResponse('user', Effect.ALLOW, event.methodArn, {
         user: JSON.stringify(user) || '',
         budgetGuid: budget.guid || '',
