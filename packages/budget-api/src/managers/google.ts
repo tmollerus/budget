@@ -27,6 +27,20 @@ export const getGoogleUser = async (accessToken: string): Promise<GoogleUser> =>
   return user;
 };
 
+export async function getGoogleTokens(code: string): Promise<{ access_token: string; expires_in: number; refresh_token: string; scope: string; token_type: string; id_token: string }> {
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, 'postmessage');
+  const { tokens } = await client.getToken(code);
+  console.log('Got tokens:', tokens);
+  return {
+    access_token: tokens.access_token || '',
+    expires_in: tokens.expiry_date || 0,
+    refresh_token: tokens.refresh_token || '',
+    scope: tokens.scope || '',
+    token_type: tokens.token_type || '',
+    id_token: tokens.id_token || '',
+  };
+};
+
 export async function verifyGoogleToken(idToken: string): Promise<{ googleId: string; username: string; name: string; picture: string; active: boolean }> {
   try {
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

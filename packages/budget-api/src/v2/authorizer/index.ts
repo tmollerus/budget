@@ -1,6 +1,6 @@
 import { Context, APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult } from 'aws-lambda';
 import { getOktaUser } from '../../managers/okta';
-import { verifyGoogleToken } from '../../managers/google';
+import { getGoogleTokens } from '../../managers/google';
 import { getBudgetByEmail } from '../../managers/dynamodb';
 import { BudgetRecord, Effect, OktaUser } from '../../types';
 import { getPolicyResponse } from '../../utils/authorizer';
@@ -37,7 +37,11 @@ export const handler = async (event: APIGatewayRequestAuthorizerEvent, context: 
     elapsedTime = logElapsedTime('Got Okta user', elapsedTime);
     if (!user?.active) {
       elapsedTime = logElapsedTime('Okta user not valid, about to get Google user', elapsedTime);
-      user = await verifyGoogleToken(authorizationToken);
+      const tokens = await getGoogleTokens(authorizationToken);
+      user = {
+        username: tokens.id_token,
+        active: true,
+      };
       elapsedTime = logElapsedTime('Got Google user', elapsedTime);
     }
 
