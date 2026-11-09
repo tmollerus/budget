@@ -54,6 +54,17 @@ export interface OktaUser {
   uid?: string;
 }
 
+export interface GoogleUser {
+  authuser: boolean;
+  code: string;
+  gis_params: string;
+  hd: number;
+  iss: string;
+  oauth_metadata: string;
+  prompt: string;
+  scope: string;
+}
+
 export interface QueryResult<RecordType> {
   command: string;
   rowCount: number;
